@@ -52,5 +52,5 @@ Herhangi bir kurulum gerekmez.
    git clone https://github.com/Wolynx/volktron-enigma-chat.git
 
 Benim sitem üzerinden katılmak için:
-```bash   
-https://wolynx.github.io/Volktron-Enigma-Chat/
+   ```bash   
+   https://wolynx.github.io/Volktron-Enigma-Chat/
