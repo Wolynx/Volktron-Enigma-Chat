@@ -1,22 +1,20 @@
-// ================= FIREBASE =================
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+// 🔥 Firebase CDN
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
+// 🔧 Firebase config (BURAYI KENDİ PROJENDEN ALDIN)
 const firebaseConfig = {
-  apiKey: "BURAYA_WEB_API_KEY",
-  authDomain: "volktron-chat.firebaseapp.com",
-  databaseURL: "https://volktron-chat-default-rtdb.firebaseio.com",
-  projectId: "volktron-chat"
+  databaseURL: "https://volktron-chat-default-rtdb.firebaseio.com/"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// ================= ORİJİNAL KODUN =================
 let USER="", ROOM="";
 const encSel=new Set(), decSel=new Set();
 
-window.enterRoom = function(){
+// UI
+window.enterRoom = () => {
   USER=username.value.trim();
   ROOM=room.value.trim();
   if(!USER||!ROOM) return alert("Kullanıcı adı ve oda gerekli");
@@ -24,15 +22,19 @@ window.enterRoom = function(){
   roomName.textContent=ROOM;
   login.classList.add("hidden");
   chat.classList.remove("hidden");
-  listenMessages();
-}
 
-window.changeRoom = function(){
-  chat.classList.add("hidden");
-  login.classList.remove("hidden");
-  room.value="";
-}
+  const roomRef = ref(db, "rooms/"+ROOM);
+  onChildAdded(roomRef, snap=>{
+    const m=snap.val();
+    log.innerHTML+=`<div><b>${m.user}:</b> ${m.text}</div>`;
+  });
+};
 
+window.changeRoom = () => {
+  location.reload();
+};
+
+// Katman butonları
 function makeLayers(el,set){
   for(let i=1;i<=10;i++){
     const d=document.createElement("div");
@@ -48,6 +50,7 @@ function makeLayers(el,set){
 makeLayers(encLayers,encSel);
 makeLayers(decLayers,decSel);
 
+// Şifreleme
 function applyLayers(t,l){
   let o=t;
   [...l].sort((a,b)=>a-b).forEach(k=>{
@@ -55,7 +58,6 @@ function applyLayers(t,l){
   });
   return o;
 }
-
 function removeLayers(t,l){
   let o=t;
   [...l].sort((a,b)=>b-a).forEach(k=>{
@@ -64,34 +66,20 @@ function removeLayers(t,l){
   return o;
 }
 
-// ================= SEND =================
-window.encrypt = function(){
-  if(!message.value)return;
-  const encrypted = applyLayers(message.value,encSel);
-
-  push(ref(db, `rooms/${ROOM}/messages`), {
-    user: USER,
-    text: encrypted,
-    time: Date.now()
+// Mesaj gönder
+window.sendMessage = () => {
+  if(!message.value) return;
+  const enc = applyLayers(message.value, encSel);
+  push(ref(db,"rooms/"+ROOM),{
+    user:USER,
+    text:enc,
+    time:Date.now()
   });
-
   message.value="";
-}
+};
 
-// ================= RECEIVE =================
-function listenMessages(){
-  onValue(ref(db, `rooms/${ROOM}/messages`), snap=>{
-    log.innerHTML="";
-    const data=snap.val();
-    if(!data)return;
-    Object.values(data).forEach(m=>{
-      log.innerHTML+=`<div><b>${m.user}:</b> ${m.text}</div>`;
-    });
-  });
-}
-
-// ================= DECRYPT =================
-window.decrypt = function(){
-  if(!cipher.value)return;
+// Çöz
+window.decrypt = () => {
+  if(!cipher.value) return;
   result.textContent="Çözüm: "+removeLayers(cipher.value,decSel);
-}
+};
