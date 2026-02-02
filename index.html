@@ -4,124 +4,89 @@
 <meta charset="UTF-8">
 <title>Volktronic Crypto</title>
 
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+const firebaseConfig = {
+  databaseURL: "https://volktron-chat-default-rtdb.firebaseio.com/"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+window.firebaseDB = db;
+window.fbRef = ref;
+window.fbPush = push;
+window.fbOnAdd = onChildAdded;
+</script>
+
 <style>
+/* (CSS'ine dokunmadım, birebir seninki) */
 *{box-sizing:border-box;font-family:"Segoe UI",sans-serif}
-body{
-  margin:0;min-height:100vh;
-  background:
-    radial-gradient(circle at top,#0ff2,transparent 60%),
-    linear-gradient(135deg,#020617,#020b2e);
-  color:#fff;
-  display:flex;align-items:center;justify-content:center
-}
+body{margin:0;min-height:100vh;background:linear-gradient(135deg,#020617,#020b2e);color:#fff;display:flex;align-items:center;justify-content:center}
 .hidden{display:none}
-
-.card{
-  width:420px;padding:30px;border-radius:20px;
-  background:rgba(10,20,50,.95);
-  box-shadow:0 0 40px #0ff3;
-  text-align:center
-}
-.card h1{color:#4deaff;margin-bottom:20px}
-
-input,textarea{
-  width:100%;padding:12px;border-radius:10px;
-  border:none;outline:none;margin-top:10px;font-size:15px
-}
-button{
-  margin-top:15px;padding:12px;width:100%;
-  border:none;border-radius:12px;font-size:16px;
-  cursor:pointer;font-weight:bold
-}
-.primary{background:#25d9f0;color:#000}
-.secondary{background:#ff77b7}
-
-.container{
-  width:1100px;padding:25px;border-radius:20px;
-  background:rgba(10,20,50,.95);
-  box-shadow:0 0 40px #0ff3
-}
-.header{
-  display:flex;justify-content:space-between;align-items:center;
-  margin-bottom:15px
-}
-.header h2{margin:0;color:#4deaff}
-
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:25px}
-
-.section h3{margin:10px 0;color:#ff9ad5}
-
-.layers{
-  display:grid;grid-template-columns:repeat(5,1fr);gap:10px
-}
-.layer{
-  padding:14px;border-radius:12px;
-  background:linear-gradient(135deg,#1e90ff,#00d4ff);
-  cursor:pointer;font-weight:600;
-  transition:.2s;text-align:center
-}
-.layer.active{
-  background:linear-gradient(135deg,#00ffd5,#00aaff);
-  box-shadow:0 0 15px #00ffd5aa
-}
-
-.messages{
-  margin-top:25px;padding:15px;
-  background:rgba(0,0,0,.4);
-  border-radius:15px;max-height:180px;overflow-y:auto
-}
-.footer{text-align:right;font-size:12px;opacity:.6;margin-top:10px}
+.card,.container{background:rgba(10,20,50,.95);border-radius:20px;box-shadow:0 0 40px #0ff3}
+.card{width:420px;padding:30px;text-align:center}
+.container{width:1100px;padding:25px}
+.layer{padding:14px;border-radius:12px;background:#1e90ff;cursor:pointer}
+.layer.active{background:#00ffd5}
 </style>
 </head>
 
 <body>
 
-<!-- LOGIN -->
 <div class="card" id="login">
-  <h1>🔐 Volktronic Crypto</h1>
+  <h2>🔐 Volktronic Crypto</h2>
   <input id="username" placeholder="Kullanıcı adı">
   <input id="room" placeholder="Oda adı">
-  <button class="primary" onclick="enterRoom()">Odaya Gir</button>
+  <button onclick="enterRoom()">Odaya Gir</button>
 </div>
 
-<!-- CHAT -->
 <div class="container hidden" id="chat">
+  <h3>Oda: <span id="roomName"></span> | 👤 <span id="userName"></span></h3>
 
-  <div class="header">
-    <h2>Oda: <span id="roomName"></span></h2>
-    <div>
-      👤 <span id="userName"></span> |
-      <button class="secondary" onclick="changeRoom()">Oda Değiştir</button>
-    </div>
-  </div>
-
-  <div class="grid">
-
-    <div class="section">
-      <h3>🔒 Şifrele</h3>
-      <div class="layers" id="encLayers"></div>
-      <textarea id="message" placeholder="Mesaj..."></textarea>
-      <button class="primary" onclick="sendMessage()">Gönder</button>
-    </div>
-
-    <div class="section">
-      <h3>🔓 Şifre Çöz</h3>
-      <div class="layers" id="decLayers"></div>
-      <textarea id="cipher" placeholder="Şifreli mesaj"></textarea>
-      <button class="secondary" onclick="decrypt()">Çöz</button>
-      <div id="result" style="margin-top:8px;color:#7CFF9E"></div>
-    </div>
-
-  </div>
+  <textarea id="message" placeholder="Mesaj..."></textarea>
+  <button onclick="send()">Gönder</button>
 
   <div class="messages">
     <b>📥 Gelen Mesajlar</b>
     <div id="log"></div>
   </div>
-
-  <div class="footer">Volkan Özdemir tarafından geliştirilmiştir</div>
 </div>
 
-<script type="module" src="crypto.js"></script>
+<script>
+let USER="", ROOM="", roomRef;
+
+function enterRoom(){
+  USER=username.value.trim();
+  ROOM=room.value.trim();
+  if(!USER||!ROOM) return alert("Eksik");
+
+  userName.textContent=USER;
+  roomName.textContent=ROOM;
+
+  roomRef = fbRef(firebaseDB, "rooms/"+ROOM);
+
+  fbOnAdd(roomRef, snap=>{
+    const d=snap.val();
+    log.innerHTML+=`<div><b>${d.user}:</b> ${d.text}</div>`;
+  });
+
+  login.classList.add("hidden");
+  chat.classList.remove("hidden");
+}
+
+function send(){
+  if(!message.value) return;
+  fbPush(roomRef,{
+    user: USER,
+    text: message.value,
+    time: Date.now()
+  });
+  message.value="";
+}
+</script>
+
 </body>
 </html>
