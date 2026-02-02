@@ -101,7 +101,7 @@ button{
       <h3>🔒 Şifrele</h3>
       <div class="layers" id="encLayers"></div>
       <textarea id="message" placeholder="Mesaj..."></textarea>
-      <button class="primary" onclick="encrypt()">Gönder</button>
+      <button class="primary" onclick="sendMessage()">Gönder</button>
     </div>
 
     <div class="section">
@@ -122,67 +122,6 @@ button{
   <div class="footer">Volkan Özdemir tarafından geliştirilmiştir</div>
 </div>
 
-<script>
-let USER="", ROOM="";
-const encSel=new Set(), decSel=new Set();
-
-function enterRoom(){
-  USER=username.value.trim();
-  ROOM=room.value.trim();
-  if(!USER||!ROOM) return alert("Kullanıcı adı ve oda gerekli");
-  userName.textContent=USER;
-  roomName.textContent=ROOM;
-  login.classList.add("hidden");
-  chat.classList.remove("hidden");
-}
-
-function changeRoom(){
-  chat.classList.add("hidden");
-  login.classList.remove("hidden");
-  room.value="";
-}
-
-function makeLayers(el,set){
-  for(let i=1;i<=10;i++){
-    const d=document.createElement("div");
-    d.className="layer";
-    d.textContent="Katman "+i;
-    d.onclick=()=>{
-      set.has(i)?set.delete(i):set.add(i);
-      d.classList.toggle("active");
-    };
-    el.appendChild(d);
-  }
-}
-makeLayers(encLayers,encSel);
-makeLayers(decLayers,decSel);
-
-function applyLayers(t,l){
-  let o=t;
-  [...l].sort((a,b)=>a-b).forEach(k=>{
-    o=[...o].map(c=>String.fromCharCode(c.charCodeAt(0)+k)).join("");
-  });
-  return o;
-}
-function removeLayers(t,l){
-  let o=t;
-  [...l].sort((a,b)=>b-a).forEach(k=>{
-    o=[...o].map(c=>String.fromCharCode(c.charCodeAt(0)-k)).join("");
-  });
-  return o;
-}
-
-function encrypt(){
-  if(!message.value)return;
-  const e=applyLayers(message.value,encSel);
-  log.innerHTML+=`<div><b>${USER}:</b> ${e}</div>`;
-  message.value="";
-}
-function decrypt(){
-  if(!cipher.value)return;
-  result.textContent="Çözüm: "+removeLayers(cipher.value,decSel);
-}
-</script>
-
+<script type="module" src="crypto.js"></script>
 </body>
 </html>
