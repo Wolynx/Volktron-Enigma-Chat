@@ -1,85 +1,63 @@
-let USER="", ROOM="", roomRef;
-const encSel=new Set(), decSel=new Set();
-
-function enterRoom(){
-  USER=username.value.trim();
-  ROOM=room.value.trim();
-  if(!USER||!ROOM) return alert("Kullanıcı adı ve oda gerekli");
-
-  userName.textContent=USER;
-  roomName.textContent=ROOM;
-  login.classList.add("hidden");
-  chat.classList.remove("hidden");
-
-  roomRef = fbRef(db,"rooms/"+ROOM);
-
-  fbOnAdd(roomRef,snap=>{
-    const d=snap.val();
-
-    const row=document.createElement("div");
-    row.className="msg";
-
-    const text=document.createElement("span");
-    text.innerHTML=`<b>${d.user}:</b> ${d.text}`;
-
-    const copy=document.createElement("span");
-    copy.className="copy";
-    copy.textContent="📋 kopyala";
-
-    copy.onclick=()=>{
-      navigator.clipboard.writeText(d.text);
-      cipher.value=d.text;
-      cipher.focus();
-    };
-
-    row.appendChild(text);
-    row.appendChild(copy);
-    log.appendChild(row);
-  });
+function caesarEncrypt(text, shift = 3) {
+  return text.split('').map(c => {
+    if (c.match(/[a-z]/i)) {
+      const code = c.charCodeAt(0);
+      const base = code >= 65 && code <= 90 ? 65 : 97;
+      return String.fromCharCode(((code - base + shift) % 26) + base);
+    }
+    return c;
+  }).join('');
 }
 
-function changeRoom(){
-  location.reload();
+function caesarDecrypt(text, shift = 3) {
+  return caesarEncrypt(text, 26 - shift);
 }
 
-function makeLayers(el,set){
-  for(let i=1;i<=10;i++){
-    const d=document.createElement("div");
-    d.className="layer";
-    d.textContent="Katman "+i;
-    d.onclick=()=>{
-      set.has(i)?set.delete(i):set.add(i);
-      d.classList.toggle("active");
-    };
-    el.appendChild(d);
-  }
-}
-makeLayers(encLayers,encSel);
-makeLayers(decLayers,decSel);
-
-function applyLayers(t,l){
-  let o=t;
-  [...l].sort((a,b)=>a-b).forEach(k=>{
-    o=[...o].map(c=>String.fromCharCode(c.charCodeAt(0)+k)).join("");
-  });
-  return o;
-}
-function removeLayers(t,l){
-  let o=t;
-  [...l].sort((a,b)=>b-a).forEach(k=>{
-    o=[...o].map(c=>String.fromCharCode(c.charCodeAt(0)-k)).join("");
-  });
-  return o;
+function applyLayer(text, type, encrypt = true) {
+  if (type === "caesar") return encrypt ? caesarEncrypt(text) : caesarDecrypt(text);
+  if (type === "base64") return encrypt ? btoa(text) : atob(text);
+  if (type === "reverse") return text.split('').reverse().join('');
+  return text;
 }
 
-function encrypt(){
-  if(!message.value)return;
-  const e=applyLayers(message.value,encSel);
-  fbPush(roomRef,{user:USER,text:e,time:Date.now()});
-  message.value="";
+function sendEncrypted() {
+  let text = document.getElementById("plainText").value;
+  if (!text) return;
+
+  const l1 = document.getElementById("layer1").value;
+  const l2 = document.getElementById("layer2").value;
+
+  let encrypted = applyLayer(text, l1, true);
+  encrypted = applyLayer(encrypted, l2, true);
+
+  addMessage(encrypted);
+  document.getElementById("plainText").value = "";
 }
 
-function decrypt(){
-  if(!cipher.value)return;
-  result.textContent="Çözüm: "+removeLayers(cipher.value,decSel);
+function addMessage(msg) {
+  const div = document.createElement("div");
+  div.className = "message";
+  div.innerHTML = `
+    ${msg}
+    <span class="copy-btn">📋 Kopyala</span>
+  `;
+
+  div.querySelector(".copy-btn").onclick = () => {
+    navigator.clipboard.writeText(msg);
+    document.getElementById("decryptInput").value = msg;
+  };
+
+  document.getElementById("messages").prepend(div);
+}
+
+function decryptMessage() {
+  let text = document.getElementById("decryptInput").value;
+
+  const l1 = document.getElementById("dLayer1").value;
+  const l2 = document.getElementById("dLayer2").value;
+
+  let decrypted = applyLayer(text, l2, false);
+  decrypted = applyLayer(decrypted, l1, false);
+
+  document.getElementById("decryptOutput").value = decrypted;
 }
