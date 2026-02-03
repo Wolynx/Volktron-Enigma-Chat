@@ -21,6 +21,12 @@ Mesajlar gönderilmeden önce kullanıcı tarafından şifrelenir ve yalnızca a
 
 ---
 
+## 🛠️ Görseller
+<img width="1912" height="900" alt="image" src="https://github.com/user-attachments/assets/5e6a4fe8-3ac1-426d-87bf-13aaba471b0c" />
+<img width="1907" height="901" alt="image" src="https://github.com/user-attachments/assets/f50390b9-b145-4398-8e19-50d1cd4b368b" />
+
+---
+
 ## 🧠 Şifreleme Mantığı
 
 Bu projede **çok katmanlı karakter kaydırma (layer-based cipher)** mantığı kullanılır.
