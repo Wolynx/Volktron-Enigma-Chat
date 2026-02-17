@@ -22,9 +22,8 @@ Volktronic Crypto Chat, tarayıcı tabanlı **uçtan uca şifreleme (E2EE)** man
 
 ## 🛠️ Görseller
 
-*(Not: Buradaki görseller GitHub tarafından otomatik yüklenecektir)*
-<img width="1912" height="900" alt="Volktronic UI 1" src="https://github.com/user-attachments/assets/5e6a4fe8-3ac1-426d-87bf-13aaba471b0c" />
-<img width="1907" height="901" alt="Volktronic UI 2" src="https://github.com/user-attachments/assets/f50390b9-b145-4398-8e19-50d1cd4b368b" />
+<img width="1919" height="868" alt="image" src="https://github.com/user-attachments/assets/d130f4c2-44c6-4df6-9749-def0f2255cb8" />
+<img width="1919" height="861" alt="image" src="https://github.com/user-attachments/assets/5309bb33-cf42-4777-9ba8-b57fb2a85b7e" />
 
 ---
 
