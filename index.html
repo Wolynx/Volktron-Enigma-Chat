@@ -2,289 +2,89 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Volktronic Crypto</title>
 
 <script type="module">
-import { genKeys, pub, importPub, derive, encAES, decAES } from "./crypto-e2ee.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-let USER="", ROOM="", roomRef;
-let myKeys, sharedKey;
-const encSel=new Set(), decSel=new Set();
+const firebaseConfig = {
+  apiKey: "BURAYA_API_KEY",
+  authDomain: "volktron-chat.firebaseapp.com",
+  databaseURL: "https://volktron-chat-default-rtdb.firebaseio.com",
+  projectId: "volktron-chat",
+  storageBucket: "volktron-chat.appspot.com",
+  messagingSenderId: "XXXX",
+  appId: "XXXX"
+};
 
-async function enterRoom(){
-  USER=username.value.trim();
-  ROOM=room.value.trim();
-  if(!USER||!ROOM) return alert("Bilgiler eksik");
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
 
-  userName.textContent=USER;
-  roomName.textContent=ROOM;
-  login.classList.add("hidden");
-  chat.classList.remove("hidden");
-
-  myKeys = await genKeys();
-  const myPub = await pub(myKeys.publicKey);
-
-  fbPush(fbRef(db,"keys/"+ROOM), {user:USER, key:myPub});
-
-  fbOnAdd(fbRef(db,"keys/"+ROOM), async s=>{
-    const d=s.val();
-    if(d.user!==USER && !sharedKey){
-      const other = await importPub(d.key);
-      sharedKey = await derive(myKeys.privateKey, other, encSel);
-    }
-  });
-
-  roomRef = fbRef(db,"rooms/"+ROOM);
-  fbOnAdd(roomRef,snap=>{
-    const d=snap.val();
-    const div=document.createElement("div");
-    div.className="msg "+(d.user===USER?"me":"other");
-    div.innerHTML=`<b>${d.user}</b><br>${d.text}`;
-    div.onclick=()=>cipher.value=d.text;
-    log.appendChild(div);
-  });
-}
-
-function makeLayers(el,set){
-  for(let i=1;i<=10;i++){
-    const d=document.createElement("div");
-    d.className="layer";
-    d.textContent="Katman "+i;
-    d.onclick=()=>{
-      d.classList.toggle("active");
-      d.classList.contains("active")?set.add(i):set.delete(i);
-    };
-    el.appendChild(d);
-  }
-}
-makeLayers(encLayers,encSel);
-makeLayers(decLayers,decSel);
-
-async function encrypt(){
-  if(!message.value || !sharedKey) return;
-  const c = await encAES(sharedKey, message.value);
-  fbPush(roomRef,{user:USER,text:c,time:Date.now()});
-  message.value="";
-}
-
-async function decrypt(){
-  try{
-    result.textContent="Çözüm: "+await decAES(sharedKey, cipher.value);
-  }catch{
-    result.textContent="❌ Çözülemedi (Yanlış katman / anahtar)";
-  }
-}
-
-window.enterRoom=enterRoom;
-window.encrypt=encrypt;
-window.decrypt=decrypt;
+window.db = db;
+window.ref = ref;
+window.push = push;
+window.onChildAdded = onChildAdded;
 </script>
 
-
 <style>
-*{box-sizing:border-box;font-family:"Segoe UI",sans-serif}
-body{
-  margin:0;min-height:100vh;
-  background:
-    radial-gradient(circle at top,#0ff3,transparent 60%),
-    linear-gradient(135deg,#020617,#020b2e);
-  color:#fff;
-  display:flex;align-items:center;justify-content:center
-}
+body{background:#020617;color:#fff;font-family:sans-serif}
 .hidden{display:none}
-.card,.container{
-  background:rgba(10,20,50,.92);
-  backdrop-filter:blur(10px);
-  box-shadow:0 0 40px #0ff3;
-  border-radius:20px
-}
-.card{width:420px;padding:30px;text-align:center}
-.card h1{color:#4deaff}
-input,textarea{
-  width:100%;padding:12px;border-radius:10px;
-  border:none;outline:none;margin-top:10px;font-size:15px
-}
-button{
-  margin-top:15px;padding:12px;width:100%;
-  border:none;border-radius:12px;font-size:16px;
-  cursor:pointer;font-weight:bold
-}
-.primary{background:#25d9f0;color:#000}
-.secondary{background:#ff77b7}
-.container{width:1100px;padding:25px}
-.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}
-.header h2{margin:0;color:#4deaff}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:25px}
-.section h3{color:#ff9ad5}
-
-.layers{
-  display:grid;grid-template-columns:repeat(5,1fr);
-  gap:10px;margin-bottom:10px
-}
-.layer{
-  padding:12px;border-radius:12px;
-  background:linear-gradient(135deg,#1e90ff,#00d4ff);
-  cursor:pointer;font-weight:600;
-  transition:.2s;text-align:center
-}
-.layer.active{
-  background:linear-gradient(135deg,#00ffd5,#00aaff);
-  box-shadow:0 0 15px #00ffd5aa
-}
-
-.messages{
-  margin-top:25px;padding:15px;
-  background:rgba(0,0,0,.4);
-  border-radius:15px;max-height:230px;
-  overflow-y:auto
-}
-
-.msg{
-  padding:10px 40px 10px 10px;
-  border-radius:10px;
-  margin-top:8px;
-  position:relative;
-  animation:pop .25s ease;
-  word-break:break-word
-}
-.msg.me{
-  background:linear-gradient(135deg,#00ffd5,#00aaff);
-  color:#000
-}
-.msg.other{
-  background:#020617
-}
-.copy{
-  position:absolute;
-  right:8px;top:8px;
-  font-size:12px;
-  background:#334155;
-  padding:4px 8px;
-  border-radius:8px;
-  cursor:pointer
-}
-
-@keyframes pop{
-  from{opacity:0;transform:scale(.95)}
-  to{opacity:1;transform:scale(1)}
-}
-
-.footer{text-align:right;font-size:12px;opacity:.6;margin-top:10px}
-
-@media(max-width:900px){
-  .container{width:95%}
-  .grid{grid-template-columns:1fr}
-  .layers{grid-template-columns:repeat(3,1fr)}
-}
 </style>
 </head>
 
 <body>
 
-<div class="card" id="login">
-  <h1>🔐 Volktronic Crypto</h1>
-  <input id="username" placeholder="Kullanıcı adı">
-  <input id="room" placeholder="Oda adı">
-  <button class="primary" onclick="enterRoom()">Odaya Gir</button>
+<div id="login">
+  <input id="username" placeholder="Kullanıcı">
+  <input id="room" placeholder="Oda">
+  <button onclick="enterRoom()">GİR</button>
 </div>
 
-<div class="container hidden" id="chat">
-  <div class="header">
-    <h2>Oda: <span id="roomName"></span></h2>
-    <div>👤 <span id="userName"></span></div>
-  </div>
-
-  <div class="grid">
-    <div class="section">
-      <h3>🔒 Şifrele</h3>
-      <div class="layers" id="encLayers"></div>
-      <textarea id="message" placeholder="Mesaj..."></textarea>
-      <button class="primary" onclick="encrypt()">Gönder</button>
-    </div>
-
-    <div class="section">
-      <h3>🔓 Şifre Çöz</h3>
-      <div class="layers" id="decLayers"></div>
-      <textarea id="cipher"></textarea>
-      <button class="secondary" onclick="decrypt()">Çöz</button>
-      <div id="result" style="margin-top:8px;color:#7CFF9E"></div>
-    </div>
-  </div>
-
-  <div class="messages">
-    <b>📥 Gelen Mesajlar</b>
-    <div id="log"></div>
-  </div>
-
-  <div class="footer">Volkan Özdemir</div>
+<div id="chat" class="hidden">
+  <textarea id="message"></textarea>
+  <button onclick="encrypt()">Gönder</button>
+  <div id="log"></div>
 </div>
 
 <script>
 let USER="", ROOM="", roomRef;
-const encSel=new Set(), decSel=new Set();
+const encSel = new Set([1,2]); // test için sabit
 
 function enterRoom(){
-  USER=username.value.trim();
-  ROOM=room.value.trim();
-  if(!USER||!ROOM) return alert("Bilgiler eksik");
+  USER=username.value;
+  ROOM=room.value;
+  if(!USER||!ROOM) return alert("Eksik");
 
-  userName.textContent=USER;
-  roomName.textContent=ROOM;
   login.classList.add("hidden");
   chat.classList.remove("hidden");
 
-  roomRef = fbRef(db,"rooms/"+ROOM);
+  roomRef = ref(db, "rooms/" + ROOM);
 
-  fbOnAdd(roomRef,snap=>{
-    const d=snap.val();
-    const div=document.createElement("div");
-    div.className="msg "+(d.user===USER?"me":"other");
-    const t=new Date(d.time).toLocaleTimeString();
-    div.innerHTML=`<b>${d.user}</b> <span style="opacity:.5;font-size:11px">${t}</span><br>${d.text}<span class="copy">📋</span>`;
-    div.querySelector(".copy").onclick=()=>{navigator.clipboard.writeText(d.text);cipher.value=d.text};
-    log.appendChild(div);
-    log.scrollTop=log.scrollHeight;
+  onChildAdded(roomRef, snap=>{
+    const d = snap.val();
+    log.innerHTML += `<div><b>${d.user}:</b> ${d.text}</div>`;
   });
 }
 
-function makeLayers(el,set){
-  for(let i=1;i<=10;i++){
-    const d=document.createElement("div");
-    d.className="layer";
-    d.textContent="Katman "+i;
-    d.onclick=()=>{set.has(i)?set.delete(i):set.add(i);d.classList.toggle("active")};
-    el.appendChild(d);
-  }
-}
-makeLayers(encLayers,encSel);
-makeLayers(decLayers,decSel);
-
-function applyLayers(t,l){
+function applyLayers(t){
   let o=t;
-  [...l].sort((a,b)=>a-b).forEach(k=>{
+  encSel.forEach(k=>{
     o=[...o].map(c=>String.fromCharCode(c.charCodeAt(0)+k)).join("");
-  });
-  return o;
-}
-function removeLayers(t,l){
-  let o=t;
-  [...l].sort((a,b)=>b-a).forEach(k=>{
-    o=[...o].map(c=>String.fromCharCode(c.charCodeAt(0)-k)).join("");
   });
   return o;
 }
 
 function encrypt(){
-  if(!message.value)return;
-  fbPush(roomRef,{user:USER,text:applyLayers(message.value,encSel),time:Date.now()});
+  if(!roomRef) return alert("Odaya girmedin");
+  push(roomRef,{
+    user:USER,
+    text:applyLayers(message.value),
+    time:Date.now()
+  });
   message.value="";
-}
-function decrypt(){
-  result.textContent="Çözüm: "+removeLayers(cipher.value,decSel);
 }
 </script>
 
 </body>
 </html>
-
