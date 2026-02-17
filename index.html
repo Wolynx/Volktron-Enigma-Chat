@@ -52,19 +52,30 @@
         .hidden { display: none !important; }
 
         /* =========================================
-           2. ÜST MENÜ (KILAVUZ VE DESTEK İÇİN)
+           2. ÜST MENÜ (YENİLENMİŞ ORTALI TASARIM)
            ========================================= */
         .top-nav {
-            position: fixed; top: 20px; left: 20px; z-index: 100;
-            display: flex; gap: 15px;
+            position: fixed; 
+            top: 15px; 
+            left: 50%; 
+            transform: translateX(-50%); /* Tam ortaya hizalar */
+            z-index: 100;
+            display: flex; 
+            gap: 15px;
+            background: rgba(2, 6, 23, 0.8);
+            padding: 10px 25px;
+            border-radius: 15px;
+            border: 1px solid rgba(0, 243, 255, 0.2);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
         }
         .nav-btn {
             background: rgba(0, 243, 255, 0.1); border: 1px solid var(--neon-blue);
-            color: var(--neon-blue); padding: 10px 20px; border-radius: 8px;
+            color: var(--neon-blue); padding: 8px 18px; border-radius: 8px;
             font-family: 'Orbitron'; font-size: 12px; cursor: pointer; transition: 0.3s;
             text-transform: uppercase; font-weight: bold; letter-spacing: 1px;
         }
-        .nav-btn:hover { background: var(--neon-blue); color: #000; box-shadow: 0 0 20px var(--neon-blue); }
+        .nav-btn:hover { background: var(--neon-blue); color: #000; box-shadow: 0 0 15px var(--neon-blue); }
 
         /* =========================================
            3. MODAL (AÇILIR PENCERE) STİLLERİ
@@ -102,7 +113,7 @@
         /* =========================================
            4. GİRİŞ VE SOHBET ARAYÜZÜ
            ========================================= */
-        #login { width: 450px; text-align: center; position: relative; z-index: 10; }
+        #login { width: 450px; text-align: center; position: relative; z-index: 10; margin-top: 50px; }
         h1 { font-family: 'Orbitron'; color: var(--neon-blue); text-shadow: 0 0 15px rgba(0,243,255,0.6); margin: 0 0 10px 0; font-size: 34px; letter-spacing: 2px; }
         h2 { font-family: 'Orbitron'; font-size: 20px; margin: 0; color: #fff; }
         h3 { font-family: 'Orbitron'; color: var(--neon-blue); font-size: 16px; margin-top: 0; margin-bottom: 20px; text-align: center; border-bottom: 1px solid rgba(0,243,255,0.15); padding-bottom: 10px; letter-spacing: 1px; text-transform: uppercase; }
@@ -123,7 +134,9 @@
         .panic-btn { background: rgba(255,0,0,0.1); border: 1px solid var(--neon-red); color: var(--neon-red); padding: 8px 16px; font-size: 12px; width: auto; margin: 0; display: inline-block; }
         .panic-btn:hover { background: var(--neon-red); color: #fff; box-shadow: 0 0 30px rgba(255,0,0,0.8); }
 
-        .container { width: 1400px; max-width: 96%; height: 90vh; display: flex; flex-direction: column; z-index: 5; margin-top: 50px;}
+        /* Düzeltilen kısım: margin-top: 80px ile menüden uzaklaştırıldı */
+        .container { width: 1400px; max-width: 96%; height: 85vh; display: flex; flex-direction: column; z-index: 5; margin-top: 80px;}
+        
         .header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 20px; border-bottom: 1px solid rgba(0,243,255,0.2); margin-bottom: 20px; flex-shrink: 0; }
         .user-info { font-family: 'Orbitron'; font-size: 14px; color: var(--text-dim); margin-right: 20px; }
         .user-highlight { color: var(--neon-blue); text-shadow: 0 0 10px rgba(0,243,255,0.5); }
@@ -158,7 +171,13 @@
         #result { margin-top: 20px; padding: 15px; background: rgba(0,0,0,0.6); border: 1px dashed var(--neon-green); border-radius: 8px; color: var(--neon-green); font-family: 'Source Code Pro', monospace; min-height: 80px; word-break: break-all; }
         #typing-indicator { position: absolute; bottom: 10px; left: 20px; font-size: 12px; color: var(--neon-pink); font-style: italic; opacity: 0; transition: opacity 0.3s; }
 
-        @media (max-width: 1100px) { .main-grid { grid-template-columns: 1fr; overflow-y: auto; } .messages-panel { height: 500px; grid-column: 1; } .container { height: auto; min-height: 95vh; } .panel { overflow: visible; } .top-nav{justify-content:center; width:100%; left:0;} }
+        @media (max-width: 1100px) { 
+            .main-grid { grid-template-columns: 1fr; overflow-y: auto; } 
+            .messages-panel { height: 500px; grid-column: 1; } 
+            .container { height: auto; min-height: 85vh; margin-top: 100px; } 
+            .panel { overflow: visible; } 
+            .top-nav { width: 90%; justify-content: center; padding: 10px; } 
+        }
     </style>
 </head>
 <body>
@@ -340,7 +359,7 @@
         animate();
     </script>
 
-    <script type="module" src="crypto.js?v=5"></script>
+    <script type="module" src="crypto.js?v=6"></script>
 
 </body>
 </html>
