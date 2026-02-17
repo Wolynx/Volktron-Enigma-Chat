@@ -1,99 +1,55 @@
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-<meta charset="UTF-8">
-<title>Volktronic E2EE Chat</title>
+const enc = new TextEncoder();
+const dec = new TextDecoder();
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-import { deriveKey, encryptMessage, decryptMessage } from "./crypto.js";
+export async function deriveKey(secret, layers){
+  const salt = enc.encode("volktronic-" + [...layers].sort().join("-"));
 
-const firebaseConfig = {
-  databaseURL: "https://volktron-chat-default-rtdb.firebaseio.com/"
-};
+  const baseKey = await crypto.subtle.importKey(
+    "raw",
+    enc.encode(secret),
+    "PBKDF2",
+    false,
+    ["deriveKey"]
+  );
 
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-
-let USER="", ROOM="", KEY, roomRef;
-
-window.enterRoom = async () => {
-  USER = username.value.trim();
-  ROOM = room.value.trim();
-  const SECRET = secret.value.trim();
-
-  if(!USER || !ROOM || !SECRET) {
-    alert("Eksik bilgi");
-    return;
-  }
-
-  KEY = await deriveKey(SECRET);
-
-  login.style.display="none";
-  chat.style.display="block";
-  userName.textContent=USER;
-  roomName.textContent=ROOM;
-
-  roomRef = ref(db,"rooms/"+ROOM);
-
-  onChildAdded(roomRef, async snap => {
-    const d = snap.val();
-    try{
-      const text = await decryptMessage(KEY, d.cipher, d.iv);
-      addMsg(d.user, text);
-    }catch{
-      addMsg("⚠️", "Anahtar uyuşmuyor");
-    }
-  });
-};
-
-window.sendMsg = async () => {
-  if(!message.value) return;
-
-  const enc = await encryptMessage(KEY, message.value);
-
-  push(roomRef,{
-    user: USER,
-    cipher: enc.cipher,
-    iv: enc.iv,
-    time: Date.now()
-  });
-
-  message.value="";
-};
-
-function addMsg(user,text){
-  const div=document.createElement("div");
-  div.innerHTML="<b>"+user+":</b> "+text;
-  log.appendChild(div);
-  log.scrollTop=log.scrollHeight;
+  return crypto.subtle.deriveKey(
+    {
+      name: "PBKDF2",
+      salt,
+      iterations: 150000,
+      hash: "SHA-256"
+    },
+    baseKey,
+    { name: "AES-GCM", length: 256 },
+    false,
+    ["encrypt","decrypt"]
+  );
 }
-</script>
 
-<style>
-body{background:#020617;color:#fff;font-family:sans-serif}
-input,textarea,button{width:100%;margin:5px;padding:10px}
-#chat{display:none}
-#log{height:200px;overflow:auto;border:1px solid #333;padding:5px}
-</style>
-</head>
+export async function encryptAES(key, text){
+  const iv = crypto.getRandomValues(new Uint8Array(12));
 
-<body>
+  const cipher = await crypto.subtle.encrypt(
+    { name: "AES-GCM", iv },
+    key,
+    enc.encode(text)
+  );
 
-<div id="login">
-  <input id="username" placeholder="Kullanıcı">
-  <input id="room" placeholder="Oda">
-  <input id="secret" placeholder="Gizli Kod">
-  <button onclick="enterRoom()">Giriş</button>
-</div>
+  return {
+    cipher: btoa(String.fromCharCode(...new Uint8Array(cipher))),
+    iv: btoa(String.fromCharCode(...iv))
+  };
+}
 
-<div id="chat">
-  <h3>Oda: <span id="roomName"></span> | 👤 <span id="userName"></span></h3>
-  <textarea id="message"></textarea>
-  <button onclick="sendMsg()">Gönder</button>
-  <div id="log"></div>
-</div>
+export async function decryptAES(key, cipher, iv){
+  const data = Uint8Array.from(atob(cipher), c=>c.charCodeAt(0));
+  const ivArr = Uint8Array.from(atob(iv), c=>c.charCodeAt(0));
 
-</body>
-</html>
+  const plain = await crypto.subtle.decrypt(
+    { name: "AES-GCM", iv: ivArr },
+    key,
+    data
+  );
+
+  return dec.decode(plain);
+}
