@@ -1,74 +1,102 @@
-/* ================= STATE ================= */
-let USER="", ROOM="", roomRef;
-const encSel=new Set(), decSel=new Set();
-const db = firebase.database();
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Volktronic Crypto</title>
 
-/* ================= SIMPLE CRYPTO =================
-   (Stabil, demo seviyesi – sonra AES'e yükseltiriz) */
-function xorCrypt(text,key){
-  return [...text].map((c,i)=>
-    String.fromCharCode(
-      c.charCodeAt(0) ^ key.charCodeAt(i % key.length)
-    )
-  ).join("");
+<!-- Firebase v8 (STABLE) -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+<script>
+const firebaseConfig = {
+  databaseURL: "https://volktron-chat-default-rtdb.firebaseio.com/"
+};
+firebase.initializeApp(firebaseConfig);
+</script>
+
+<style>
+*{box-sizing:border-box;font-family:Segoe UI,sans-serif}
+body{
+  margin:0;min-height:100vh;
+  background:linear-gradient(135deg,#020617,#020b2e);
+  color:#fff;
+  display:flex;align-items:center;justify-content:center
 }
-
-/* ================= UI ================= */
-function makeLayers(el,set){
-  for(let i=1;i<=10;i++){
-    const d=document.createElement("div");
-    d.className="layer";
-    d.textContent="Katman "+i;
-    d.onclick=()=>{
-      set.has(i)?set.delete(i):set.add(i);
-      d.classList.toggle("active");
-    };
-    el.appendChild(d);
-  }
+.hidden{display:none}
+.card,.container{
+  background:#0b122a;
+  border-radius:20px;
+  box-shadow:0 0 30px #0ff4;
 }
-makeLayers(encLayers,encSel);
-makeLayers(decLayers,decSel);
-
-/* ================= LOGIN ================= */
-function enterRoom(){
-  USER = username.value.trim();
-  ROOM = room.value.trim();
-  if(!USER || !ROOM || !secret.value){
-    alert("Eksik bilgi");
-    return;
-  }
-
-  login.classList.add("hidden");
-  chat.classList.remove("hidden");
-  userName.textContent = USER;
-  roomName.textContent = ROOM;
-
-  roomRef = db.ref("rooms/" + ROOM);
-  roomRef.on("child_added", snap => {
-    const d = snap.val();
-    const div = document.createElement("div");
-    div.className = "msg " + (d.user === USER ? "me":"other");
-    div.innerHTML = "<b>"+d.user+"</b><br>" +
-      xorCrypt(d.text, secret.value);
-    log.appendChild(div);
-    log.scrollTop = log.scrollHeight;
-  });
+.card{width:380px;padding:25px;text-align:center}
+.container{width:1000px;padding:25px}
+input,textarea,button{
+  width:100%;margin-top:10px;
+  padding:12px;border-radius:10px;
+  border:none;outline:none
 }
-
-/* ================= SEND ================= */
-function sendMsg(){
-  if(!message.value) return;
-  const enc = xorCrypt(message.value, secret.value);
-  roomRef.push({
-    user: USER,
-    text: enc,
-    time: Date.now()
-  });
-  message.value="";
+button{cursor:pointer;font-weight:bold}
+.primary{background:#25d9f0;color:#000}
+.secondary{background:#ff77b7}
+.header{display:flex;justify-content:space-between;margin-bottom:15px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.layers{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.layer{
+  padding:10px;text-align:center;
+  background:#1e90ff;border-radius:10px;
+  cursor:pointer;font-size:13px
 }
-
-/* ================= MANUAL DECRYPT ================= */
-function manualDecrypt(){
-  result.textContent =
-    "Çözüm: " + xorCrypt(cipher.value, secret.value);
+.layer.active{background:#00ffd5;color:#000}
+.messages{
+  margin-top:20px;
+  background:#020617;
+  padding:15px;border-radius:15px;
+  max-height:220px;overflow:auto
 }
+.msg{padding:8px;margin-top:6px;border-radius:8px}
+.me{background:#00ffd5;color:#000}
+.other{background:#111}
+</style>
+</head>
+
+<body>
+
+<div class="card" id="login">
+  <h2>🔐 Volktronic Crypto</h2>
+  <input id="username" placeholder="Kullanıcı adı">
+  <input id="room" placeholder="Oda">
+  <input id="secret" placeholder="Gizli anahtar">
+  <button class="primary" onclick="enterRoom()">Odaya Gir</button>
+</div>
+
+<div class="container hidden" id="chat">
+  <div class="header">
+    <div>👤 <span id="userName"></span></div>
+    <div>🏠 <span id="roomName"></span></div>
+  </div>
+
+  <div class="grid">
+    <div>
+      <h3>🔒 Gönder</h3>
+      <div class="layers" id="encLayers"></div>
+      <textarea id="message"></textarea>
+      <button class="primary" onclick="sendMsg()">Gönder</button>
+    </div>
+
+    <div>
+      <h3>🔓 Çöz</h3>
+      <div class="layers" id="decLayers"></div>
+      <textarea id="cipher"></textarea>
+      <button class="secondary" onclick="manualDecrypt()">Çöz</button>
+      <div id="result"></div>
+    </div>
+  </div>
+
+  <div class="messages" id="log"></div>
+</div>
+
+<script src="app.js" defer></script>
+</body>
+</html>
