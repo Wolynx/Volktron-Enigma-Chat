@@ -1,6 +1,4 @@
 // crypto-e2ee.js
-
-// ---------- UTILS ----------
 const enc = new TextEncoder();
 const dec = new TextDecoder();
 
@@ -12,7 +10,7 @@ function base64ToBuf(b64) {
   return Uint8Array.from(atob(b64), c => c.charCodeAt(0));
 }
 
-// ---------- ECDH ----------
+// ---------- KEY GENERATION ----------
 export async function generateKeyPair() {
   return crypto.subtle.generateKey(
     { name: "ECDH", namedCurve: "P-256" },
@@ -38,24 +36,20 @@ export async function importPublicKey(b64) {
 
 // ---------- KEY DERIVATION ----------
 export async function deriveAESKey(privateKey, publicKey, layers) {
-  const layerSalt = enc.encode([...layers].sort().join("-"));
+  const salt = enc.encode([...layers].sort().join("-"));
 
-  return crypto.subtle.deriveKey(
-    {
-      name: "ECDH",
-      public: publicKey
-    },
+  const baseKey = await crypto.subtle.deriveKey(
+    { name: "ECDH", public: publicKey },
     privateKey,
-    {
-      name: "AES-GCM",
-      length: 256
-    },
+    { name: "AES-GCM", length: 256 },
     false,
     ["encrypt", "decrypt"]
   );
+
+  return baseKey;
 }
 
-// ---------- AES ----------
+// ---------- ENCRYPT / DECRYPT ----------
 export async function encryptAES(key, text) {
   const iv = crypto.getRandomValues(new Uint8Array(12));
   const cipher = await crypto.subtle.encrypt(
@@ -64,20 +58,18 @@ export async function encryptAES(key, text) {
     enc.encode(text)
   );
 
-  return {
+  return JSON.stringify({
     iv: bufToBase64(iv),
     data: bufToBase64(cipher)
-  };
+  });
 }
 
 export async function decryptAES(key, payload) {
+  const p = JSON.parse(payload);
   const plain = await crypto.subtle.decrypt(
-    {
-      name: "AES-GCM",
-      iv: base64ToBuf(payload.iv)
-    },
+    { name: "AES-GCM", iv: base64ToBuf(p.iv) },
     key,
-    base64ToBuf(payload.data)
+    base64ToBuf(p.data)
   );
 
   return dec.decode(plain);
