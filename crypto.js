@@ -1,4 +1,7 @@
-// --- FIREBASE MODÜL İMPORTLARI ---
+/* =======================================================
+   VOLKTRONIC CRYPTO ENGINE - ASYNC & FIREBASE V10
+   ======================================================= */
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { 
     getDatabase, 
@@ -11,40 +14,36 @@ import {
     onValue 
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-// --- FIREBASE KONFİGÜRASYONU ---
-// Burayı kendi proje ayarlarınla değiştirmeyi unutma!
+// LÜTFEN KENDİ FIREBASE BİLGİLERİNİ KONTROL ET
 const firebaseConfig = {
   databaseURL: "https://volktron-chat-default-rtdb.firebaseio.com/"
 };
 
-// Uygulamayı Başlat
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// --- GLOBAL DEĞİŞKENLER ---
+// GLOBAL DEĞİŞKENLER
 let USER = "";
 let ROOM = "";
 let SECRET = "";
 let roomMessagesRef;
-let selectedImageBase64 = null; // Seçilen resmin verisi burada tutulur
+let selectedImageBase64 = null; 
 
-// Katman Seçimleri (Set yapısı tekrarı engeller)
+// Katmanları (Layer) Tutan Küme Yapıları
 const encSel = new Set();
 const decSel = new Set();
 
-// --- YARDIMCI FONKSİYON: KATMAN BUTONLARINI OLUŞTUR ---
+// --- 1. KATMAN (LAYER) BUTONLARINI OLUŞTURMA ---
 function makeLayers(element, setObj) {
     if (!element) return;
     
     for (let i = 1; i <= 10; i++) {
         const btn = document.createElement("div");
         btn.className = "layer";
-        // Şık görünüm için sayıları 01, 02 formatında yaz
         const label = i < 10 ? '0' + i : i;
         btn.innerHTML = `L-${label}`;
         
         btn.onclick = () => {
-            // Tıklayınca sete ekle veya çıkar
             if (setObj.has(i)) {
                 setObj.delete(i);
             } else {
@@ -57,22 +56,21 @@ function makeLayers(element, setObj) {
     }
 }
 
-// Sayfa yüklenince katmanları oluştur
 makeLayers(document.getElementById("encLayers"), encSel);
 makeLayers(document.getElementById("decLayers"), decSel);
 
 
-// --- GÖRSEL YÜKLEME İŞLEMİ ---
+// --- 2. GÖRSEL DOSYASI OKUMA (BASE64) ---
 document.getElementById("imageInput").addEventListener("change", function(e) {
     const file = e.target.files[0];
     const btn = document.querySelector(".file-upload-label");
     
     if (!file) return;
 
-    // Boyut Kontrolü (1.5 MB Sınırı)
+    // Maksimum 1.5MB limiti (Firebase'i yormamak için)
     if (file.size > 1.5 * 1024 * 1024) {
-        alert("GÜVENLİK UYARISI: Dosya boyutu çok büyük! Maksimum 1.5MB.");
-        this.value = ""; // Inputu temizle
+        alert("GÜVENLİK UYARISI: Dosya boyutu çok büyük! Maksimum 1.5MB yükleyebilirsiniz.");
+        this.value = ""; 
         return;
     }
 
@@ -80,7 +78,6 @@ document.getElementById("imageInput").addEventListener("change", function(e) {
     
     reader.onload = function(event) {
         selectedImageBase64 = event.target.result;
-        // Buton rengini değiştirerek kullanıcya haber ver
         btn.textContent = "✅ GÖRSEL HAZIR";
         btn.style.background = "var(--neon-blue)";
         btn.style.color = "#000";
@@ -94,15 +91,15 @@ document.getElementById("imageInput").addEventListener("change", function(e) {
 });
 
 
-// --- YAZIYOR GÖSTERGESİ (Typing Indicator) ---
+// --- 3. YAZIYOR (TYPING) SENSÖRÜ ---
 let typingTimer;
 document.getElementById("message").addEventListener("input", () => {
     if(!ROOM || !USER) return;
     
     const typingRef = ref(db, "rooms/" + ROOM + "/typing/" + USER);
-    set(typingRef, Date.now()); // Yazdığı anı kaydet
+    set(typingRef, Date.now()); 
     
-    // 2 saniye yazmazsa veritabanından sil
+    // 2 saniye klavyeye dokunulmazsa "yazıyor" bilgisini sil
     clearTimeout(typingTimer);
     typingTimer = setTimeout(() => {
         remove(typingRef);
@@ -110,24 +107,20 @@ document.getElementById("message").addEventListener("input", () => {
 });
 
 
-// --- ODAYA GİRİŞ FONKSİYONU ---
+// --- 4. ODAYA GİRİŞ İŞLEMİ ---
 function enterRoom() {
-    // Değerleri al
     USER = document.getElementById("username").value.trim();
     ROOM = document.getElementById("room").value.trim();
     SECRET = document.getElementById("secretKey").value.trim();
 
-    // Boş alan kontrolü
     if (!USER || !ROOM || !SECRET) {
-        alert("ERİŞİM REDDEDİLDİ: Lütfen tüm kimlik bilgilerini girin.");
+        alert("ERİŞİM REDDEDİLDİ: Lütfen tüm kimlik bilgilerini eksiksiz girin.");
         return;
     }
 
-    // Arayüzü güncelle
     document.getElementById("userNameDisplay").textContent = USER;
     document.getElementById("roomNameDisplay").textContent = ROOM;
 
-    // Login ekranını gizle, sohbeti aç (Animasyonlu geçiş için CSS class kullanılır)
     const loginDiv = document.getElementById("login");
     const chatDiv = document.getElementById("chat");
 
@@ -139,13 +132,14 @@ function enterRoom() {
         chatDiv.classList.remove("hidden");
     }, 500);
 
-    // --- FIREBASE DİNLEYİCİLERİNİ BAŞLAT ---
     startFirebaseListeners();
 }
 
 
+// --- 5. FIREBASE DİNLEYİCİLERİ ---
 function startFirebaseListeners() {
-    // 1. YAZIYOR DİNLEYİCİSİ
+    
+    // YAZIYOR DİNLEYİCİSİ
     const typingListRef = ref(db, "rooms/" + ROOM + "/typing");
     onValue(typingListRef, (snap) => {
         const data = snap.val() || {};
@@ -160,31 +154,33 @@ function startFirebaseListeners() {
         }
     });
 
-    // 2. MESAJ DİNLEYİCİSİ (Gelen Mesajlar)
+    // MESAJ (VERİ) AKIŞI DİNLEYİCİSİ
     roomMessagesRef = ref(db, "rooms/" + ROOM + "/messages");
     
     onChildAdded(roomMessagesRef, (snap) => {
-        const data = snap.val();
+        const data = snap.val() || {};
         const msgKey = snap.key;
         
-        // Mesaj kutusunu oluştur
-        const div = document.createElement("div");
-        div.id = "msg-" + msgKey; // Silme işlemi için ID veriyoruz
-        div.className = "msg " + (data.user === USER ? "me" : "other");
-        
-        const time = new Date(data.time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        // Hatalı/Eksik paketleri korumak için güvenlik önlemi
+        const safeUser = data.user || "BİLİNMEYEN_AJAN";
+        const safeText = data.text || "HATA_VERI_YOK";
+        const time = data.time ? new Date(data.time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : "--:--";
 
-        // Varsayılan olarak ŞİFRELİ (GİZLİ) görünüm
+        const div = document.createElement("div");
+        div.id = "msg-" + msgKey; 
+        div.className = "msg " + (safeUser === USER ? "me" : "other");
+        
+        // Gelen mesaj ekrana daima ŞİFRELİ düşer
         div.innerHTML = `
             <div class="msg-header">
-                <b>[${data.user}]</b> 
+                <b>[${safeUser}]</b> 
                 <span>${time}</span>
             </div>
             
             <div class="msg-content">
                 <div class="encrypted-placeholder" style="color:#666; font-size:12px; letter-spacing:1px;">
                     🔒 [AES-256 ŞİFRELİ VERİ PAKETİ] <br>
-                    ${data.text.substring(0, 40)}...
+                    ${safeText.substring(0, 40)}...
                 </div>
                 <div class="decrypted-content" style="display:none;"></div>
             </div>
@@ -192,40 +188,39 @@ function startFirebaseListeners() {
             <button class="decrypt-btn-inline">🔐 ÇÖZ VE GÖSTER</button>
         `;
 
-        // ÇÖZME BUTONUNA TIKLANINCA
+        // INLINE ÇÖZME BUTONUNA TIKLANINCA
         const btn = div.querySelector(".decrypt-btn-inline");
         btn.onclick = () => {
-            // Şifreyi çözmeyi dene
-            const decrypted = removeStrongLayers(data.text, SECRET, encSel);
+            
+            // DİKKAT: Cihazlar arası uyum için gelen mesaj "decSel" (Sağdaki Çözücü) katmanları referans alınarak çözülür.
+            const decrypted = removeStrongLayers(safeText, SECRET, decSel);
             const contentDiv = div.querySelector(".decrypted-content");
             const placeholder = div.querySelector(".encrypted-placeholder");
 
-            if (decrypted.includes("HATA:")) {
-                // Hata varsa
+            if (typeof decrypted === "string" && decrypted.includes("HATA:")) {
                 placeholder.innerHTML = `<span style="color:red">⚠️ ŞİFRE ÇÖZME BAŞARISIZ! <br> Anahtar veya katmanlar yanlış.</span>`;
             } else {
-                // Başarılıysa içeriği göster
                 let htmlContent = "";
                 
-                // Resim mi Metin mi kontrolü
+                // Protokol Kontrolü (IMG vs TXT)
                 if (decrypted.startsWith("IMG||")) {
-                    const parts = decrypted.split("||"); // IMG || base64 || text
+                    const parts = decrypted.split("||"); 
                     htmlContent = `
                         <img src="${parts[1]}" style="max-width:100%; border-radius:8px; border:1px solid var(--neon-blue); margin-bottom:10px;">
-                        <div>${parts[2]}</div>
+                        <div>${parts[2] || ""}</div>
                     `;
                 } else if (decrypted.startsWith("TXT||")) {
                     htmlContent = decrypted.replace("TXT||", "");
                 } else {
-                    htmlContent = decrypted;
+                    htmlContent = decrypted; // Geriye dönük uyumluluk
                 }
 
                 contentDiv.innerHTML = htmlContent;
                 contentDiv.style.display = "block";
                 placeholder.style.display = "none";
-                btn.style.display = "none"; // Butonu gizle
+                btn.style.display = "none"; 
 
-                // --- KENDİNİ İMHA SAYACI (BURN TIMER) ---
+                // Kendini İmha Sistemi
                 if (data.burn && data.burn > 0) {
                     startBurnTimer(data.burn, msgKey, div);
                 }
@@ -234,27 +229,25 @@ function startFirebaseListeners() {
 
         const logDiv = document.getElementById("log");
         logDiv.appendChild(div);
-        logDiv.scrollTop = logDiv.scrollHeight; // En alta kaydır
+        logDiv.scrollTop = logDiv.scrollHeight; 
     });
 
-    // 3. SİLİNEN MESAJ DİNLEYİCİSİ (Panik veya İmha durumunda)
+    // MESAJ SİLİNDİĞİNDE (Kalıcı Yok Etme)
     onChildRemoved(roomMessagesRef, (snap) => {
         const el = document.getElementById("msg-" + snap.key);
         if (el) {
-            // Kırmızı bir uyarı ile silindiğini göster
             el.innerHTML = `
                 <div style="color:red; text-align:center; font-weight:bold; padding:10px;">
                     🚫 VERİ İMHA EDİLDİ
                 </div>
             `;
-            // 1.5 saniye sonra tamamen kaldır
             setTimeout(() => el.remove(), 1500);
         }
     });
 }
 
 
-// --- KENDİNİ İMHA SAYACI FONKSİYONU ---
+// --- 6. KENDİNİ İMHA (BURN) SAYACI ---
 function startBurnTimer(seconds, msgKey, element) {
     let timeLeft = seconds;
     
@@ -275,28 +268,23 @@ function startBurnTimer(seconds, msgKey, element) {
 
         if (timeLeft < 0) {
             clearInterval(interval);
-            // Süre doldu, sadece kendi ekranımdan değil, VERİTABANINDAN sil.
-            // Böylece herkesin ekranından silinir.
+            // Odayı ve anahtarı bulup veritabanından kalıcı olarak sil
             remove(ref(db, "rooms/" + ROOM + "/messages/" + msgKey));
         }
     }, 1000);
 }
 
 
-// --- ŞİFRELEME MOTORU (AES-256 + KATMANLAR) ---
+// --- 7. ŞİFRELEME (ENCRYPT) MATEMATİĞİ ---
 function applyStrongLayers(text, secret, selectedLayers) {
     let encrypted = text;
-    // Katmanları sırala (Karışıklık olmasın diye)
     let layers = [...selectedLayers].sort((a, b) => a - b);
     
-    // Eğer katman seçilmediyse standart AES yap
     if (layers.length === 0) {
         return CryptoJS.AES.encrypt(encrypted, secret).toString();
     }
 
-    // Seçilen her katman için şifrele (Soğan kabuğu gibi)
     layers.forEach(layer => {
-        // Her katman için anahtarı değiştiriyoruz (Tuzlama)
         let layerSpecificKey = secret + "_LayerSalt_L" + layer;
         encrypted = CryptoJS.AES.encrypt(encrypted, layerSpecificKey).toString();
     });
@@ -305,10 +293,10 @@ function applyStrongLayers(text, secret, selectedLayers) {
 }
 
 
-// --- ŞİFRE ÇÖZME MOTORU ---
+// --- 8. ŞİFRE ÇÖZME (DECRYPT) MATEMATİĞİ ---
 function removeStrongLayers(ciphertext, secret, selectedLayers) {
     let decrypted = ciphertext;
-    // Çözerken tersten gitmeliyiz (Büyükten küçüğe)
+    // Çözerken şifreleme sırasının tam tersi uygulanır
     let layers = [...selectedLayers].sort((a, b) => b - a);
     
     try {
@@ -333,7 +321,7 @@ function removeStrongLayers(ciphertext, secret, selectedLayers) {
 }
 
 
-// --- GÖNDERME FONKSİYONU ---
+// --- 9. VERİ GÖNDERME TETİKLEYİCİSİ ---
 function encryptAndSend() {
     const msgInput = document.getElementById("message");
     const burnSelect = document.getElementById("burnTimer");
@@ -341,34 +329,31 @@ function encryptAndSend() {
     const textVal = msgInput.value.trim();
     const burnTime = parseInt(burnSelect.value);
 
-    // Boş gönderimi engelle
     if (!textVal && !selectedImageBase64) {
-        alert("Lütfen bir mesaj yazın veya resim seçin.");
+        alert("SİSTEM UYARISI: Lütfen bir mesaj yazın veya resim seçin.");
         return;
     }
 
-    // Veri Paketleme (Protokol)
+    // Protokol Oluşturma
     let payload = "";
     if (selectedImageBase64) {
-        // Resim varsa: IMG || VERİ || YAZI
         payload = "IMG||" + selectedImageBase64 + "||" + textVal;
     } else {
-        // Sadece yazı: TXT || YAZI
         payload = "TXT||" + textVal;
     }
 
-    // Şifreleme
+    // Seçilen katmanlarla şifrele
     const encryptedPayload = applyStrongLayers(payload, SECRET, encSel);
 
-    // Firebase'e Gönder
+    // Veritabanına Yaz
     push(roomMessagesRef, {
         user: USER,
         text: encryptedPayload,
         time: Date.now(),
-        burn: burnTime // İmha süresini de ekliyoruz
+        burn: burnTime 
     });
 
-    // Temizlik
+    // Gönderim sonrası temizlik
     msgInput.value = "";
     selectedImageBase64 = null;
     const btn = document.querySelector(".file-upload-label");
@@ -378,13 +363,13 @@ function encryptAndSend() {
 }
 
 
-// --- HARİCİ ŞİFRE ÇÖZÜCÜ (SAĞ PANEL) ---
+// --- 10. HARİCİ MANUEL ÇÖZÜCÜ ---
 function decryptExternal() {
     const cipherText = document.getElementById("cipher").value.trim();
     const resultDiv = document.getElementById("result");
 
     if (!cipherText) {
-        resultDiv.textContent = "Lütfen şifreli metni yapıştırın.";
+        resultDiv.textContent = "Lütfen çözülecek şifreli bloğu yapıştırın.";
         resultDiv.style.color = "var(--neon-pink)";
         return;
     }
@@ -392,13 +377,12 @@ function decryptExternal() {
     const plainText = removeStrongLayers(cipherText, SECRET, decSel);
 
     if (plainText.includes("HATA:")) {
-        resultDiv.textContent = "ÇÖZÜLEMEDİ: Anahtar veya katmanlar hatalı.";
+        resultDiv.textContent = "BAŞARISIZ: Master Anahtar veya Katman Seçimi Hatalı.";
         resultDiv.style.color = "var(--neon-red)";
         resultDiv.style.borderColor = "var(--neon-red)";
     } else {
-        // Temiz bir çıktı ver
         let cleanText = plainText;
-        if (cleanText.startsWith("IMG||")) cleanText = "[RESİM DOSYASI İÇERİYOR - ANA EKRANDA AÇINIZ]";
+        if (cleanText.startsWith("IMG||")) cleanText = "[RESİM DOSYASI İÇERİYOR - Lütfen ana ekrandaki çözücüyü kullanın]";
         if (cleanText.startsWith("TXT||")) cleanText = cleanText.replace("TXT||", "");
         
         resultDiv.textContent = cleanText;
@@ -408,30 +392,37 @@ function decryptExternal() {
 }
 
 
-// --- PANİK BUTONU (HER ŞEYİ SİL) ---
-function triggerPanic() {
+// --- 11. PANİK BUTONU (ASYNC DÜZELTMESİ YAPILDI) ---
+// Not: Masaüstünde sayfanın hızlı yenilenmesi Firebase silme işlemini yarıda kesiyordu.
+// Await kullanarak önce "Silme işlemi bitsin, ondan sonra sayfayı yenile" dedik.
+async function triggerPanic() {
     const confirmPanic = confirm("⚠️ DİKKAT: KIRMIZI KOD!\n\nBu işlem odadaki TÜM MESAJLARI ve KAYITLARI kalıcı olarak silecektir. Geri dönüşü yoktur.\n\nOnaylıyor musun?");
     
     if (confirmPanic) {
-        // Odayı komple sil
-        remove(ref(db, "rooms/" + ROOM));
-        
-        // Ekranı karart ve mesaj ver
-        document.body.innerHTML = `
-            <div style="display:flex; justify-content:center; align-items:center; height:100vh; background:black; color:red; flex-direction:column;">
-                <h1 style="font-family:Orbitron; font-size:50px;">SİSTEM İMHA EDİLDİ</h1>
-                <p>Tüm veriler temizlendi. Bağlantı kesiliyor...</p>
-            </div>
-        `;
-        
-        // 3 saniye sonra sayfayı yenile
-        setTimeout(() => {
-            location.reload();
-        }, 3000);
+        try {
+            // ASYNC KORUMASI: Silme emrinin bitmesini bekle
+            await remove(ref(db, "rooms/" + ROOM));
+            
+            document.body.innerHTML = `
+                <div style="display:flex; justify-content:center; align-items:center; height:100vh; background:black; color:red; flex-direction:column;">
+                    <h1 style="font-family:Orbitron; font-size:50px;">SİSTEM İMHA EDİLDİ</h1>
+                    <p>Tüm veriler temizlendi. Bağlantı kesiliyor...</p>
+                </div>
+            `;
+            
+            // Veri kesin olarak silindikten sonra sayfayı yenile
+            setTimeout(() => {
+                location.reload();
+            }, 3000);
+            
+        } catch (error) {
+            console.error("İmha işlemi sırasında hata oluştu:", error);
+            alert("İmha işlemi tamamlanamadı! Bağlantınızı kontrol edin.");
+        }
     }
 }
 
-// --- FONKSİYONLARI HTML'E BAĞLA ---
+// --- 12. FONKSİYONLARI HTML'E AKTARMA ---
 window.enterRoom = enterRoom;
 window.encryptAndSend = encryptAndSend;
 window.decryptExternal = decryptExternal;
