@@ -27,6 +27,7 @@
 
         * {
             box-sizing: border-box;
+            /* Yalnızca input ve textarealarda seçime izin veriyoruz */
             user-select: none;
         }
 
@@ -65,7 +66,7 @@
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--glass-border);
             border-radius: 16px;
-            box-shadow: 0 0 30px rgba(0, 243, 255, 0.08);
+            box-shadow: 0 0 40px rgba(0, 243, 255, 0.1);
             padding: 40px;
             transition: transform 0.1s ease, box-shadow 0.3s ease;
             transform-style: preserve-3d;
@@ -95,7 +96,7 @@
             color: var(--neon-blue);
             text-shadow: 0 0 15px rgba(0, 243, 255, 0.6);
             margin: 0 0 10px 0;
-            font-size: 32px;
+            font-size: 34px;
             letter-spacing: 2px;
         }
 
@@ -116,6 +117,7 @@
             border-bottom: 1px solid rgba(0, 243, 255, 0.15);
             padding-bottom: 10px;
             letter-spacing: 1px;
+            text-transform: uppercase;
         }
 
         .subtitle {
@@ -214,7 +216,6 @@
             transform: translateY(-2px);
         }
 
-        /* PANİK BUTONU (Masaüstü/Mobil Uyumlu) */
         .panic-btn {
             background: rgba(255, 0, 0, 0.1);
             border: 1px solid var(--neon-red);
@@ -273,7 +274,6 @@
             text-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
         }
 
-        /* 3 SÜTUNLU YAPI */
         .main-grid {
             display: grid;
             grid-template-columns: 350px 1fr 350px;
@@ -336,7 +336,7 @@
         }
 
         /* =========================================
-           9. SÜRE VE DOSYA YÜKLEME ALANI
+           9. ARAÇ ÇUBUĞU (SÜRE VE DOSYA)
            ========================================= */
         .tools-row {
             display: flex;
@@ -361,7 +361,7 @@
         }
 
         /* =========================================
-           10. MESAJ AKIŞI ALANI (CHAT)
+           10. YENİLENMİŞ MESAJ ALANI VE BUTONLARI
            ========================================= */
         .messages-panel {
             grid-column: 2;
@@ -371,68 +371,89 @@
         #log {
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 20px;
             padding-bottom: 20px;
         }
 
         .msg {
             padding: 15px;
             border-radius: 8px;
-            background: rgba(0, 0, 0, 0.6);
-            border-left: 3px solid transparent;
+            background: rgba(0, 0, 0, 0.7);
+            border-left: 4px solid transparent;
             animation: slideIn 0.3s ease forwards;
             position: relative;
         }
 
         @keyframes slideIn {
-            from { opacity: 0; transform: translateX(-10px); }
+            from { opacity: 0; transform: translateX(-15px); }
             to { opacity: 1; transform: translateX(0); }
         }
 
-        .msg.me {
-            border-left-color: var(--neon-blue);
-            background: linear-gradient(90deg, rgba(0,243,255,0.05), transparent);
-        }
-
-        .msg.other {
-            border-left-color: var(--neon-pink);
-            background: linear-gradient(90deg, rgba(255,0,153,0.05), transparent);
-        }
+        .msg.me { border-left-color: var(--neon-blue); }
+        .msg.other { border-left-color: var(--neon-pink); }
 
         .msg-header {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 8px;
-            font-size: 12px;
-            opacity: 0.8;
+            margin-bottom: 12px;
+            font-size: 13px;
             font-family: 'Orbitron';
         }
 
-        .msg-text {
-            font-family: 'Source Code Pro', monospace;
-            font-size: 14px;
-            line-height: 1.5;
-            word-break: break-all;
-            color: #ddd;
-        }
+        .msg.me .msg-header b { color: var(--neon-blue); }
+        .msg.other .msg-header b { color: var(--neon-pink); }
 
-        .decrypt-btn-inline {
-            background: rgba(0, 255, 157, 0.1);
-            border: 1px solid var(--neon-green);
-            color: var(--neon-green);
-            padding: 8px;
-            border-radius: 4px;
+        /* Yeni RAW (Ham) Şifreli Metin Kutusu */
+        .raw-cipher-box {
             width: 100%;
-            margin-top: 10px;
-            font-size: 12px;
-            cursor: pointer;
-            transition: 0.3s;
+            height: 60px;
+            background: #050505;
+            color: rgba(0, 243, 255, 0.5);
+            border: 1px dashed rgba(0, 243, 255, 0.3);
+            border-radius: 6px;
+            padding: 8px;
+            font-family: 'Source Code Pro', monospace;
+            font-size: 11px;
+            resize: none;
+            margin-bottom: 12px;
+            user-select: all; /* Tek tıkla seçilebilmesi için */
         }
 
-        .decrypt-btn-inline:hover {
-            background: var(--neon-green);
-            color: #000;
-            box-shadow: 0 0 15px var(--neon-green);
+        .msg-action-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap; /* Mobilde alt alta inmesi için */
+        }
+
+        .action-btn {
+            flex: 1;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #fff;
+            padding: 8px;
+            font-size: 11px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Orbitron';
+            transition: 0.2s;
+            margin-top: 0;
+            min-width: 100px;
+        }
+
+        .btn-copy:hover { background: #fff; color: #000; }
+        .btn-transfer:hover { background: var(--neon-blue); color: #000; border-color: var(--neon-blue); }
+        .btn-decrypt:hover { background: var(--neon-green); color: #000; border-color: var(--neon-green); box-shadow: 0 0 10px var(--neon-green); }
+
+        .decrypted-content {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(0, 255, 157, 0.05);
+            border: 1px solid rgba(0, 255, 157, 0.3);
+            border-radius: 6px;
+            color: #fff;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 15px;
+            word-break: break-word;
         }
 
         /* =========================================
@@ -461,25 +482,11 @@
             transition: opacity 0.3s;
         }
 
-        /* =========================================
-           12. MOBİL VE TABLET UYUMLULUĞU
-           ========================================= */
         @media (max-width: 1100px) {
-            .main-grid {
-                grid-template-columns: 1fr;
-                overflow-y: auto;
-            }
-            .messages-panel {
-                height: 500px;
-                grid-column: 1;
-            }
-            .container {
-                height: auto;
-                min-height: 95vh;
-            }
-            .panel {
-                overflow: visible;
-            }
+            .main-grid { grid-template-columns: 1fr; overflow-y: auto; }
+            .messages-panel { height: 500px; grid-column: 1; }
+            .container { height: auto; min-height: 95vh; }
+            .panel { overflow: visible; }
         }
     </style>
 </head>
@@ -489,16 +496,16 @@
 
     <div class="cyber-card" id="login">
         <h1>VOLKTRONIC</h1>
-        <span class="subtitle">GÜVENLİ İSTİHBARAT AĞI v3.1</span>
+        <span class="subtitle">İSTİHBARAT AĞI BAĞLANTISI</span>
 
         <div class="input-group">
-            <input id="username" type="text" placeholder="AJAN KOD ADI" autocomplete="off">
+            <input id="username" type="text" placeholder="Kullanıcı Adı" autocomplete="off">
         </div>
         <div class="input-group">
-            <input id="room" type="text" placeholder="GÜVENLİ ODA ID" autocomplete="off">
+            <input id="room" type="text" placeholder="Oda oluştur/katıl" autocomplete="off">
         </div>
         <div class="input-group">
-            <input id="secretKey" type="password" placeholder="MASTER ŞİFRELEME ANAHTARI" autocomplete="off">
+            <input id="secretKey" type="password" placeholder="Şifreli kod (Gizli Anahtar)" autocomplete="off">
         </div>
 
         <button class="primary" onclick="window.enterRoom()">SİSTEME GİRİŞ YAP</button>
@@ -509,7 +516,7 @@
         <div class="header">
             <h2>ODA: <span id="roomNameDisplay" style="color:var(--neon-green)">---</span></h2>
             <div>
-                <span class="user-info">BAĞLI: <span id="userNameDisplay" class="user-highlight">---</span></span>
+                <span class="user-info">KULLANICI: <span id="userNameDisplay" class="user-highlight">---</span></span>
                 <button class="panic-btn" onclick="window.triggerPanic()">🚨 ACİL DURUM (PANİK)</button>
             </div>
         </div>
@@ -522,7 +529,7 @@
                 <div class="layers" id="encLayers">
                     </div>
 
-                <textarea id="message" placeholder="Gizli mesajınızı buraya girin..."></textarea>
+                <textarea id="message" placeholder="Gizli mesajınızı buraya yazın..."></textarea>
 
                 <div class="tools-row">
                     <select id="burnTimer" style="margin-top:0; flex:1;">
@@ -556,9 +563,9 @@
                 <div class="layers" id="decLayers">
                     </div>
 
-                <textarea id="cipher" placeholder="Başka yerden kopyalanan şifreyi buraya yapıştır..."></textarea>
+                <textarea id="cipher" placeholder="Çözülecek RAW kodunu buraya yapıştırın..."></textarea>
 
-                <button class="secondary" onclick="window.decryptExternal()">MANUEL ÇÖZME</button>
+                <button class="secondary" onclick="window.decryptExternal()">MANUEL OLARAK ÇÖZ</button>
 
                 <div id="result">Sonuç bekleniyor...</div>
             </div>
@@ -567,86 +574,50 @@
     </div>
 
     <script>
-        // --- 1. 3D KART EĞİLME EFEKTİ ---
         const cards = document.querySelectorAll('.cyber-card');
-
         cards.forEach(card => {
             card.addEventListener('mousemove', (e) => {
                 const rect = card.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-                
-                const centerX = rect.width / 2;
-                const centerY = rect.height / 2;
-                
-                const rotateX = ((y - centerY) / centerY) * -5; 
-                const rotateY = ((x - centerX) / centerX) * 5;
-
+                const rotateX = (((e.clientY - rect.top) - (rect.height / 2)) / (rect.height / 2)) * -5; 
+                const rotateY = (((e.clientX - rect.left) - (rect.width / 2)) / (rect.width / 2)) * 5;
                 card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.01, 1.01, 1.01)`;
             });
-
             card.addEventListener('mouseleave', () => {
                 card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)';
             });
         });
 
-        // --- 2. SİBER AĞ PARÇACIK ANİMASYONU ---
         const canvas = document.getElementById('cyber-canvas');
         const ctx = canvas.getContext('2d');
-        let width, height;
-        let particles = [];
-
-        function resize() {
-            width = canvas.width = window.innerWidth;
-            height = canvas.height = window.innerHeight;
-        }
-        window.addEventListener('resize', resize);
-        resize();
+        let width, height, particles = [];
+        function resize() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; }
+        window.addEventListener('resize', resize); resize();
 
         class Particle {
             constructor() {
-                this.x = Math.random() * width;
-                this.y = Math.random() * height;
-                this.vx = (Math.random() - 0.5) * 0.5;
-                this.vy = (Math.random() - 0.5) * 0.5;
-                this.size = Math.random() * 2 + 1;
-                this.color = Math.random() > 0.5 ? '#00f3ff' : '#ff0099';
+                this.x = Math.random() * width; this.y = Math.random() * height;
+                this.vx = (Math.random() - 0.5) * 0.5; this.vy = (Math.random() - 0.5) * 0.5;
+                this.size = Math.random() * 2 + 1; this.color = Math.random() > 0.5 ? '#00f3ff' : '#ff0099';
             }
             update() {
-                this.x += this.vx;
-                this.y += this.vy;
-                if(this.x < 0 || this.x > width) this.vx *= -1;
-                if(this.y < 0 || this.y > height) this.vy *= -1;
+                this.x += this.vx; this.y += this.vy;
+                if(this.x < 0 || this.x > width) this.vx *= -1; if(this.y < 0 || this.y > height) this.vy *= -1;
             }
             draw() {
-                ctx.fillStyle = this.color;
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI*2);
-                ctx.fill();
+                ctx.fillStyle = this.color; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fill();
             }
         }
-
         for(let i=0; i<100; i++) particles.push(new Particle());
 
         function animate() {
             ctx.clearRect(0, 0, width, height);
-            
             for(let i=0; i<particles.length; i++) {
-                particles[i].update();
-                particles[i].draw();
-                
+                particles[i].update(); particles[i].draw();
                 for(let j=i; j<particles.length; j++) {
-                    const dx = particles[i].x - particles[j].x;
-                    const dy = particles[i].y - particles[j].y;
-                    const dist = Math.sqrt(dx*dx + dy*dy);
-                    
+                    const dist = Math.sqrt(Math.pow(particles[i].x - particles[j].x, 2) + Math.pow(particles[i].y - particles[j].y, 2));
                     if(dist < 100) {
-                        ctx.strokeStyle = `rgba(0, 243, 255, ${1 - dist/100})`;
-                        ctx.lineWidth = 0.5;
-                        ctx.beginPath();
-                        ctx.moveTo(particles[i].x, particles[i].y);
-                        ctx.lineTo(particles[j].x, particles[j].y);
-                        ctx.stroke();
+                        ctx.strokeStyle = `rgba(0, 243, 255, ${1 - dist/100})`; ctx.lineWidth = 0.5;
+                        ctx.beginPath(); ctx.moveTo(particles[i].x, particles[i].y); ctx.lineTo(particles[j].x, particles[j].y); ctx.stroke();
                     }
                 }
             }
@@ -655,7 +626,7 @@
         animate();
     </script>
 
-    <script type="module" src="crypto.js?v=3"></script>
+    <script type="module" src="crypto.js?v=4"></script>
 
 </body>
 </html>
