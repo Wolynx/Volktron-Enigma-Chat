@@ -1,62 +1,68 @@
-# 🔐 Volktronic Crypto Chat
+# 🔐 Volktronic Crypto Chat v3.1 | Kriptolu İstihbarat Ağı
 
-Volktronic Crypto Chat, **istemci taraflı şifreleme** mantığıyla çalışan,  
-Firebase tabanlı **gerçek zamanlı**, **sunucusuz** bir web sohbet uygulamasıdır.
+![Version](https://img.shields.io/badge/Version-3.1-blueviolet)
+![Encryption](https://img.shields.io/badge/Encryption-AES--256-brightgreen)
+![Firebase](https://img.shields.io/badge/Database-Firebase_v10-orange)
+![UI](https://img.shields.io/badge/UI-Glassmorphism%20%26%203D-00f3ff)
 
-Mesajlar gönderilmeden önce kullanıcı tarafından şifrelenir ve yalnızca aynı
-şifreleme katmanlarını bilen kişiler tarafından çözülebilir.
+Volktronic Crypto Chat, tarayıcı tabanlı **uçtan uca şifreleme (E2EE)** mantığıyla çalışan, askeri standartlarda (AES-256) güvenlik sunan **sunucusuz ve gerçek zamanlı** bir iletişim platformudur. "Siber İstihbarat" temasıyla tasarlanmış olup, geride hiçbir iz bırakmamak üzere özel protokollerle kodlanmıştır.
 
 ---
 
-## 🚀 Özellikler
+## 🚀 Yeni Nesil Özellikler
 
-- 🔒 Client-side encryption (tarayıcı içinde)
-- 🧩 Katman tabanlı şifreleme sistemi
-- 🔓 Manuel şifre çözme desteği
-- ⚡ Firebase Realtime Database ile canlı sohbet
-- 🧑‍🤝‍🧑 Oda bazlı chat sistemi
-- 📋 Tek tıkla mesaj kopyalama
-- 🎨 Modern neon / cyber arayüz
-- 🌐 Sunucu gerektirmez (GitHub Pages uyumlu)
+- 🛡️ **Askeri Sınıf Şifreleme (AES-256):** CryptoJS altyapısı ile çok katmanlı (Onion) kriptolama.
+- 🔥 **Kendini İmha Eden Mesajlar (Burn-Timer):** 10, 30 veya 60 saniye sonra Firebase veritabanından ve ekrandan *kalıcı olarak* silinen mesajlar.
+- 🚨 **Panik Protokolü:** Tek tıkla (Async) odadaki tüm geçmişi ve verileri saniyeler içinde geri döndürülemez şekilde yok eden acil durum butonu.
+- 📷 **Şifreli Medya Transferi:** Fotoğrafları Base64 formatına çevirip AES-256 ile şifreleyerek güvenli görsel aktarımı.
+- 🛸 **Siber Arayüz (Cyberdeck UI):** HTML5 Canvas veri ağı animasyonları, 3D Glassmorphism tilt (eğilme) efektleri ve modern neon detaylar.
+- 📋 **RAW Veri Aktarımı:** Gelen şifreli paketleri tek tıkla kopyalama veya sağ paneldeki harici manuel çözücüye aktarma imkanı.
 
 ---
 
 ## 🛠️ Görseller
-<img width="1912" height="900" alt="image" src="https://github.com/user-attachments/assets/5e6a4fe8-3ac1-426d-87bf-13aaba471b0c" />
-<img width="1907" height="901" alt="image" src="https://github.com/user-attachments/assets/f50390b9-b145-4398-8e19-50d1cd4b368b" />
+
+*(Not: Buradaki görseller GitHub tarafından otomatik yüklenecektir)*
+<img width="1912" height="900" alt="Volktronic UI 1" src="https://github.com/user-attachments/assets/5e6a4fe8-3ac1-426d-87bf-13aaba471b0c" />
+<img width="1907" height="901" alt="Volktronic UI 2" src="https://github.com/user-attachments/assets/f50390b9-b145-4398-8e19-50d1cd4b368b" />
 
 ---
 
-## 🧠 Şifreleme Mantığı
+## 🧠 Şifreleme Mantığı (Çok Katmanlı AES)
 
-Bu projede **çok katmanlı karakter kaydırma (layer-based cipher)** mantığı kullanılır.
+Sistem, basit bir şifrelemeden ziyade **"Soğan Yönlendirme" (Onion Routing)** mantığına benzer çalışır.
 
-- Kullanıcı mesaj göndermeden önce bir veya daha fazla **katman** seçer
-- Her katman, mesaj karakterlerine farklı bir dönüşüm uygular
-- Mesajı çözmek için **aynı katmanların aynı sırayla** seçilmesi gerekir
-
-> ⚠️ Not: Bu proje eğitim ve demonstrasyon amaçlıdır.  
-> Üretim ortamları için AES / RSA gibi modern kripto algoritmaları önerilir.
+1. Kullanıcı sisteme girerken bir **Master Şifre (Gizli Anahtar)** belirler.
+2. Mesajı göndermeden önce panelden çeşitli **Katmanlar (L-01, L-05 vb.)** seçer.
+3. Seçilen her katman, Master Şifre ile birleşerek benzersiz bir "Salt" (Tuz) oluşturur ve veriyi **tekrar tekrar AES-256 algoritmasıyla şifreler**.
+4. Karşı tarafın mesajı veya görseli çözebilmesi için göndericiyle **birebir aynı katmanları** ve **aynı Master Şifreyi** girmesi zorunludur. Yanlış bir katman seçimi sistemin veriyi reddetmesine yol açar.
 
 ---
 
-## 🛠️ Kullanılan Teknolojiler
+## 💻 Kullanılan Teknolojiler
 
-- **HTML5 / CSS3**
-- **Vanilla JavaScript**
-- **Firebase Realtime Database**
-- **GitHub Pages**
+- **Vanilla JavaScript (ES6 Modules)**
+- **CryptoJS** (AES-256 Core)
+- **Firebase Realtime Database v10** (Gerçek Zamanlı Veri Akışı)
+- **HTML5 Canvas & CSS3 3D Transforms** (Görsel Motor)
 
 ---
 
-## 📦 Kurulum
+## 🌐 Kurulum ve Canlı Test
 
-Herhangi bir kurulum gerekmez.
+Herhangi bir sunucu kurulumu gerekmez. Doğrudan tarayıcı üzerinden çalışır.
 
-1. Repository’i klonla:
-   ```bash
-   git clone https://github.com/Wolynx/volktron-enigma-chat.git
+### Seçenek 1: Canlı Ağ Bağlantısı (Önerilen)
+Volktronic ağına doğrudan tarayıcınızdan katılmak için aşağıdaki güvenli bağlantıyı kullanın:
+👉 **[volktron-enigma-chat Ağına Katıl](https://wolynx.github.io/volktron-enigma-chat/)** *(Not: Sistem büyük/küçük harf duyarlı olduğu için bağlantının tamamen küçük harflerden oluştuğundan emin olun.)*
 
-2. Benim sitem üzerinden katılmak için:
-   ```bash   
-   https://wolynx.github.io/Volktron-Enigma-Chat/
+### Seçenek 2: Kendi İstasyonunuzu Kurun
+Projeyi kendi yerel ağınızda test etmek veya geliştirmek için:
+```bash
+# Repository'i klonlayın
+git clone [https://github.com/Wolynx/volktron-enigma-chat.git](https://github.com/Wolynx/volktron-enigma-chat.git)
+
+# Klasöre girin
+cd volktron-enigma-chat
+
+# index.html dosyasını herhangi bir modern tarayıcıda açın
