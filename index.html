@@ -23,7 +23,6 @@ window.fbPush = push;
 window.fbOnAdd = onChildAdded;
 </script>
 
-<!-- UI STYLE (seninki) -->
 <style>
 *{box-sizing:border-box;font-family:"Segoe UI",sans-serif}
 body{
@@ -80,7 +79,7 @@ button{
   overflow-y:auto
 }
 .msg{
-  padding:10px 40px 10px 10px;
+  padding:10px;
   border-radius:10px;
   margin-top:8px;
   word-break:break-word
@@ -96,16 +95,14 @@ button{
 
 <body>
 
-<!-- LOGIN -->
 <div class="card" id="login">
   <h1>🔐 Volktronic Crypto</h1>
   <input id="username" placeholder="Kullanıcı adı">
   <input id="room" placeholder="Oda adı">
-  <input id="secret" placeholder="Gizli Anahtar">
+  <input id="secret" placeholder="Gizli anahtar">
   <button class="primary" onclick="enterRoom()">Odaya Gir</button>
 </div>
 
-<!-- CHAT -->
 <div class="container hidden" id="chat">
   <div class="header">
     <h2>Oda: <span id="roomName"></span></h2>
@@ -116,7 +113,7 @@ button{
     <div class="section">
       <h3>🔒 Şifrele</h3>
       <div class="layers" id="encLayers"></div>
-      <textarea id="message" placeholder="Mesaj..."></textarea>
+      <textarea id="message"></textarea>
       <button class="primary" onclick="encrypt()">Gönder</button>
     </div>
 
@@ -125,7 +122,7 @@ button{
       <div class="layers" id="decLayers"></div>
       <textarea id="cipher"></textarea>
       <button class="secondary" onclick="decrypt()">Çöz</button>
-      <div id="result" style="margin-top:8px;color:#7CFF9E"></div>
+      <div id="result"></div>
     </div>
   </div>
 
@@ -137,7 +134,6 @@ button{
   <div class="footer">Volkan Özdemir</div>
 </div>
 
-<!-- CRYPTO + LOGIC -->
 <script type="module">
 import { deriveKey, encryptAES, decryptAES } from "./crypto.js";
 
@@ -161,10 +157,10 @@ window.enterRoom = ()=>{
   ROOM=room.value.trim();
   if(!USER||!ROOM||!secret.value) return alert("Eksik bilgi");
 
-  userName.textContent=USER;
-  roomName.textContent=ROOM;
   login.classList.add("hidden");
   chat.classList.remove("hidden");
+  userName.textContent=USER;
+  roomName.textContent=ROOM;
 
   roomRef = fbRef(db,"rooms/"+ROOM);
 
@@ -176,9 +172,9 @@ window.enterRoom = ()=>{
     try{
       const key = await deriveKey(secret.value, d.layers);
       const txt = await decryptAES(key, d.cipher, d.iv);
-      div.innerHTML=`<b>${d.user}</b><br>${txt}`;
+      div.innerHTML="<b>"+d.user+"</b><br>"+txt;
     }catch{
-      div.innerHTML=`<b>${d.user}</b><br>⚠️ Çözülemedi`;
+      div.innerHTML="<b>"+d.user+"</b><br>⚠️ Çözülemedi";
     }
 
     log.appendChild(div);
