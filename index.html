@@ -2,125 +2,429 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Volktronic Crypto - AES 256 Edition</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Volktronic Crypto | Secure Cyberlink</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
 
 <style>
-* { box-sizing: border-box; font-family: "Segoe UI", sans-serif; }
+:root {
+    --neon-blue: #00f3ff;
+    --neon-pink: #ff0099;
+    --neon-purple: #9d00ff;
+    --neon-green: #00ff9d;
+    --bg-dark: #020617;
+    --glass-bg: rgba(2, 6, 23, 0.7);
+    --glass-border: rgba(0, 243, 255, 0.3);
+}
+
+* { box-sizing: border-box; }
+
 body {
-  margin: 0; min-height: 100vh;
-  background: radial-gradient(circle at top, #0ff3, transparent 60%), linear-gradient(135deg, #020617, #020b2e);
-  color: #fff; display: flex; align-items: center; justify-content: center;
+    margin: 0;
+    min-height: 100vh;
+    background-color: var(--bg-dark);
+    color: #fff;
+    font-family: 'Rajdhani', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow-x: hidden;
+    perspective: 1000px; /* 3D derinlik için */
 }
+
+/* --- CYBER BACKGROUND CANVAS --- */
+#cyber-canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: -1;
+    background: radial-gradient(ellipse at bottom, #0d1d31 0%, #0c0d13 100%);
+}
+
+/* --- ORTAK KART STİLLERİ (Glassmorphism & 3D Tilt) --- */
+.cyber-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px) saturate(150%);
+    -webkit-backdrop-filter: blur(20px) saturate(150%);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    box-shadow: 0 0 30px rgba(0, 243, 255, 0.1), inset 0 0 20px rgba(0, 243, 255, 0.05);
+    padding: 40px;
+    transition: transform 0.1s ease, box-shadow 0.3s ease;
+    will-change: transform;
+    transform-style: preserve-3d;
+    animation: cardEntrance 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    opacity: 0;
+}
+
+@keyframes cardEntrance {
+    from { opacity: 0; transform: translateY(50px) scale(0.9); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
 .hidden { display: none !important; }
-.card, .container {
-  background: rgba(10, 20, 50, 0.92);
-  backdrop-filter: blur(10px);
-  box-shadow: 0 0 40px #0ff3;
-  border-radius: 20px;
+
+/* --- GİRİŞ EKRANI ÖZEL --- */
+#login {
+    width: 450px;
+    text-align: center;
+    position: relative;
 }
-.card { width: 420px; padding: 30px; text-align: center; }
-.card h1 { color: #4deaff; font-size: 24px; margin-bottom: 20px;}
-.card p { font-size: 13px; color: #aaa; margin-bottom: 20px; }
+#login::before {
+    content: ''; position: absolute; top: -2px; left: -2px; right: -2px; bottom: -2px;
+    background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple), var(--neon-pink), var(--neon-blue));
+    z-index: -1; filter: blur(20px); opacity: 0.4; border-radius: 22px;
+    animation: glowingBorder 6s linear infinite;
+}
+
+h1, h2, h3 {
+    font-family: 'Orbitron', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+h1 {
+    margin: 0;
+    background: linear-gradient(to right, var(--neon-blue), #fff, var(--neon-blue));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
+}
+.subtitle {
+    color: var(--neon-purple);
+    font-size: 14px; letter-spacing: 4px; margin-bottom: 30px;
+    position: relative; display: inline-block;
+}
+.subtitle::after {
+    content: ''; position: absolute; width: 100%; height: 2px; bottom: -5px; left: 0;
+    background: linear-gradient(90deg, transparent, var(--neon-purple), transparent);
+}
+
+/* --- INPUTLAR VE BUTONLAR --- */
+.input-group { position: relative; margin-top: 20px; }
 input, textarea {
-  width: 100%; padding: 12px; border-radius: 10px;
-  border: 1px solid rgba(0, 255, 213, 0.2); outline: none; margin-top: 10px; font-size: 15px;
-  background: rgba(0,0,0,0.5); color: #fff;
+    width: 100%; padding: 15px 20px;
+    background: rgba(0,0,0,0.6);
+    border: 2px solid rgba(0, 243, 255, 0.2);
+    border-radius: 8px;
+    color: var(--neon-blue);
+    font-family: 'Rajdhani', sans-serif; font-size: 18px; font-weight: 600;
+    outline: none; transition: 0.3s;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
 }
-input:focus, textarea:focus { border-color: #00ffd5; box-shadow: 0 0 8px #00ffd555; }
+input::placeholder, textarea::placeholder { color: rgba(0, 243, 255, 0.5); font-weight: 400; }
+input:focus, textarea:focus {
+    border-color: var(--neon-blue);
+    box-shadow: 0 0 20px rgba(0, 243, 255, 0.4), inset 0 0 10px rgba(0, 243, 255, 0.2);
+    color: #fff;
+}
+/* Input Focus Scanline Efekti */
+.input-group::after {
+    content: ''; position: absolute; bottom: 0; left: 50%; width: 0; height: 2px;
+    background: var(--neon-blue); transition: 0.4s ease;
+    box-shadow: 0 0 10px var(--neon-blue);
+}
+.input-group:focus-within::after { width: 100%; left: 0; }
+
 button {
-  margin-top: 15px; padding: 12px; width: 100%;
-  border: none; border-radius: 12px; font-size: 16px;
-  cursor: pointer; font-weight: bold; transition: 0.2s;
+    width: 100%; margin-top: 25px; padding: 15px;
+    border: none; border-radius: 8px;
+    font-family: 'Orbitron', sans-serif; font-size: 16px; font-weight: bold;
+    cursor: pointer; position: relative; overflow: hidden;
+    transition: 0.3s; text-transform: uppercase; letter-spacing: 1px;
 }
-button:hover { transform: scale(1.02); }
-.primary { background: linear-gradient(135deg, #25d9f0, #00aaff); color: #000; }
-.secondary { background: linear-gradient(135deg, #ff77b7, #ff2a85); color: #fff; }
-.container { width: 1100px; padding: 25px; }
-.header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 15px; }
-.header h2 { margin: 0; color: #4deaff; }
-.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
-.section h3 { color: #ff9ad5; margin-top: 0; }
-.layers { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 15px; }
+.primary {
+    background: linear-gradient(135deg, rgba(0,243,255,0.2), rgba(0,157,255,0.2));
+    border: 2px solid var(--neon-blue); color: var(--neon-blue);
+    box-shadow: 0 0 15px rgba(0, 243, 255, 0.2);
+}
+.primary:hover {
+    background: var(--neon-blue); color: #000;
+    box-shadow: 0 0 40px rgba(0, 243, 255, 0.8);
+}
+.secondary {
+    background: linear-gradient(135deg, rgba(255,0,153,0.2), rgba(157,0,255,0.2));
+    border: 2px solid var(--neon-pink); color: var(--neon-pink);
+}
+.secondary:hover {
+    background: var(--neon-pink); color: #000;
+    box-shadow: 0 0 40px rgba(255,0,153,0.8);
+}
+/* Buton Parlama Efekti */
+button::before {
+    content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+    transition: 0.5s; transform: skewX(-20deg);
+}
+button:hover::before { left: 100%; }
+
+/* --- CHAT KONTEYNERİ --- */
+.container {
+    width: 1200px; max-width: 95%; height: 90vh;
+    display: flex; flex-direction: column;
+}
+.header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding-bottom: 20px; border-bottom: 2px solid rgba(0, 243, 255, 0.2);
+    margin-bottom: 20px;
+}
+.header h2 span { color: var(--neon-green); text-shadow: 0 0 10px var(--neon-green); }
+.user-badge {
+    background: rgba(0, 243, 255, 0.1); border: 1px solid var(--neon-blue);
+    padding: 8px 15px; border-radius: 20px; font-family: 'Orbitron'; font-size: 12px;
+    box-shadow: 0 0 10px rgba(0, 243, 255, 0.2);
+}
+
+/* --- GRID YAPISI --- */
+.main-grid {
+    display: grid; grid-template-columns: 350px 1fr 350px; gap: 25px;
+    flex: 1; overflow: hidden; /* İçerik taşarsa scroll çıksın */
+}
+.panel {
+    background: rgba(0,0,0,0.3); border-radius: 15px; padding: 20px;
+    border: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column;
+}
+.panel h3 { color: var(--neon-pink); font-size: 16px; margin-bottom: 15px; display: flex; align-items: center; }
+.panel h3::before { content: ''; display: inline-block; width: 8px; height: 8px; background: var(--neon-pink); border-radius: 50%; margin-right: 10px; box-shadow: 0 0 10px var(--neon-pink); }
+
+/* --- KATMAN BUTONLARI (Nodelar) --- */
+.layers {
+    display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 20px;
+}
 .layer {
-  padding: 10px; border-radius: 10px;
-  background: linear-gradient(135deg, #1e4066, #1e90ff);
-  cursor: pointer; font-weight: 600; font-size: 14px;
-  transition: 0.2s; text-align: center; border: 1px solid transparent;
+    aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+    background: rgba(0, 243, 255, 0.05); border: 1px solid rgba(0, 243, 255, 0.3);
+    border-radius: 8px; cursor: pointer; font-family: 'Orbitron'; font-weight: bold;
+    transition: 0.3s; position: relative; overflow: hidden;
 }
-.layer:hover { filter: brightness(1.2); }
+.layer:hover { background: rgba(0, 243, 255, 0.2); box-shadow: 0 0 15px rgba(0, 243, 255, 0.5); }
 .layer.active {
-  background: linear-gradient(135deg, #00ffd5, #00aaff);
-  box-shadow: 0 0 15px #00ffd5aa; color: #000; border: 1px solid #fff;
+    background: var(--neon-blue); color: #000; border-color: #fff;
+    box-shadow: 0 0 25px var(--neon-blue);
 }
-.messages {
-  margin-top: 25px; padding: 15px; background: rgba(0, 0, 0, 0.4);
-  border-radius: 15px; height: 250px; overflow-y: auto; border: 1px solid #333;
+/* Aktif katman animasyonu */
+.layer.active::after {
+    content: ''; position: absolute; inset: 0; border: 2px solid #fff;
+    animation: pulseBorder 1.5s infinite; border-radius: 8px;
 }
+
+/* --- MESAJ ALANI --- */
+.messages-panel { grid-column: 2; background: rgba(0,0,0,0.4); border: 2px solid rgba(0, 243, 255, 0.1); position: relative; }
+.messages-panel::before {
+    content: 'ENCRYPTED STREAM //'; position: absolute; top: -12px; left: 20px;
+    background: var(--bg-dark); padding: 0 10px; color: rgba(0, 243, 255, 0.5); font-size: 10px; font-family: 'Orbitron';
+}
+#log {
+    flex: 1; overflow-y: auto; padding-right: 10px;
+    scrollbar-width: thin; scrollbar-color: var(--neon-blue) transparent;
+}
+#log::-webkit-scrollbar { width: 5px; }
+#log::-webkit-scrollbar-thumb { background: var(--neon-blue); border-radius: 10px; }
+
 .msg {
-  padding: 10px 45px 10px 12px; border-radius: 10px; margin-top: 8px;
-  position: relative; animation: pop 0.25s ease; word-break: break-all;
+    padding: 12px 15px; margin-bottom: 12px; border-radius: 12px;
+    position: relative; animation: msgPop 0.3s ease backwards; border-left: 3px solid transparent;
+    backdrop-filter: blur(5px);
 }
-.msg.me { background: linear-gradient(135deg, #00ffd5, #00aaff); color: #000; }
-.msg.other { background: #111b3d; border: 1px solid #2a3b6e; }
-.copy {
-  position: absolute; right: 8px; top: 8px; font-size: 12px;
-  background: rgba(255,255,255,0.2); padding: 5px 8px;
-  border-radius: 8px; cursor: pointer; transition: 0.2s;
+.msg.me {
+    background: linear-gradient(90deg, rgba(0, 243, 255, 0.1), transparent);
+    border-left-color: var(--neon-blue); align-self: flex-end; text-align: right;
 }
-.copy:hover { background: rgba(255,255,255,0.4); }
-#result { margin-top: 12px; color: #7CFF9E; font-weight: bold; padding: 10px; background: rgba(0,0,0,0.5); border-radius: 8px; min-height: 40px; word-break: break-all;}
-@keyframes pop { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-.footer { text-align: right; font-size: 12px; opacity: 0.6; margin-top: 15px; }
-@media(max-width: 900px) {
-  .container { width: 95%; } .grid { grid-template-columns: 1fr; }
-  .layers { grid-template-columns: repeat(5, 1fr); }
+.msg.other {
+    background: linear-gradient(90deg, rgba(255, 0, 153, 0.1), transparent);
+    border-left-color: var(--neon-pink);
+}
+.msg b { color: var(--neon-green); }
+.msg.other b { color: var(--neon-pink); }
+.copy-btn {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    right: -30px; opacity: 0; transition: 0.3s; cursor: pointer; font-size: 18px;
+}
+.msg:hover .copy-btn { opacity: 1; right: 10px; }
+
+/* --- RESULT KUTUSU --- */
+#result {
+    margin-top: 15px; padding: 15px; background: rgba(0,0,0,0.5);
+    border: 2px dashed rgba(0, 255, 157, 0.3); border-radius: 8px;
+    min-height: 60px; word-break: break-all; font-family: 'source code pro', monospace;
+    color: var(--neon-green); text-shadow: 0 0 5px rgba(0, 255, 157, 0.5);
+}
+
+/* --- ANIMASYONLAR --- */
+@keyframes glowingBorder { 0% { filter: hue-rotate(0deg) blur(20px); } 100% { filter: hue-rotate(360deg) blur(20px); } }
+@keyframes pulseBorder { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(1.5); opacity: 0; } }
+@keyframes msgPop { from { opacity: 0; transform: translateY(20px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+/* --- RESPONSIVE --- */
+@media (max-width: 1100px) {
+    .main-grid { grid-template-columns: 1fr 1fr; grid-template-rows: auto 1fr; }
+    .messages-panel { grid-column: 1 / -1; grid-row: 2; height: 400px;}
+}
+@media (max-width: 768px) {
+    .main-grid { grid-template-columns: 1fr; }
+    .card { width: 95%; }
+    .messages-panel { height: 300px; }
 }
 </style>
 </head>
 <body>
 
-<div class="card" id="login">
-  <h1>🔐 Volktronic Crypto</h1>
-  <p>AES-256 Multi-Layered Encryption</p>
-  <input id="username" placeholder="Kullanıcı Adı" autocomplete="off">
-  <input id="room" placeholder="Oda Adı" autocomplete="off">
-  <input id="secretKey" type="password" placeholder="Gizli Anahtar (Zorunlu)" autocomplete="off">
-  <button class="primary" onclick="window.enterRoom()">Güvenli Odaya Gir</button>
+<canvas id="cyber-canvas"></canvas>
+
+<div class="cyber-card" id="login">
+    <h1>VOLKTRONIC</h1>
+    <span class="subtitle">QUANTUM AES-256 ENCRYPTION</span>
+    
+    <div class="input-group">
+        <input id="username" placeholder="AGENT ID (Kullanıcı Adı)" autocomplete="off">
+    </div>
+    <div class="input-group">
+        <input id="room" placeholder="SECURE CHANNEL (Oda Adı)" autocomplete="off">
+    </div>
+    <div class="input-group">
+        <input id="secretKey" type="password" placeholder="MASTER KEY (Gizli Anahtar)" autocomplete="off">
+    </div>
+    
+    <button class="primary" onclick="window.enterRoom()">
+        <span>INITIALIZE UPLINK</span>
+    </button>
 </div>
 
-<div class="container hidden" id="chat">
-  <div class="header">
-    <h2>Oda: <span id="roomNameDisplay"></span></h2>
-    <div>👤 <span id="userNameDisplay"></span></div>
-  </div>
-
-  <div class="grid">
-    <div class="section">
-      <h3>🔒 Şifrele & Gönder</h3>
-      <div class="layers" id="encLayers"></div>
-      <textarea id="message" placeholder="Gizli mesajınızı yazın..." rows="3"></textarea>
-      <button class="primary" onclick="window.encryptAndSend()">Şifrele ve Gönder</button>
+<div class="cyber-card container hidden" id="chat">
+    <div class="header">
+        <h2>CHANNEL: <span id="roomNameDisplay"></span></h2>
+        <div class="user-badge">STATUS: CONNECTED AS <span id="userNameDisplay" style="color:var(--neon-blue)"></span></div>
     </div>
 
-    <div class="section">
-      <h3>🔓 Şifreyi Çöz</h3>
-      <div class="layers" id="decLayers"></div>
-      <textarea id="cipher" placeholder="Çözülecek şifreli metni buraya yapıştırın..." rows="3"></textarea>
-      <button class="secondary" onclick="window.decryptMessage()">Şifreyi Çöz</button>
-      <div id="result">Çözüm burada görünecek...</div>
+    <div class="main-grid">
+        <div class="panel">
+            <h3>ENCRYPT DATA STREAM</h3>
+            <div class="layers" id="encLayers"></div>
+            <textarea id="message" placeholder="Enter cleartext data..." rows="5"></textarea>
+            <button class="primary" onclick="window.encryptAndSend()">EXECUTE ENCRYPTION</button>
+        </div>
+
+        <div class="panel messages-panel">
+            <div id="log"></div>
+        </div>
+
+        <div class="panel">
+            <h3>DECRYPT CIPHERTEXT</h3>
+            <div class="layers" id="decLayers"></div>
+            <textarea id="cipher" placeholder="Paste encrypted hash..." rows="5"></textarea>
+            <button class="secondary" onclick="window.decryptMessage()">DECRYPT DATA</button>
+            <div id="result">Awaiting ciphertext input...</div>
+        </div>
     </div>
-  </div>
-
-  <div class="messages">
-    <b style="color:#4deaff;">📥 Gelen Şifreli Mesajlar</b>
-    <div id="log"></div>
-  </div>
-
-  <div class="footer">Volkan Özdemir | AES-256 Engine</div>
+    <div style="text-align: center; margin-top: 10px; font-size: 10px; opacity: 0.5; letter-spacing: 2px;">VOLKTRONIC SECURITY SYSTEMS v2.0 | END-TO-END ENCRYPTED</div>
 </div>
+
+
+<script>
+    // --- 1. 3D TILT EFEKTİ ---
+    const cards = document.querySelectorAll('.cyber-card');
+
+    cards.forEach(card => {
+        card.addEventListener('mousemove', (e) => {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left; // Fare kartın neresinde (X)
+            const y = e.clientY - rect.top;  // Fare kartın neresinde (Y)
+            
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            
+            const rotateX = ((y - centerY) / centerY) * -10; // Max 10 derece eğim
+            const rotateY = ((x - centerX) / centerX) * 10;
+
+            card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+        });
+
+        card.addEventListener('mouseleave', () => {
+            // Fare çıkınca kartı düzelt
+            card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)';
+        });
+    });
+
+    // --- 2. CYBER CANVAS ARKA PLAN (Veri Ağı Simülasyonu) ---
+    const canvas = document.getElementById('cyber-canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    let particlesArray;
+    const numberOfParticles = 150; // Parçacık sayısı
+
+    // Parçacık Sınıfı
+    class Particle {
+        constructor() {
+            this.x = Math.random() * canvas.width;
+            this.y = Math.random() * canvas.height;
+            this.size = Math.random() * 2 + 1;
+            this.speedX = Math.random() * 1 - 0.5; // Yavaş hareket
+            this.speedY = Math.random() * 1 - 0.5;
+            this.color = Math.random() > 0.5 ? '#00f3ff' : '#ff0099'; // Neon mavi veya pembe
+        }
+        update() {
+            this.x += this.speedX;
+            this.y += this.speedY;
+            // Kenarlardan taşarsa geri döndür
+            if (this.x > canvas.width || this.x < 0) this.speedX = -this.speedX;
+            if (this.y > canvas.height || this.y < 0) this.speedY = -this.speedY;
+        }
+        draw() {
+            ctx.fillStyle = this.color;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = this.color;
+        }
+    }
+
+    function initCanvas() {
+        particlesArray = [];
+        for (let i = 0; i < numberOfParticles; i++) {
+            particlesArray.push(new Particle());
+        }
+    }
+
+    function animateCanvas() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (let i = 0; i < particlesArray.length; i++) {
+            particlesArray[i].update();
+            particlesArray[i].draw();
+
+            // Parçacıklar arası bağlantı çizgileri
+            for (let j = i; j < particlesArray.length; j++) {
+                const dx = particlesArray[i].x - particlesArray[j].x;
+                const dy = particlesArray[i].y - particlesArray[j].y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                if (distance < 100) { // Yakınlarsa çizgi çek
+                    ctx.beginPath();
+                    ctx.strokeStyle = `rgba(0, 243, 255, ${1 - distance/100})`; // Mesafe arttıkça saydamlaş
+                    ctx.lineWidth = 0.5;
+                    ctx.moveTo(particlesArray[i].x, particlesArray[i].y);
+                    ctx.lineTo(particlesArray[j].x, particlesArray[j].y);
+                    ctx.stroke();
+                    ctx.shadowBlur = 0; // Çizgilerde gölge olmasın performans için
+                }
+            }
+        }
+        requestAnimationFrame(animateCanvas);
+    }
+
+    // Ekran boyutu değişirse canvası yenile
+    window.addEventListener('resize', () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        initCanvas();
+    });
+
+    initCanvas();
+    animateCanvas();
+</script>
 
 <script type="module" src="crypto.js"></script>
 
