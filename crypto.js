@@ -19,7 +19,8 @@ function makeLayers(el, set) {
   for (let i = 1; i <= 10; i++) {
     const d = document.createElement("div");
     d.className = "layer";
-    d.textContent = "L" + i;
+    // Sadece L1, L2 yerine daha teknolojik görünüm
+    d.innerHTML = `N-${i < 10 ? '0'+i : i}`; 
     d.onclick = () => {
       set.has(i) ? set.delete(i) : set.add(i);
       d.classList.toggle("active");
@@ -39,13 +40,28 @@ function enterRoom() {
   SECRET = document.getElementById("secretKey").value.trim();
   
   if (!USER || !ROOM || !SECRET) {
-    return alert("Lütfen Kullanıcı Adı, Oda Adı ve Gizli Anahtar alanlarını doldurun.");
+    // Daha havalı bir uyarı (basit alert yerine)
+    const loginCard = document.getElementById("login");
+    loginCard.style.boxShadow = "0 0 50px red";
+    setTimeout(() => loginCard.style.boxShadow = "", 500);
+    return;
   }
 
   document.getElementById("userNameDisplay").textContent = USER;
   document.getElementById("roomNameDisplay").textContent = ROOM;
-  document.getElementById("login").classList.add("hidden");
-  document.getElementById("chat").classList.remove("hidden");
+  
+  const loginDiv = document.getElementById("login");
+  const chatDiv = document.getElementById("chat");
+
+  // Geçiş Animasyonu
+  loginDiv.style.transform = "scale(0.9) translateY(-100px)";
+  loginDiv.style.opacity = "0";
+  
+  setTimeout(() => {
+      loginDiv.classList.add("hidden");
+      chatDiv.classList.remove("hidden");
+  }, 300);
+
 
   // Firebase Dinleyicisi
   roomRef = ref(db, "rooms/" + ROOM);
@@ -53,13 +69,18 @@ function enterRoom() {
     const d = snap.val();
     const div = document.createElement("div");
     div.className = "msg " + (d.user === USER ? "me" : "other");
-    const t = new Date(d.time).toLocaleTimeString();
+    const t = new Date(d.time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
     
-    div.innerHTML = `<b>${d.user}</b> <span style="opacity:.6;font-size:11px;margin-left:5px;">${t}</span><br>${d.text}<span class="copy" title="Şifreyi Çözme Kutusuna Aktar">📋</span>`;
+    div.innerHTML = `
+        <div><b>[${d.user}]</b> <span style="opacity:.6;font-size:10px;">${t}</span></div>
+        <div style="margin-top:5px; word-break:break-all; font-family:'source code pro', monospace;">${d.text}</div>
+        <span class="copy-btn" title="Decrypt'e Kopyala">⚡</span>
+    `;
     
-    // Kopyala butonuna tıklayınca cipher textarea'sına aktar
-    div.querySelector(".copy").onclick = () => {
+    div.querySelector(".copy-btn").onclick = () => {
       document.getElementById("cipher").value = d.text;
+      // Ufak bir görsel geri bildirim
+      document.getElementById("cipher").focus();
     };
     
     const logDiv = document.getElementById("log");
@@ -78,7 +99,7 @@ function applyStrongLayers(text, secret, selectedLayers) {
   }
 
   layers.forEach(layer => {
-    let layerSpecificKey = secret + "_LayerSalt_" + layer;
+    let layerSpecificKey = secret + "_LayerSalt_N" + layer;
     encrypted = CryptoJS.AES.encrypt(encrypted, layerSpecificKey).toString();
   });
   
@@ -99,7 +120,7 @@ function removeStrongLayers(ciphertext, secret, selectedLayers) {
     }
 
     layers.forEach(layer => {
-      let layerSpecificKey = secret + "_LayerSalt_" + layer;
+      let layerSpecificKey = secret + "_LayerSalt_N" + layer;
       let bytes = CryptoJS.AES.decrypt(decrypted, layerSpecificKey);
       decrypted = bytes.toString(CryptoJS.enc.Utf8);
       if(!decrypted) throw new Error(); 
@@ -107,7 +128,7 @@ function removeStrongLayers(ciphertext, secret, selectedLayers) {
     
     return decrypted;
   } catch (error) {
-    return "⚠ [Çözülemedi: Yanlış Gizli Anahtar veya Eksik/Hatalı Katman Sırası]";
+    return "ERR_DECRYPTION_FAILED // Invalid Key or Layer Sequence.";
   }
 }
 
@@ -133,23 +154,24 @@ function decryptMessage() {
   const resultDiv = document.getElementById("result");
   
   if (!cipherInput) {
-    resultDiv.textContent = "Lütfen çözülecek metni girin.";
-    resultDiv.style.color = "#ff77b7";
+    resultDiv.innerHTML = "<span style='color:var(--neon-pink)'>ERR_EMPTY_INPUT // Please verify source data.</span>";
     return;
   }
 
   const decryptedText = removeStrongLayers(cipherInput, SECRET, decSel);
   
-  if (decryptedText.includes("⚠")) {
-    resultDiv.style.color = "#ff4444"; 
+  if (decryptedText.includes("ERR_")) {
+    resultDiv.style.color = "var(--neon-pink)"; 
+    resultDiv.style.textShadow = "0 0 5px var(--neon-pink)";
   } else {
-    resultDiv.style.color = "#7CFF9E"; 
+    resultDiv.style.color = "var(--neon-green)"; 
+    resultDiv.style.textShadow = "0 0 5px var(--neon-green)";
   }
   
-  resultDiv.textContent = "Çözüm: " + decryptedText;
+  resultDiv.textContent = "> " + decryptedText;
 }
 
-// HTML'deki onclick eventlerinin bu fonksiyonlara erişebilmesi için window objesine bağlıyoruz
+// Window objesine bağlama
 window.enterRoom = enterRoom;
 window.encryptAndSend = encryptAndSend;
 window.decryptMessage = decryptMessage;
