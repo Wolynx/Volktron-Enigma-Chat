@@ -144,7 +144,6 @@ function startFirebaseListeners() {
         div.id = "msg-" + msgKey; 
         div.className = "msg " + (safeUser === USER ? "me" : "other");
         
-        // YENİ TASARIM: Tamamen kopyalanabilir RAW veri alanı ve 3 buton
         div.innerHTML = `
             <div class="msg-header">
                 <b>[${safeUser}]</b> 
@@ -179,13 +178,12 @@ function startFirebaseListeners() {
             }).catch(() => alert("Kopyalama başarısız, metni manuel seçin."));
         };
 
-        // BUTON 2: SAĞ PANELE AKTAR İŞLEMİ (Manuel Çözme için en kolayı)
+        // BUTON 2: SAĞ PANELE AKTAR İŞLEMİ
         const transferBtn = div.querySelector(".btn-transfer");
         transferBtn.onclick = () => {
             const rightPanelCipher = document.getElementById("cipher");
             rightPanelCipher.value = safeText;
             
-            // Kullanıcıya aktarıldığını hissettir
             rightPanelCipher.style.boxShadow = "0 0 20px var(--neon-blue)";
             setTimeout(() => { rightPanelCipher.style.boxShadow = "none"; }, 1000);
             
@@ -196,7 +194,6 @@ function startFirebaseListeners() {
         // BUTON 3: DİREKT ÇÖZ (INLINE DECRYPT)
         const decryptBtn = div.querySelector(".btn-decrypt");
         decryptBtn.onclick = () => {
-            // Sağ paneldeki Katmanları (decSel) kullanarak çözer
             const decrypted = removeStrongLayers(safeText, SECRET, decSel);
             const contentDiv = div.querySelector(".decrypted-content");
             const rawBox = div.querySelector(".raw-cipher-box");
@@ -218,11 +215,9 @@ function startFirebaseListeners() {
                 contentDiv.innerHTML = htmlContent;
                 contentDiv.style.display = "block";
                 
-                // Şifreli görüntüyü gizle
                 rawBox.style.display = "none";
                 actionRow.style.display = "none";
 
-                // İmha sayacını başlat
                 if (data.burn && data.burn > 0) {
                     startBurnTimer(data.burn, msgKey, div);
                 }
@@ -373,7 +368,6 @@ async function triggerPanic() {
     
     if (confirmPanic) {
         try {
-            // Await: İşlem bitene kadar bekle
             await remove(ref(db, "rooms/" + ROOM));
             
             document.body.innerHTML = `
@@ -392,7 +386,6 @@ async function triggerPanic() {
     }
 }
 
-// Global olarak HTML'den erişim ver
 window.enterRoom = enterRoom;
 window.encryptAndSend = encryptAndSend;
 window.decryptExternal = decryptExternal;
