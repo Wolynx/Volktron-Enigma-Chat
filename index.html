@@ -3,19 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Volktronic Crypto | Ultimate Security Net</title>
+    <title>Volktronic Crypto | Kriptolu Ağ Sistemi</title>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
 
     <style>
-        /* --- TEMEL AYARLAR VE DEĞİŞKENLER --- */
+        /* =========================================
+           1. RENK PALETİ VE TEMEL AYARLAR
+           ========================================= */
         :root {
             --neon-blue: #00f3ff;
             --neon-pink: #ff0099;
             --neon-green: #00ff9d;
-            --neon-red: #ff0000;
+            --neon-red: #ff3333;
             --bg-dark: #020617;
             --glass-bg: rgba(5, 12, 28, 0.85);
             --glass-border: rgba(0, 243, 255, 0.25);
@@ -25,7 +27,7 @@
 
         * {
             box-sizing: border-box;
-            user-select: none; /* Yazıların seçilmesini engeller (Uygulama hissi için) */
+            user-select: none;
         }
 
         body {
@@ -38,10 +40,12 @@
             align-items: center;
             justify-content: center;
             overflow-x: hidden;
-            perspective: 1000px; /* 3D efekt için derinlik */
+            perspective: 1200px;
         }
 
-        /* --- ARKAPLAN CANVAS (AĞ ANİMASYONU) --- */
+        /* =========================================
+           2. ARKAPLAN ANİMASYONU (CANVAS)
+           ========================================= */
         #cyber-canvas {
             position: fixed;
             top: 0;
@@ -52,7 +56,9 @@
             background: radial-gradient(ellipse at bottom, #0d1d31 0%, #0c0d13 100%);
         }
 
-        /* --- ANA KART TASARIMI (GLASSMORPHISM) --- */
+        /* =========================================
+           3. ORTAK KART TASARIMLARI (CAM EFEKTİ)
+           ========================================= */
         .cyber-card {
             background: var(--glass-bg);
             backdrop-filter: blur(20px);
@@ -62,27 +68,21 @@
             box-shadow: 0 0 30px rgba(0, 243, 255, 0.08);
             padding: 40px;
             transition: transform 0.1s ease, box-shadow 0.3s ease;
-            transform-style: preserve-3d; /* 3D dönüşler için */
+            transform-style: preserve-3d;
             animation: fadeIn 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
             opacity: 0;
         }
 
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(40px) scale(0.95);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
+            from { opacity: 0; transform: translateY(40px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
-        .hidden {
-            display: none !important;
-        }
+        .hidden { display: none !important; }
 
-        /* --- LOGIN EKRANI ÖZELLEŞTİRMELERİ --- */
+        /* =========================================
+           4. GİRİŞ EKRANI (LOGIN)
+           ========================================= */
         #login {
             width: 450px;
             text-align: center;
@@ -127,7 +127,9 @@
             text-transform: uppercase;
         }
 
-        /* --- FORM ELEMANLARI (INPUT & TEXTAREA) --- */
+        /* =========================================
+           5. FORM ELEMANLARI
+           ========================================= */
         .input-group {
             margin-bottom: 15px;
             position: relative;
@@ -145,7 +147,7 @@
             font-weight: 600;
             outline: none;
             transition: all 0.3s ease;
-            user-select: text; /* Yazı yazılabilsin */
+            user-select: text;
         }
 
         input::placeholder, textarea::placeholder {
@@ -166,7 +168,9 @@
             resize: vertical;
         }
 
-        /* --- BUTON STİLLERİ --- */
+        /* =========================================
+           6. BUTON STİLLERİ
+           ========================================= */
         button, .file-upload-label {
             width: 100%;
             padding: 15px;
@@ -210,7 +214,7 @@
             transform: translateY(-2px);
         }
 
-        /* --- PANİK BUTONU (Kırmızı Acil Durum) --- */
+        /* PANİK BUTONU (Masaüstü/Mobil Uyumlu) */
         .panic-btn {
             background: rgba(255, 0, 0, 0.1);
             border: 1px solid var(--neon-red);
@@ -230,20 +234,14 @@
         }
 
         @keyframes shake {
-            0% { transform: translate(1px, 1px) rotate(0deg); }
-            10% { transform: translate(-1px, -2px) rotate(-1deg); }
-            20% { transform: translate(-3px, 0px) rotate(1deg); }
-            30% { transform: translate(3px, 2px) rotate(0deg); }
-            40% { transform: translate(1px, -1px) rotate(1deg); }
-            50% { transform: translate(-1px, 2px) rotate(-1deg); }
-            60% { transform: translate(-3px, 1px) rotate(0deg); }
-            70% { transform: translate(3px, 1px) rotate(-1deg); }
-            80% { transform: translate(-1px, -1px) rotate(1deg); }
-            90% { transform: translate(1px, 2px) rotate(0deg); }
-            100% { transform: translate(1px, -2px) rotate(-1deg); }
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-3px); }
+            40%, 80% { transform: translateX(3px); }
         }
 
-        /* --- SOHBET ARAYÜZÜ DÜZENİ --- */
+        /* =========================================
+           7. ANA SOHBET ARAYÜZÜ (GRID SİSTEMİ)
+           ========================================= */
         .container {
             width: 1400px;
             max-width: 96%;
@@ -275,13 +273,13 @@
             text-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
         }
 
-        /* --- 3 SÜTUNLU GRID YAPISI --- */
+        /* 3 SÜTUNLU YAPI */
         .main-grid {
             display: grid;
             grid-template-columns: 350px 1fr 350px;
             gap: 25px;
             flex: 1;
-            overflow: hidden; /* Taşmayı engeller */
+            overflow: hidden;
         }
 
         .panel {
@@ -291,16 +289,17 @@
             border: 1px solid rgba(255, 255, 255, 0.05);
             display: flex;
             flex-direction: column;
-            overflow-y: auto; /* İçerik kaydırma */
+            overflow-y: auto;
             position: relative;
         }
 
-        /* Scrollbar Tasarımı */
         .panel::-webkit-scrollbar { width: 6px; }
         .panel::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); }
         .panel::-webkit-scrollbar-thumb { background: var(--neon-blue); border-radius: 3px; }
 
-        /* --- KATMAN SEÇİCİLER (L-01...L-10) --- */
+        /* =========================================
+           8. KATMAN (LAYER) SEÇİCİLERİ
+           ========================================= */
         .layers {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
@@ -336,7 +335,9 @@
             transform: scale(1.05);
         }
 
-        /* --- ARAÇ ÇUBUĞU (Süre ve Resim) --- */
+        /* =========================================
+           9. SÜRE VE DOSYA YÜKLEME ALANI
+           ========================================= */
         .tools-row {
             display: flex;
             gap: 10px;
@@ -359,7 +360,9 @@
             color: #000;
         }
 
-        /* --- MESAJ ALANI --- */
+        /* =========================================
+           10. MESAJ AKIŞI ALANI (CHAT)
+           ========================================= */
         .messages-panel {
             grid-column: 2;
             border: 1px solid rgba(0, 243, 255, 0.2);
@@ -413,7 +416,6 @@
             color: #ddd;
         }
 
-        /* --- SOHBET İÇİ BUTONLAR --- */
         .decrypt-btn-inline {
             background: rgba(0, 255, 157, 0.1);
             border: 1px solid var(--neon-green);
@@ -433,7 +435,9 @@
             box-shadow: 0 0 15px var(--neon-green);
         }
 
-        /* --- SONUÇ KUTUSU --- */
+        /* =========================================
+           11. HARİCİ ÇÖZÜCÜ SONUÇ EKRANI
+           ========================================= */
         #result {
             margin-top: 20px;
             padding: 15px;
@@ -446,7 +450,6 @@
             word-break: break-all;
         }
 
-        /* --- YAZIYOR GÖSTERGESİ --- */
         #typing-indicator {
             position: absolute;
             bottom: 10px;
@@ -458,7 +461,9 @@
             transition: opacity 0.3s;
         }
 
-        /* --- RESPONSIVE AYARLARI --- */
+        /* =========================================
+           12. MOBİL VE TABLET UYUMLULUĞU
+           ========================================= */
         @media (max-width: 1100px) {
             .main-grid {
                 grid-template-columns: 1fr;
@@ -484,7 +489,7 @@
 
     <div class="cyber-card" id="login">
         <h1>VOLKTRONIC</h1>
-        <span class="subtitle">GÜVENLİ İSTİHBARAT AĞI v3.0</span>
+        <span class="subtitle">GÜVENLİ İSTİHBARAT AĞI v3.1</span>
 
         <div class="input-group">
             <input id="username" type="text" placeholder="AJAN KOD ADI" autocomplete="off">
@@ -562,8 +567,7 @@
     </div>
 
     <script>
-        // --- 3D TILT EFEKTİ ---
-        // Kartların fare ile üzerine gelince 3 boyutlu eğilmesini sağlar
+        // --- 1. 3D KART EĞİLME EFEKTİ ---
         const cards = document.querySelectorAll('.cyber-card');
 
         cards.forEach(card => {
@@ -575,23 +579,20 @@
                 const centerX = rect.width / 2;
                 const centerY = rect.height / 2;
                 
-                // Dönüş derecesi hesaplama
-                const rotateX = ((y - centerY) / centerY) * -5; // Max 5 derece
+                const rotateX = ((y - centerY) / centerY) * -5; 
                 const rotateY = ((x - centerX) / centerX) * 5;
 
                 card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.01, 1.01, 1.01)`;
             });
 
             card.addEventListener('mouseleave', () => {
-                // Fare çıkınca kartı düzelt
                 card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)';
             });
         });
 
-        // --- ARKAPLAN PARÇACIK ANİMASYONU ---
+        // --- 2. SİBER AĞ PARÇACIK ANİMASYONU ---
         const canvas = document.getElementById('cyber-canvas');
         const ctx = canvas.getContext('2d');
-        
         let width, height;
         let particles = [];
 
@@ -625,18 +626,15 @@
             }
         }
 
-        // Parçacıkları oluştur
         for(let i=0; i<100; i++) particles.push(new Particle());
 
         function animate() {
             ctx.clearRect(0, 0, width, height);
             
-            // Parçacıkları ve çizgileri çiz
             for(let i=0; i<particles.length; i++) {
                 particles[i].update();
                 particles[i].draw();
                 
-                // Yakın olanları birbirine bağla
                 for(let j=i; j<particles.length; j++) {
                     const dx = particles[i].x - particles[j].x;
                     const dy = particles[i].y - particles[j].y;
@@ -657,7 +655,7 @@
         animate();
     </script>
 
-    <script type="module" src="crypto.js"></script>
+    <script type="module" src="crypto.js?v=3"></script>
 
 </body>
 </html>
