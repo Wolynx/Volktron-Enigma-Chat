@@ -1,76 +1,52 @@
-// crypto-e2ee.js
 const enc = new TextEncoder();
 const dec = new TextDecoder();
 
-function bufToBase64(buf) {
-  return btoa(String.fromCharCode(...new Uint8Array(buf)));
-}
+const b64 = b => btoa(String.fromCharCode(...new Uint8Array(b)));
+const ub64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
 
-function base64ToBuf(b64) {
-  return Uint8Array.from(atob(b64), c => c.charCodeAt(0));
-}
-
-// ---------- KEY GENERATION ----------
-export async function generateKeyPair() {
+export async function genKeys(){
   return crypto.subtle.generateKey(
-    { name: "ECDH", namedCurve: "P-256" },
-    false,
-    ["deriveKey"]
+    {name:"ECDH", namedCurve:"P-256"},
+    false, ["deriveKey"]
   );
 }
 
-export async function exportPublicKey(key) {
-  const raw = await crypto.subtle.exportKey("raw", key);
-  return bufToBase64(raw);
+export async function pub(key){
+  return b64(await crypto.subtle.exportKey("raw", key));
 }
 
-export async function importPublicKey(b64) {
+export async function importPub(k){
   return crypto.subtle.importKey(
-    "raw",
-    base64ToBuf(b64),
-    { name: "ECDH", namedCurve: "P-256" },
-    false,
-    []
+    "raw", ub64(k),
+    {name:"ECDH", namedCurve:"P-256"},
+    false, []
   );
 }
 
-// ---------- KEY DERIVATION ----------
-export async function deriveAESKey(privateKey, publicKey, layers) {
+export async function derive(priv, pub, layers){
   const salt = enc.encode([...layers].sort().join("-"));
-
-  const baseKey = await crypto.subtle.deriveKey(
-    { name: "ECDH", public: publicKey },
-    privateKey,
-    { name: "AES-GCM", length: 256 },
-    false,
-    ["encrypt", "decrypt"]
+  return crypto.subtle.deriveKey(
+    {name:"ECDH", public:pub},
+    priv,
+    {name:"AES-GCM", length:256},
+    false, ["encrypt","decrypt"]
   );
-
-  return baseKey;
 }
 
-// ---------- ENCRYPT / DECRYPT ----------
-export async function encryptAES(key, text) {
+export async function encAES(key, txt){
   const iv = crypto.getRandomValues(new Uint8Array(12));
-  const cipher = await crypto.subtle.encrypt(
-    { name: "AES-GCM", iv },
-    key,
-    enc.encode(text)
+  const c = await crypto.subtle.encrypt(
+    {name:"AES-GCM", iv},
+    key, enc.encode(txt)
   );
-
-  return JSON.stringify({
-    iv: bufToBase64(iv),
-    data: bufToBase64(cipher)
-  });
+  return JSON.stringify({iv:b64(iv), d:b64(c)});
 }
 
-export async function decryptAES(key, payload) {
-  const p = JSON.parse(payload);
-  const plain = await crypto.subtle.decrypt(
-    { name: "AES-GCM", iv: base64ToBuf(p.iv) },
-    key,
-    base64ToBuf(p.data)
+export async function decAES(key, txt){
+  const o = JSON.parse(txt);
+  const p = await crypto.subtle.decrypt(
+    {name:"AES-GCM", iv:ub64(o.iv)},
+    key, ub64(o.d)
   );
-
-  return dec.decode(plain);
+  return dec.decode(p);
 }
