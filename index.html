@@ -1,14 +1,165 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Volktronic Crypto</title>
+
+<!-- Firebase -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+const firebaseConfig = {
+  databaseURL: "https://volktron-chat-default-rtdb.firebaseio.com/"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+window.db = db;
+window.fbRef = ref;
+window.fbPush = push;
+window.fbOnAdd = onChildAdded;
+</script>
+
+<!-- UI STYLE (seninki) -->
+<style>
+*{box-sizing:border-box;font-family:"Segoe UI",sans-serif}
+body{
+  margin:0;min-height:100vh;
+  background:
+    radial-gradient(circle at top,#0ff3,transparent 60%),
+    linear-gradient(135deg,#020617,#020b2e);
+  color:#fff;
+  display:flex;align-items:center;justify-content:center
+}
+.hidden{display:none}
+.card,.container{
+  background:rgba(10,20,50,.92);
+  backdrop-filter:blur(10px);
+  box-shadow:0 0 40px #0ff3;
+  border-radius:20px
+}
+.card{width:420px;padding:30px;text-align:center}
+.card h1{color:#4deaff}
+input,textarea{
+  width:100%;padding:12px;border-radius:10px;
+  border:none;outline:none;margin-top:10px;font-size:15px
+}
+button{
+  margin-top:15px;padding:12px;width:100%;
+  border:none;border-radius:12px;font-size:16px;
+  cursor:pointer;font-weight:bold
+}
+.primary{background:#25d9f0;color:#000}
+.secondary{background:#ff77b7}
+.container{width:1100px;padding:25px}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}
+.header h2{margin:0;color:#4deaff}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:25px}
+.section h3{color:#ff9ad5}
+.layers{
+  display:grid;grid-template-columns:repeat(5,1fr);
+  gap:10px;margin-bottom:10px
+}
+.layer{
+  padding:12px;border-radius:12px;
+  background:linear-gradient(135deg,#1e90ff,#00d4ff);
+  cursor:pointer;font-weight:600;
+  transition:.2s;text-align:center
+}
+.layer.active{
+  background:linear-gradient(135deg,#00ffd5,#00aaff);
+  box-shadow:0 0 15px #00ffd5aa
+}
+.messages{
+  margin-top:25px;padding:15px;
+  background:rgba(0,0,0,.4);
+  border-radius:15px;max-height:230px;
+  overflow-y:auto
+}
+.msg{
+  padding:10px 40px 10px 10px;
+  border-radius:10px;
+  margin-top:8px;
+  word-break:break-word
+}
+.msg.me{
+  background:linear-gradient(135deg,#00ffd5,#00aaff);
+  color:#000
+}
+.msg.other{background:#020617}
+.footer{text-align:right;font-size:12px;opacity:.6;margin-top:10px}
+</style>
+</head>
+
+<body>
+
+<!-- LOGIN -->
+<div class="card" id="login">
+  <h1>🔐 Volktronic Crypto</h1>
+  <input id="username" placeholder="Kullanıcı adı">
+  <input id="room" placeholder="Oda adı">
+  <input id="secret" placeholder="Gizli Anahtar">
+  <button class="primary" onclick="enterRoom()">Odaya Gir</button>
+</div>
+
+<!-- CHAT -->
+<div class="container hidden" id="chat">
+  <div class="header">
+    <h2>Oda: <span id="roomName"></span></h2>
+    <div>👤 <span id="userName"></span></div>
+  </div>
+
+  <div class="grid">
+    <div class="section">
+      <h3>🔒 Şifrele</h3>
+      <div class="layers" id="encLayers"></div>
+      <textarea id="message" placeholder="Mesaj..."></textarea>
+      <button class="primary" onclick="encrypt()">Gönder</button>
+    </div>
+
+    <div class="section">
+      <h3>🔓 Şifre Çöz</h3>
+      <div class="layers" id="decLayers"></div>
+      <textarea id="cipher"></textarea>
+      <button class="secondary" onclick="decrypt()">Çöz</button>
+      <div id="result" style="margin-top:8px;color:#7CFF9E"></div>
+    </div>
+  </div>
+
+  <div class="messages">
+    <b>📥 Gelen Mesajlar</b>
+    <div id="log"></div>
+  </div>
+
+  <div class="footer">Volkan Özdemir</div>
+</div>
+
+<!-- CRYPTO + LOGIC -->
 <script type="module">
 import { deriveKey, encryptAES, decryptAES } from "./crypto.js";
 
 let USER="", ROOM="", roomRef;
-let ENC_KEY = null;
 const encSel=new Set(), decSel=new Set();
 
-function enterRoom(){
+function makeLayers(el,set){
+  for(let i=1;i<=10;i++){
+    const d=document.createElement("div");
+    d.className="layer";
+    d.textContent="Katman "+i;
+    d.onclick=()=>{set.has(i)?set.delete(i):set.add(i);d.classList.toggle("active")};
+    el.appendChild(d);
+  }
+}
+makeLayers(encLayers,encSel);
+makeLayers(decLayers,decSel);
+
+window.enterRoom = ()=>{
   USER=username.value.trim();
   ROOM=room.value.trim();
-  if(!USER||!ROOM) return alert("Bilgiler eksik");
+  if(!USER||!ROOM||!secret.value) return alert("Eksik bilgi");
 
   userName.textContent=USER;
   roomName.textContent=ROOM;
@@ -33,9 +184,9 @@ function enterRoom(){
     log.appendChild(div);
     log.scrollTop=log.scrollHeight;
   });
-}
+};
 
-async function encrypt(){
+window.encrypt = async ()=>{
   if(!message.value) return;
 
   const key = await deriveKey(secret.value, encSel);
@@ -50,15 +201,18 @@ async function encrypt(){
   });
 
   message.value="";
-}
+};
 
-async function decrypt(){
+window.decrypt = async ()=>{
   try{
     const key = await deriveKey(secret.value, decSel);
-    const txt = await decryptAES(key, cipher.value, ivInput.value);
+    const txt = await decryptAES(key, cipher.value, "");
     result.textContent="Çözüm: "+txt;
   }catch{
     result.textContent="⚠️ Anahtar / katman yanlış";
   }
-}
+};
 </script>
+
+</body>
+</html>
