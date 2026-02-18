@@ -51,7 +51,7 @@
         html, body {
             width: 100%; height: 100%; margin: 0; padding: 0;
             background: var(--bg-base); color: var(--text-primary);
-            overflow: hidden;
+            overflow: hidden; 
         }
 
         body {
@@ -59,6 +59,7 @@
             background: radial-gradient(circle at top center, rgba(16, 185, 129, 0.15) 0%, var(--bg-base) 60%);
         }
 
+        /* Arka plan siber ağ efekti */
         body::before {
             content: ''; position: fixed; top: -20%; left: -20%; width: 140%; height: 140%;
             background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect fill="rgba(16,185,129,0.03)" width="1" height="1" x="50" y="50"/></svg>') repeat;
@@ -230,7 +231,7 @@
         #typing-indicator::before { content: ''; display: inline-block; width: 8px; height: 8px; background: var(--text-secondary); border-radius: 50%; animation: pulse 1s infinite; }
 
         /* =========================================
-           7. MOBİL UYGULAMA MİMARİSİ (DÜZELTİLMİŞ KUSURSUZ YAPI)
+           7. MOBİL UYGULAMA MİMARİSİ (DÜZELTİLMİŞ)
            ========================================= */
         .mobile-nav { display: none; }
 
@@ -239,11 +240,10 @@
         }
 
         @media (max-width: 1024px) {
-            /* DİKKAT: body'deki position: fixed klavye donmasına sebep olduğu için kaldırıldı. */
             body { 
                 height: 100vh; 
                 width: 100vw;
-                overflow: hidden; /* Ekran dışına taşmayı engeller, scroll sorunu yapmaz */
+                overflow: hidden; 
             }
             
             #login { width: 90%; max-height: 85vh; overflow-y: auto; padding: 30px 20px;}
@@ -251,7 +251,7 @@
             .app-container { 
                 position: absolute; top: 0; left: 0; right: 0; bottom: 0;
                 width: 100%; height: 100%; 
-                margin: 0; padding: 10px; padding-bottom: 85px;
+                margin: 0; padding: 10px; padding-bottom: 85px; 
                 display: flex; flex-direction: column; gap: 10px;
             }
             
@@ -267,14 +267,14 @@
                 margin: 0; 
             }
             
-            /* DİKKAT: Sadece opacity değil, visibility de eklenerek arkaplan input çakışması önlendi. */
+            /* DİKKAT: visibility eklendi, bu sayede gizli sekmelere odaklanma sorunu bitti */
             .workspace-panel { 
                 position: absolute; 
                 top: 0; left: 0; right: 0; bottom: 0;
                 display: flex; 
                 flex-direction: column; 
                 opacity: 0; 
-                visibility: hidden; /* Odak tuzağını çözer */
+                visibility: hidden; 
                 pointer-events: none; 
                 transform: scale(0.95);
                 transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s; 
@@ -338,7 +338,7 @@
 
         <div class="input-group">
             <label class="input-label">Kullanıcı Kimliği</label>
-            <input id="username" type="text" placeholder="Örn: Ajan Volkan" autocomplete="off">
+            <input id="username" type="text" placeholder="Örn: Ajan V" autocomplete="off">
         </div>
         
         <div style="display: flex; gap:16px; margin-bottom: 24px;">
@@ -459,6 +459,385 @@
     <div class="modal-bg" id="guideModal"><div class="modal-card"><div class="modal-header"><h3 class="brand-font">Sistem Protokolleri</h3><button class="close-modal" onclick="window.closeModal('guideModal')">✖</button></div><div style="font-size: 14px; color: var(--text-secondary); line-height: 1.6;"><p><strong style="color:var(--text-primary)">Uçtan Uca Şifreleme:</strong> Mesaj göndermeden önce katmanlar seçin.</p><br><p><strong style="color:var(--text-primary)">Gelişmiş PIN Koruması:</strong> Yanlış PIN girenler odanızın loglarına erişemez.</p><br><p><strong style="color:var(--text-primary)">Kripto Medya:</strong> Fotoğraf ve ses kayıtlarınız cihazınızdan çıkmadan önce AES-256 ile şifrelenir.</p></div></div></div>
     <div class="modal-bg" id="supportModal"><div class="modal-card"><div class="modal-header"><h3 class="brand-font">Destek Birimi</h3><button class="close-modal" onclick="window.closeModal('supportModal')">✖</button></div><form action="https://formspree.io/f/xdaldnap" method="POST"><div class="input-group"><input type="text" name="Konu" placeholder="İleti Konusu" required></div><div class="input-group"><input type="email" name="Email" placeholder="İletişim E-posta Adresi" required></div><div class="input-group"><textarea name="Mesaj" placeholder="Talebinizi detaylıca belirtin..." required style="min-height: 100px;"></textarea></div><button type="submit" class="btn-primary" style="width: 100%;"><span>Talebi Gönder</span></button></form></div></div>
 
-    <script src="app.js"></script>
+    <script>
+        /* =======================================================
+           VOLKTRONIC CRYPTO ENGINE v9.0 - ALL IN ONE SECURE BUILD
+           ======================================================= */
+
+        const firebaseConfig = {
+            databaseURL: "https://volktron-chat-default-rtdb.firebaseio.com/"
+        };
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const db = firebase.database();
+
+        let USER = "";
+        let ROOM = "";
+        let SECRET = "";
+        let SECURE_ROOM_PATH = ""; 
+        let roomMessagesRef;
+
+        let selectedImageBase64 = null; 
+        let selectedAudioBase64 = null;
+        let isRecording = false;
+        let mediaRecorder;
+        let audioChunks = [];
+
+        const encSel = new Set();
+        const decSel = new Set();
+
+        // Her şeyin (Fonksiyonların) global olarak tanınmasını sağlıyoruz
+        window.openModal = function(id) { document.getElementById(id).classList.add('active'); };
+        window.closeModal = function(id) { document.getElementById(id).classList.remove('active'); };
+
+        window.switchMobileTab = function(panelId, btnId) {
+            if(window.innerWidth > 1024) return; 
+
+            if (document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA')) {
+                document.activeElement.blur(); 
+            }
+
+            document.querySelectorAll('.workspace-panel').forEach(p => p.classList.remove('active-tab'));
+            document.getElementById(panelId).classList.add('active-tab');
+            
+            document.querySelectorAll('.m-nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(btnId).classList.add('active');
+
+            if(panelId === 'chat-panel') {
+                setTimeout(() => {
+                    const scrollContainer = document.getElementById("chat-scroll-container");
+                    if(scrollContainer) { scrollContainer.scrollTop = scrollContainer.scrollHeight; }
+                }, 300); 
+            }
+        };
+
+        window.toggleAudioRecord = async function() {
+            const micBtn = document.getElementById("micBtn");
+            if (!isRecording) {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorder = new MediaRecorder(stream);
+                    audioChunks = [];
+                    mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
+                    mediaRecorder.onstop = () => {
+                        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                        const reader = new FileReader();
+                        reader.readAsDataURL(audioBlob);
+                        reader.onloadend = () => {
+                            selectedAudioBase64 = reader.result;
+                            selectedImageBase64 = null; 
+                            micBtn.innerHTML = "Ses Hazır ✓";
+                            micBtn.classList.remove("recording");
+                            micBtn.classList.add("active-state");
+                        };
+                    };
+                    mediaRecorder.start();
+                    isRecording = true;
+                    micBtn.innerHTML = "Kaydediliyor... (Durdur)";
+                    micBtn.classList.add("recording");
+                } catch (err) { alert("Mikrofon izni alınamadı."); }
+            } else {
+                mediaRecorder.stop();
+                isRecording = false;
+            }
+        };
+
+        window.enterRoom = function() {
+            USER = document.getElementById("username").value.trim();
+            ROOM = document.getElementById("room").value.trim();
+            const PIN = document.getElementById("roomPin").value.trim();
+            SECRET = document.getElementById("secretKey").value.trim();
+
+            if (!USER || !ROOM || !SECRET || !PIN) {
+                alert("Bağlantı reddedildi: Lütfen tüm alanları doldurun.");
+                return;
+            }
+
+            const roomHash = CryptoJS.MD5(ROOM + "_" + PIN).toString();
+            SECURE_ROOM_PATH = ROOM + "_" + roomHash.substring(0, 10);
+
+            document.getElementById("userNameDisplay").textContent = USER;
+            document.getElementById("roomNameDisplay").textContent = ROOM;
+
+            document.getElementById("login").classList.add("hidden");
+            document.getElementById("chat").classList.remove("hidden");
+
+            if (!window.firebaseListenersActive) {
+                startFirebaseListeners();
+                window.firebaseListenersActive = true;
+            }
+        };
+
+        window.encryptAndSend = function() {
+            const msgInput = document.getElementById("message");
+            const burnTime = parseInt(document.getElementById("burnTimer").value);
+            const textVal = msgInput.value.trim();
+
+            if (!textVal && !selectedImageBase64 && !selectedAudioBase64) {
+                alert("Lütfen iletilecek veriyi girin."); return;
+            }
+
+            let payload = "";
+            if (selectedAudioBase64) payload = "AUDIO||" + selectedAudioBase64 + "||" + textVal;
+            else if (selectedImageBase64) payload = "IMG||" + selectedImageBase64 + "||" + textVal;
+            else payload = "TXT||" + textVal;
+
+            const encryptedPayload = applyStrongLayers(payload, SECRET, encSel);
+
+            roomMessagesRef.push({ user: USER, text: encryptedPayload, time: Date.now(), burn: burnTime });
+
+            msgInput.value = "";
+            selectedImageBase64 = null;
+            selectedAudioBase64 = null;
+            
+            const imgLbl = document.getElementById("imgLabel");
+            imgLbl.innerHTML = "🖼️ Dosya"; imgLbl.classList.remove("active-state");
+            
+            const micBtn = document.getElementById("micBtn");
+            micBtn.innerHTML = "🎤 Ses"; micBtn.classList.remove("active-state");
+
+            if(window.innerWidth <= 1024 && typeof window.switchMobileTab === 'function') {
+                window.switchMobileTab('chat-panel', 'm-btn-chat');
+            }
+        };
+
+        window.decryptExternal = function() {
+            const cipherText = document.getElementById("cipher").value.trim();
+            const resultDiv = document.getElementById("result");
+
+            if (!cipherText) { resultDiv.textContent = "RAW verisi bekleniyor..."; return; }
+
+            const plainText = removeStrongLayers(cipherText, SECRET, decSel);
+
+            if (plainText.includes("HATA:")) {
+                resultDiv.innerHTML = "Veri Bütünlüğü Sağlanamadı.<br><br>Katman dizilimi veya Master Key hatalı.";
+                resultDiv.style.color = "var(--danger)";
+            } else {
+                let cleanText = plainText;
+                if (cleanText.startsWith("IMG||")) cleanText = "[Görsel formatı algılandı - Ortadaki panelden çözünüz]";
+                else if (cleanText.startsWith("AUDIO||")) cleanText = "[Ses formatı algılandı - Ortadaki panelden çözünüz]";
+                else if (cleanText.startsWith("TXT||")) cleanText = cleanText.replace("TXT||", "");
+                
+                resultDiv.textContent = cleanText;
+                resultDiv.style.color = "var(--accent-primary)";
+            }
+        };
+
+        window.triggerPanic = async function() {
+            if (confirm("DİKKAT: Veri tabanı kalıcı olarak temizlenecek. Onaylıyor musunuz?")) {
+                try {
+                    await db.ref("rooms/" + SECURE_ROOM_PATH).remove();
+                    document.body.innerHTML = `<div style="display:flex; justify-content:center; align-items:center; height:100vh; background:var(--bg-base); color:var(--text-secondary); flex-direction:column; font-family:'Plus Jakarta Sans'; font-size:24px;">Çalışma Alanı İmha Edildi.</div>`;
+                    setTimeout(() => location.reload(), 3000);
+                } catch (e) { alert("Bağlantı kesintisi yaşandı."); }
+            }
+        };
+
+        function startFirebaseListeners() {
+            const myPresenceRef = db.ref("rooms/" + SECURE_ROOM_PATH + "/presence").push();
+            myPresenceRef.set(USER);
+            myPresenceRef.onDisconnect().remove();
+
+            db.ref("rooms/" + SECURE_ROOM_PATH + "/presence").on('value', (snap) => {
+                const data = snap.val() || {};
+                document.getElementById('onlineCountDisplay').innerText = Object.keys(data).length;
+            });
+
+            const globalPresenceRef = db.ref("global_presence").push();
+            globalPresenceRef.set(USER);
+            globalPresenceRef.onDisconnect().remove();
+
+            db.ref("global_presence").on('value', (snap) => {
+                const data = snap.val() || {};
+                const platformDisplay = document.getElementById('platformCountDisplay');
+                if (platformDisplay) platformDisplay.innerText = Object.keys(data).length;
+            });
+
+            db.ref("rooms/" + SECURE_ROOM_PATH + "/typing").on('value', (snap) => {
+                const data = snap.val() || {};
+                const activeWriters = Object.keys(data).filter(user => user !== USER);
+                const indicator = document.getElementById("typing-indicator");
+                if (activeWriters.length > 0) {
+                    indicator.textContent = `${activeWriters.join(", ")} yazıyor...`;
+                    indicator.style.opacity = "1";
+                } else {
+                    indicator.style.opacity = "0";
+                }
+            });
+
+            roomMessagesRef = db.ref("rooms/" + SECURE_ROOM_PATH + "/messages");
+            
+            roomMessagesRef.on('child_added', (snap) => {
+                const data = snap.val() || {};
+                const msgKey = snap.key;
+                
+                const safeUser = data.user || "Bilinmeyen";
+                const safeText = data.text || "";
+                const time = data.time ? new Date(data.time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : "--:--";
+
+                const div = document.createElement("div");
+                div.id = "msg-" + msgKey; 
+                div.className = "msg-box msg " + (safeUser === USER ? "me" : "other");
+                
+                div.innerHTML = `
+                    <div class="msg-header"><strong>${safeUser}</strong><span>${time}</span></div>
+                    <div class="raw-data mono-font">${safeText}</div>
+                    <div class="action-row">
+                        <button class="action-btn" onclick="navigator.clipboard.writeText('${safeText}')">Kopyala</button>
+                        <button class="action-btn" onclick="document.getElementById('cipher').value='${safeText}'; if(window.innerWidth<=1024) window.switchMobileTab('decoder-panel', 'm-btn-dec');">Aktar</button>
+                        <button class="action-btn solve inline-decrypt-btn">Şifreyi Çöz</button>
+                    </div>
+                    <div class="decrypted-view" style="display:none;"></div>
+                `;
+
+                div.querySelector(".inline-decrypt-btn").onclick = () => {
+                    const decrypted = removeStrongLayers(safeText, SECRET, decSel);
+                    const view = div.querySelector(".decrypted-view");
+                    const raw = div.querySelector(".raw-data");
+                    const actions = div.querySelector(".action-row");
+
+                    if (typeof decrypted === "string" && decrypted.includes("HATA:")) {
+                        alert("İşlem Başarısız: Katman dizilimi veya anahtar uyuşmazlığı.");
+                    } else {
+                        let htmlContent = "";
+                        if (decrypted.startsWith("IMG||")) {
+                            const parts = decrypted.split("||"); 
+                            htmlContent = `<img src="${parts[1]}" style="max-width:100%; max-height:280px; object-fit:contain; border-radius:8px; margin-bottom:12px; box-shadow:0 0 15px rgba(16,185,129,0.1); display:block;"><div style="font-size:15px; color:#fff; word-break:break-word;">${parts[2] || ""}</div>`;
+                        } else if (decrypted.startsWith("AUDIO||")) {
+                            const parts = decrypted.split("||");
+                            htmlContent = `<div style="background:rgba(0,0,0,0.2); padding:12px; border-radius:8px; display:flex; align-items:center; gap:12px; margin-bottom:12px;"><span style="font-size:20px;">🎧</span><audio controls src="${parts[1]}" style="height:35px; outline:none; width:100%;"></audio></div><div style="font-size:15px; color:#fff; word-break:break-word;">${parts[2] || ""}</div>`;
+                        } else if (decrypted.startsWith("TXT||")) {
+                            htmlContent = decrypted.replace("TXT||", "");
+                        } else {
+                            htmlContent = decrypted;
+                        }
+
+                        view.innerHTML = htmlContent; view.style.display = "block";
+                        raw.style.display = "none"; actions.style.display = "none";
+
+                        if (data.burn && data.burn > 0) startBurnTimer(data.burn, msgKey, div);
+                    }
+                };
+
+                document.getElementById("log").appendChild(div);
+                
+                const scrollContainer = document.getElementById("chat-scroll-container");
+                const chatPanel = document.getElementById("chat-panel");
+                if(scrollContainer && chatPanel && (chatPanel.classList.contains("active-tab") || window.innerWidth > 1024)) {
+                    setTimeout(() => { scrollContainer.scrollTop = scrollContainer.scrollHeight; }, 50);
+                }
+            });
+
+            roomMessagesRef.on('child_removed', (snap) => {
+                const el = document.getElementById("msg-" + snap.key);
+                if (el) {
+                    el.innerHTML = `<div style="color:var(--text-secondary); text-align:center; font-size:13px; font-weight:500; border:1px dashed var(--border-light); padding:16px; border-radius:8px; background:rgba(0,0,0,0.2);">Mesaj imha edildi.</div>`;
+                    setTimeout(() => el.remove(), 2000);
+                }
+            });
+        }
+
+        function startBurnTimer(seconds, msgKey, element) {
+            let timeLeft = seconds;
+            const timerDisplay = document.createElement("div");
+            timerDisplay.style.color = "var(--danger)"; timerDisplay.style.fontSize = "12px";
+            timerDisplay.style.fontWeight = "600"; timerDisplay.style.marginTop = "16px";
+            timerDisplay.style.textAlign = "right";
+            element.appendChild(timerDisplay);
+
+            const interval = setInterval(() => {
+                timerDisplay.innerHTML = `Sistemden siliniyor: ${timeLeft}s`;
+                timeLeft--;
+                if (timeLeft < 0) {
+                    clearInterval(interval);
+                    db.ref("rooms/" + SECURE_ROOM_PATH + "/messages/" + msgKey).remove();
+                }
+            }, 1000);
+        }
+
+        function applyStrongLayers(text, secret, selectedLayers) {
+            let encrypted = text;
+            let layers = [...selectedLayers].sort((a, b) => a - b);
+            if (layers.length === 0) return CryptoJS.AES.encrypt(encrypted, secret).toString();
+
+            layers.forEach(layer => {
+                let layerSpecificKey = secret + "_Salt_L" + layer;
+                encrypted = CryptoJS.AES.encrypt(encrypted, layerSpecificKey).toString();
+            });
+            return encrypted;
+        }
+
+        function removeStrongLayers(ciphertext, secret, selectedLayers) {
+            let decrypted = ciphertext;
+            let layers = [...selectedLayers].sort((a, b) => b - a);
+            try {
+                if (layers.length === 0) {
+                    let bytes = CryptoJS.AES.decrypt(decrypted, secret);
+                    let result = bytes.toString(CryptoJS.enc.Utf8);
+                    if (!result) throw new Error(); return result;
+                }
+                layers.forEach(layer => {
+                    let layerSpecificKey = secret + "_Salt_L" + layer;
+                    let bytes = CryptoJS.AES.decrypt(decrypted, layerSpecificKey);
+                    decrypted = bytes.toString(CryptoJS.enc.Utf8);
+                    if (!decrypted) throw new Error();
+                });
+                return decrypted;
+            } catch (error) { return "HATA: Çözülemedi"; }
+        }
+
+        function makeLayers(element, setObj) {
+            if (!element) return;
+            for (let i = 1; i <= 10; i++) {
+                const btn = document.createElement("div");
+                btn.className = "layer"; btn.innerHTML = `<span>${i < 10 ? '0'+i : i}</span>`;
+                btn.onclick = () => {
+                    if (setObj.has(i)) setObj.delete(i); else setObj.add(i);
+                    btn.classList.toggle("active");
+                };
+                element.appendChild(btn);
+            }
+        }
+
+        // DOM Yüklendikten Sonra Çalışacak Güvenli Başlatıcı
+        document.addEventListener('DOMContentLoaded', () => {
+            makeLayers(document.getElementById("encLayers"), encSel);
+            makeLayers(document.getElementById("decLayers"), decSel);
+
+            const imgInput = document.getElementById("imageInput");
+            if (imgInput) {
+                imgInput.addEventListener("change", function(e) {
+                    const file = e.target.files[0]; const label = document.getElementById("imgLabel");
+                    if (!file) return;
+                    if (file.size > 1.5 * 1024 * 1024) { alert("SİSTEM UYARISI: Maksimum 1.5MB yükleyebilirsiniz."); this.value = ""; return; }
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        selectedImageBase64 = event.target.result; selectedAudioBase64 = null; 
+                        label.innerHTML = "Görsel Eklendi ✓"; label.classList.add("active-state");
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+
+            let typingTimer;
+            const msgBox = document.getElementById("message");
+            if (msgBox) {
+                msgBox.addEventListener("input", () => {
+                    if(!SECURE_ROOM_PATH || !USER) return;
+                    const typingRef = db.ref("rooms/" + SECURE_ROOM_PATH + "/typing/" + USER);
+                    typingRef.set(Date.now()); clearTimeout(typingTimer);
+                    typingTimer = setTimeout(() => typingRef.remove(), 2000);
+                });
+            }
+
+            document.addEventListener('keypress', function (e) {
+                if (e.key === 'Enter' && !document.getElementById('login').classList.contains('hidden')) {
+                    window.enterRoom();
+                }
+            });
+        });
+    </script>
 </body>
 </html>
