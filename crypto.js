@@ -1,5 +1,5 @@
 /* =======================================================
-   VOLKTRONIC CRYPTO ENGINE v8.0 - FILE:// SAFE & MOBILE JANK FIX
+   VOLKTRONIC CRYPTO ENGINE v8.0 - MOBILE NATIVE FIX
    ======================================================= */
 
 const firebaseConfig = {
@@ -138,7 +138,11 @@ function enterRoom() {
     document.getElementById("login").classList.add("hidden");
     document.getElementById("chat").classList.remove("hidden");
 
-    startFirebaseListeners();
+    // Güvenlik Kilidi: Firebase dinleyicilerinin telefonu kitlemesini engeller (Sadece 1 kez başlatılır)
+    if (!window.firebaseListenersActive) {
+        startFirebaseListeners();
+        window.firebaseListenersActive = true;
+    }
 }
 
 function startFirebaseListeners() {
@@ -253,11 +257,9 @@ function startFirebaseListeners() {
         const logDiv = document.getElementById("log");
         logDiv.appendChild(div);
         
-        // YENİ DÜZELTME: Gizli sekmedeyken mobil tarayıcıyı kitlemeyi önler
         const scrollContainer = document.getElementById("chat-scroll-container");
         const chatPanel = document.getElementById("chat-panel");
         
-        // Yalnızca sekme açıksa (veya masaüstüyse) otomatik kaydır
         if(scrollContainer && chatPanel && (chatPanel.classList.contains("active-tab") || window.innerWidth > 1024)) {
             setTimeout(() => {
                 scrollContainer.scrollTop = scrollContainer.scrollHeight;
