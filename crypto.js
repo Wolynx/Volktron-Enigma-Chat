@@ -1,5 +1,5 @@
 /* =======================================================
-   VOLKTRONIC CRYPTO ENGINE v9.5 - MOBİL PERFORMANS YAMASI
+   VOLKTRONIC CRYPTO ENGINE - MOBİL DOM OPTİMİZASYONU
    ======================================================= */
 
 let db;
@@ -18,35 +18,25 @@ let isRecording = false; let mediaRecorder; let audioChunks = [];
 const encSel = new Set(); const decSel = new Set();
 let firebaseListenersActive = false;
 
-// MODAL YÖNETİMİ
 window.openModal = function(id) { document.getElementById(id).classList.add('active'); }
 window.closeModal = function(id) { document.getElementById(id).classList.remove('active'); }
 
-// MOBİL SEKME YÖNETİMİ 
-document.querySelectorAll('.m-nav-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-        if(window.innerWidth > 1024) return;
-        
-        if (document.activeElement) document.activeElement.blur();
+window.switchMobileTab = function(panelId, btnId) {
+    if(window.innerWidth > 1024) return; 
+    if (document.activeElement) document.activeElement.blur(); 
 
-        const targetId = this.getAttribute('data-target');
+    document.querySelectorAll('.workspace-panel').forEach(p => p.classList.remove('active-tab'));
+    document.getElementById(panelId).classList.add('active-tab');
+    
+    document.querySelectorAll('.m-nav-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(btnId).classList.add('active');
 
-        document.querySelectorAll('.workspace-panel').forEach(p => p.classList.remove('active-tab'));
-        document.getElementById(targetId).classList.add('active-tab');
-        
-        document.querySelectorAll('.m-nav-btn').forEach(b => b.classList.remove('active'));
-        this.classList.add('active');
+    if(panelId === 'chat-panel') {
+        const scrollContainer = document.getElementById("chat-scroll-container");
+        if(scrollContainer) scrollContainer.scrollTop = scrollContainer.scrollHeight;
+    }
+};
 
-        if(targetId === 'chat-panel') {
-            setTimeout(() => {
-                const scrollContainer = document.getElementById("chat-scroll-container");
-                if(scrollContainer) scrollContainer.scrollTop = scrollContainer.scrollHeight;
-            }, 100);
-        }
-    });
-});
-
-// KATMAN YÖNETİMİ
 function makeLayers(element, setObj) {
     if (!element) return;
     for (let i = 1; i <= 10; i++) {
@@ -64,7 +54,6 @@ document.addEventListener("DOMContentLoaded", () => {
     makeLayers(document.getElementById("decLayers"), decSel);
 });
 
-// DOSYA VE SES
 document.getElementById("imageInput").addEventListener("change", function(e) {
     const file = e.target.files[0]; const label = document.getElementById("imgLabel");
     if (!file) return;
@@ -98,7 +87,6 @@ document.getElementById("micBtn").addEventListener('click', async function() {
     } else { mediaRecorder.stop(); isRecording = false; }
 });
 
-// YAZIYOR GÖSTERGESİ (DOM'u Yormaması İçin Text Sadece Değişirse Yazılır)
 let typingTimer;
 document.getElementById("message").addEventListener("input", () => {
     if(!SECURE_ROOM_PATH || !USER || !db) return;
@@ -107,7 +95,6 @@ document.getElementById("message").addEventListener("input", () => {
     typingTimer = setTimeout(() => db.ref("rooms/" + SECURE_ROOM_PATH + "/typing/" + USER).remove(), 2000);
 });
 
-// GİRİŞ İŞLEMİ
 document.getElementById('btn-login-trigger').addEventListener('click', enterRoom);
 document.addEventListener('keypress', function (e) {
     if (e.key === 'Enter' && !document.getElementById('login').classList.contains('hidden')) enterRoom();
@@ -134,7 +121,6 @@ function enterRoom() {
     if (!firebaseListenersActive) { startFirebaseListeners(); firebaseListenersActive = true; }
 }
 
-// AĞ VE MESAJLAŞMA
 function startFirebaseListeners() {
     const myPresenceRef = db.ref("rooms/" + SECURE_ROOM_PATH + "/presence").push();
     myPresenceRef.set(USER); myPresenceRef.onDisconnect().remove();
@@ -143,24 +129,11 @@ function startFirebaseListeners() {
         document.getElementById('onlineCountDisplay').innerText = Object.keys(snap.val() || {}).length;
     });
 
-    const globalPresenceRef = db.ref("global_presence").push();
-    globalPresenceRef.set(USER); globalPresenceRef.onDisconnect().remove();
-
-    db.ref("global_presence").on('value', (snap) => {
-        const platformDisplay = document.getElementById('platformCountDisplay');
-        if (platformDisplay) platformDisplay.innerText = Object.keys(snap.val() || {}).length;
-    });
-
     db.ref("rooms/" + SECURE_ROOM_PATH + "/typing").on('value', (snap) => {
-        const data = snap.val() || {}; 
-        const activeWriters = Object.keys(data).filter(user => user !== USER);
+        const data = snap.val() || {}; const activeWriters = Object.keys(data).filter(user => user !== USER);
         const indicator = document.getElementById("typing-indicator");
-        
-        const text = activeWriters.length > 0 ? `${activeWriters.join(", ")} yazıyor...` : "";
-        if(indicator.textContent !== text) {
-            indicator.textContent = text;
-            indicator.style.opacity = activeWriters.length > 0 ? "1" : "0";
-        }
+        if (activeWriters.length > 0) { indicator.textContent = `${activeWriters.join(", ")} yazıyor...`; indicator.style.opacity = "1"; } 
+        else { indicator.style.opacity = "0"; }
     });
 
     roomMessagesRef = db.ref("rooms/" + SECURE_ROOM_PATH + "/messages");
@@ -170,12 +143,18 @@ function startFirebaseListeners() {
         const safeUser = data.user || "Bilinmeyen"; const safeText = data.text || "";
         const time = data.time ? new Date(data.time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : "--:--";
 
+        // KASMAYI ÖNLEYEN KISIM BURASI: Veri 100 karakterden uzunsa ekranda kırp.
+        let displayRawText = safeText;
+        if (safeText.length > 100) {
+            displayRawText = safeText.substring(0, 80) + "...<br><br><span style='color:var(--accent-primary); font-size:11px;'>[Büyük veri gizlendi - Kasmaması için optimize edildi]</span>";
+        }
+
         const div = document.createElement("div"); div.id = "msg-" + msgKey; 
         div.className = "msg-box msg " + (safeUser === USER ? "me" : "other");
         
         div.innerHTML = `
             <div class="msg-header"><strong>${safeUser}</strong><span>${time}</span></div>
-            <div class="raw-data mono-font">${safeText}</div>
+            <div class="raw-data mono-font">${displayRawText}</div>
             <div class="action-row">
                 <button class="action-btn copy-btn">Kopyala</button>
                 <button class="action-btn pass-btn">Aktar</button>
@@ -184,6 +163,7 @@ function startFirebaseListeners() {
             <div class="decrypted-view" style="display:none;"></div>
         `;
 
+        // Kopyalama ve Çözme işlemlerinde kırpılmış metni değil, ASIL VERİYİ (safeText) kullanıyoruz.
         div.querySelector(".copy-btn").onclick = () => navigator.clipboard.writeText(safeText);
         
         div.querySelector(".pass-btn").onclick = () => {
@@ -215,19 +195,17 @@ function startFirebaseListeners() {
         document.getElementById("log").appendChild(div);
         
         const scrollContainer = document.getElementById("chat-scroll-container");
-        if(scrollContainer) { 
-            // PERFORMANS YAMASI: DOM'un çizilmesine zaman tanı, telefonu dondurma
-            requestAnimationFrame(() => {
-                setTimeout(() => {
-                    scrollContainer.scrollTop = scrollContainer.scrollHeight;
-                }, 200); 
-            });
+        if(scrollContainer) {
+            // Tarayıcıya nefes alması için ufak bir mola verip kaydırıyoruz
+            setTimeout(() => {
+                scrollContainer.scrollTop = scrollContainer.scrollHeight;
+            }, 100);
         }
     });
 
     roomMessagesRef.on('child_removed', (snap) => {
         const el = document.getElementById("msg-" + snap.key);
-        if (el) { el.innerHTML = `<div style="text-align:center; font-size:13px; color:gray; padding:10px;">Mesaj imha edildi.</div>`; setTimeout(() => el.remove(), 2000); }
+        if (el) { el.innerHTML = `<div style="text-align:center; font-size:12px; color:gray; padding:10px;">Mesaj imha edildi.</div>`; setTimeout(() => el.remove(), 2000); }
     });
 }
 
