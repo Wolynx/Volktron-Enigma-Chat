@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
@@ -19,43 +19,53 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
     <style>
+        /* =========================================
+           1. PREMIUM RENK PALETİ VE EFEKTLER (SENİN ORİJİNAL TASARIMIN)
+           ========================================= */
         :root {
             --bg-base: #0a0f0d;       
             --bg-panel: rgba(20, 30, 25, 0.7); 
             --border-light: rgba(255, 255, 255, 0.08);
             --border-focus: rgba(16, 185, 129, 0.5);
+            
             --text-primary: #ffffff;
             --text-secondary: #a0b0c0;
+            
             --accent-primary: #10b981; 
             --accent-hover: #059669;
             --accent-glow: rgba(16, 185, 129, 0.4); 
+            
             --danger: #ef4444;
             --danger-bg: rgba(239, 68, 68, 0.15);
+            
             --shadow-soft: 0 15px 50px -15px rgba(0,0,0,0.6);
             --shadow-glow: 0 0 25px var(--accent-glow); 
             --radius-md: 14px;
             --radius-lg: 24px;
+            
             --transition-smooth: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); 
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
 
-        /* KÖK DÜZENLEME: Body esnemez ve taşmaz hale getirildi */
-        html, body {
-            width: 100%; height: 100%;
-            margin: 0; padding: 0;
-            background: var(--bg-base);
+        body {
+            background: radial-gradient(circle at top center, rgba(16, 185, 129, 0.1) 0%, var(--bg-base) 60%);
             color: var(--text-primary);
-            overflow: hidden; 
+            display: flex; align-items: center; justify-content: center;
+            min-height: 100vh; overflow-x: hidden;
+            position: relative;
         }
 
-        body {
-            display: flex; align-items: center; justify-content: center;
-            background: radial-gradient(circle at top center, rgba(16, 185, 129, 0.1) 0%, var(--bg-base) 60%);
+        body::before {
+            content: ''; position: fixed; top: -20%; left: -20%; width: 140%; height: 140%;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect fill="rgba(16,185,129,0.03)" width="1" height="1" x="50" y="50"/></svg>') repeat;
+            opacity: 0.3; animation: bgMove 60s linear infinite; z-index: -2; pointer-events: none;
         }
+        @keyframes bgMove { from { background-position: 0 0; } to { background-position: 100px 100px; } }
 
         h1, h2, h3, h4, h5, .brand-font { font-family: 'Plus Jakarta Sans', sans-serif; }
         .mono-font { font-family: 'JetBrains Mono', monospace; }
+
         .hidden { display: none !important; }
 
         button {
@@ -63,278 +73,417 @@
             font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; font-weight: 700;
             cursor: pointer; transition: var(--transition-smooth);
             display: flex; align-items: center; justify-content: center; gap: 10px;
+            position: relative; overflow: hidden;
         }
 
-        .btn-primary { background: linear-gradient(135deg, var(--accent-primary), var(--accent-hover)); color: #fff; box-shadow: 0 8px 25px -5px var(--accent-glow); }
-        .btn-secondary { background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border-light); color: var(--text-primary); }
+        button::after {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(255,255,255,0.1), transparent);
+            opacity: 0; transition: var(--transition-smooth);
+        }
+        button:hover::after { opacity: 1; }
+
+        .btn-primary { 
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-hover));
+            color: #fff; box-shadow: 0 8px 25px -5px var(--accent-glow);
+        }
+        .btn-primary:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 12px 35px -5px var(--accent-glow), 0 0 15px var(--accent-glow) inset; }
+
+        .btn-secondary { background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border-light); color: var(--text-primary); backdrop-filter: blur(10px); }
+        .btn-secondary:hover { background: rgba(255, 255, 255, 0.08); border-color: var(--border-focus); transform: translateY(-2px); }
+
         .btn-danger { background: var(--danger-bg); border: 1px solid rgba(239, 68, 68, 0.3); color: var(--danger); padding: 12px 20px; font-size: 13px; font-weight: 600; }
+        .btn-danger:hover { background: var(--danger); color: #fff; border-color: var(--danger); box-shadow: 0 5px 20px -5px rgba(239, 68, 68, 0.5); }
 
         #login {
             width: 100%; max-width: 440px; z-index: 10;
-            background: var(--bg-panel); backdrop-filter: blur(20px);
+            background: var(--bg-panel); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
             border: 1px solid var(--border-light); border-radius: var(--radius-lg);
-            padding: 40px; box-shadow: var(--shadow-soft);
+            padding: 45px; box-shadow: var(--shadow-soft), 0 0 30px rgba(16, 185, 129, 0.1) inset;
+            animation: loginAppear 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
+        @keyframes loginAppear { from { opacity: 0; transform: translateY(30px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
 
-        .brand-header { text-align: center; margin-bottom: 30px; }
-        .brand-logo { font-size: 32px; font-weight: 800; color: #fff; letter-spacing: -0.5px; margin-bottom: 6px; }
+        .brand-header { text-align: center; margin-bottom: 40px; }
+        .brand-logo { font-size: 32px; font-weight: 800; color: #fff; letter-spacing: -0.5px; margin-bottom: 6px; text-shadow: 0 0 15px var(--accent-glow); }
         .brand-logo span { color: var(--accent-primary); }
-        .brand-sub { font-size: 14px; color: var(--text-secondary); font-weight: 500; }
+        .brand-sub { font-size: 14px; color: var(--text-secondary); font-weight: 500; letter-spacing: 0.5px; }
 
-        .input-group { margin-bottom: 20px; text-align: left;}
-        .input-label { display: block; font-size: 13px; color: var(--text-secondary); margin-bottom: 8px; font-weight: 600; }
+        .input-group { margin-bottom: 24px; position: relative; text-align: left;}
+        .input-label { display: block; font-size: 13px; color: var(--text-secondary); margin-bottom: 10px; font-weight: 600; letter-spacing: 0.5px; }
         
         input, textarea, select {
-            width: 100%; padding: 14px 16px; background: rgba(0,0,0,0.5); 
+            width: 100%; padding: 16px 18px; background: rgba(0,0,0,0.4); 
             border: 2px solid var(--border-light); border-radius: var(--radius-md); 
-            color: var(--text-primary); font-size: 15px; font-weight: 500;
-            outline: none; transition: border 0.3s;
+            color: var(--text-primary); font-size: 15px; font-family: 'Inter', sans-serif; font-weight: 500;
+            transition: var(--transition-smooth); outline: none;
         }
-        input:focus, textarea:focus, select:focus { border-color: var(--accent-primary); }
+        
+        input:focus, textarea:focus, select:focus { 
+            border-color: var(--accent-primary); background: rgba(0,0,0,0.6);
+            box-shadow: 0 0 0 4px var(--accent-glow), 0 0 20px var(--accent-glow) inset;
+        }
 
         .app-container {
             width: 100%; max-width: 1450px; height: 92vh;
-            display: flex; flex-direction: column; padding: 20px; gap: 20px; z-index: 5;
+            display: flex; flex-direction: column; padding: 20px; gap: 24px; z-index: 5;
+            animation: appAppear 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
+        @keyframes appAppear { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
 
         .top-navbar {
             display: flex; justify-content: space-between; align-items: center;
             background: var(--bg-panel); border: 1px solid var(--border-light);
-            padding: 15px 25px; border-radius: var(--radius-md);
-            flex-shrink: 0;
+            padding: 18px 30px; border-radius: var(--radius-md); backdrop-filter: blur(25px);
+            box-shadow: 0 5px 20px -10px rgba(0,0,0,0.5); z-index: 10;
         }
         
-        .nav-brand { font-size: 18px; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 10px; }
-        .nav-badge { background: rgba(16, 185, 129, 0.15); color: var(--accent-primary); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; border: 1px solid var(--accent-glow); }
+        .nav-brand { font-size: 20px; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 12px; text-shadow: 0 0 10px var(--accent-glow); }
+        .nav-badge { background: rgba(16, 185, 129, 0.15); color: var(--accent-primary); padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; letter-spacing: 0.5px; border: 1px solid var(--accent-glow); }
         
-        .nav-links { display: flex; gap: 12px; align-items: center; }
-        .nav-item { color: var(--text-secondary); font-size: 13px; font-weight: 600; cursor: pointer; background: rgba(255,255,255,0.03); border: 1px solid var(--border-light); padding: 8px 14px; border-radius: var(--radius-md);}
+        .nav-links { display: flex; gap: 16px; align-items: center; }
+        .nav-item { color: var(--text-secondary); font-size: 14px; font-weight: 600; cursor: pointer; transition: var(--transition-smooth); background: rgba(255,255,255,0.03); border: 1px solid var(--border-light); padding: 10px 16px; border-radius: var(--radius-md);}
+        .nav-item:hover { color: var(--text-primary); background: rgba(255,255,255,0.08); border-color: var(--accent-primary); transform: translateY(-2px); }
 
-        .main-grid { display: grid; grid-template-columns: 360px 1fr 360px; gap: 20px; flex: 1; min-height: 0; }
+        .main-grid { display: grid; grid-template-columns: 360px 1fr 360px; gap: 28px; flex: 1; min-height: 0; }
 
         .workspace-panel {
             background: var(--bg-panel); border: 1px solid var(--border-light);
             border-radius: var(--radius-lg); display: flex; flex-direction: column; overflow: hidden;
+            backdrop-filter: blur(25px); box-shadow: var(--shadow-soft), 0 0 30px rgba(16, 185, 129, 0.05) inset;
+            transition: var(--transition-smooth);
         }
+        .workspace-panel:hover { border-color: var(--border-focus); box-shadow: var(--shadow-soft), 0 0 50px rgba(16, 185, 129, 0.1) inset; }
         
         .panel-header { 
-            padding: 18px 24px; border-bottom: 1px solid var(--border-light); 
+            padding: 22px 28px; border-bottom: 1px solid var(--border-light); 
             display: flex; justify-content: space-between; align-items: center;
-            background: rgba(255,255,255,0.02); flex-shrink: 0;
+            background: rgba(255,255,255,0.02);
+            flex-shrink: 0; 
         }
-        .panel-title { font-size: 15px; font-weight: 700; color: var(--text-primary); }
-        .panel-body { padding: 24px; overflow-y: auto; flex: 1; display: flex; flex-direction: column;}
+        .panel-title { font-size: 16px; font-weight: 700; color: var(--text-primary); letter-spacing: 0.5px; }
+        .panel-body { padding: 28px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; min-height: 0;} 
         .panel-body::-webkit-scrollbar { width: 6px; } .panel-body::-webkit-scrollbar-thumb { background: rgba(16, 185, 129, 0.3); border-radius: 6px; }
 
-        .status-indicator { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; background: rgba(16, 185, 129, 0.1); padding: 5px 10px; border-radius: 20px; border: 1px solid var(--accent-glow); }
-        .status-dot { width: 8px; height: 8px; background: var(--accent-primary); border-radius: 50%; box-shadow: 0 0 10px var(--accent-primary); }
+        .status-indicator { display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 600; color: var(--text-primary); background: rgba(16, 185, 129, 0.1); padding: 6px 12px; border-radius: 20px; border: 1px solid var(--accent-glow); flex-shrink: 0;}
+        .status-dot { width: 10px; height: 10px; background: var(--accent-primary); border-radius: 50%; box-shadow: 0 0 15px var(--accent-primary); animation: pulseDot 2s infinite; }
+        
+        @keyframes pulseDot { 0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); } 70% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); } 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); } }
+        @keyframes pulseDotBlue { 0% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.7); } 70% { box-shadow: 0 0 0 8px rgba(56, 189, 248, 0); } 100% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0); } }
 
         .mobile-nav { display: none; }
 
-        .layers-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 20px; }
+        .layers-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 24px; flex-shrink:0;}
         .layer {
             aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
             background: rgba(255,255,255,0.03); border: 2px solid var(--border-light);
-            border-radius: var(--radius-md); font-size: 13px; font-weight: 700; color: var(--text-secondary);
-            cursor: pointer; transition: 0.2s;
+            border-radius: var(--radius-md); font-size: 14px; font-weight: 700; color: var(--text-secondary);
+            cursor: pointer; transition: var(--transition-smooth); position: relative; overflow: hidden;
         }
-        .layer.active { background: var(--accent-primary); color: #000; border-color: var(--accent-primary); }
+        .layer::before { content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 0%; background: linear-gradient(to top, var(--accent-primary), transparent); opacity: 0.3; transition: height 0.3s ease; z-index: 0; }
+        .layer:hover::before { height: 100%; }
+        .layer span { position: relative; z-index: 1; } 
+        .layer:hover { border-color: var(--accent-primary); color: var(--text-primary); transform: translateY(-3px); box-shadow: 0 5px 15px -5px var(--accent-glow); }
+        .layer.active { background: var(--accent-primary); color: #000; border-color: var(--accent-primary); box-shadow: 0 8px 25px -5px var(--accent-glow), 0 0 20px var(--accent-glow) inset; transform: translateY(-3px) scale(1.05); }
+        .layer.active::before { height: 100%; opacity: 0.8; }
 
-        #message, #cipher { min-height: 120px; resize: none; font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.5; flex-shrink: 0; }
+        #message, #cipher { min-height: 150px; resize: none; font-family: 'JetBrains Mono', monospace; font-size: 14px; line-height: 1.6; padding: 18px; margin-top: 10px; background: rgba(0,0,0,0.5); flex-shrink: 0; }
 
-        .tools-row { display: flex; gap: 10px; margin-top: 15px; flex-shrink: 0;}
-        .tool-btn { 
-            flex: 1; background: rgba(255,255,255,0.03); border: 1px solid var(--border-light); 
-            color: var(--text-secondary); padding: 12px; font-size: 13px; font-weight: 600;
-            border-radius: var(--radius-md); cursor: pointer; text-align: center;
-        }
-        .tool-btn.active-state { background: rgba(16, 185, 129, 0.15); border-color: var(--accent-primary); color: var(--accent-primary); }
-        .tool-btn.recording { background: var(--danger-bg); border-color: var(--danger); color: var(--danger); }
+        .tools-row { display: flex; gap: 12px; margin-top: 20px; flex-shrink: 0;}
+        .tool-btn { flex: 1; background: rgba(255,255,255,0.03); border: 2px solid var(--border-light); color: var(--text-secondary); padding: 14px; font-size: 14px; font-weight: 600; border-radius: var(--radius-md); cursor: pointer; text-align: center; transition: var(--transition-smooth); display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .tool-btn:hover { background: rgba(255,255,255,0.08); border-color: var(--accent-primary); color: var(--text-primary); transform: translateY(-2px); box-shadow: 0 5px 15px -5px var(--accent-glow); }
+        .tool-btn.active-state { background: rgba(16, 185, 129, 0.15); border-color: var(--accent-primary); color: var(--accent-primary); box-shadow: 0 0 15px var(--accent-glow) inset; }
+        .tool-btn.recording { background: var(--danger-bg); border-color: var(--danger); color: var(--danger); animation: pulseRecord 1.5s infinite; box-shadow: 0 0 20px rgba(239,68,68,0.4) inset; }
+        @keyframes pulseRecord { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.7; transform: scale(0.98); } }
 
-        #log { display: flex; flex-direction: column; gap: 14px; padding-bottom: 10px; }
-        .msg-box { background: rgba(0,0,0,0.4); border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 16px; flex-shrink: 0; }
-        .msg.me { border-left: 3px solid var(--accent-primary); }
-        .msg.other { border-left: 3px solid #38bdf8; }
-        .msg-header { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 12px; color: var(--text-secondary); font-weight: 500; }
-        .raw-data { background: #030504; border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; padding: 10px; font-size: 12px; color: #64748b; word-break: break-all; margin-bottom: 12px; max-height: 60px; overflow: hidden; font-family: 'JetBrains Mono', monospace; }
-        .action-row { display: flex; gap: 8px; }
-        .action-btn { background: rgba(255,255,255,0.05); color: var(--text-secondary); padding: 8px 10px; font-size: 12px; font-weight: 600; border-radius: 6px; border: 1px solid var(--border-light); cursor: pointer; flex: 1; text-align: center;}
+        #log { display: flex; flex-direction: column; gap: 18px; padding-bottom: 20px; }
+        .msg-box { background: rgba(0,0,0,0.3); border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 20px; animation: msgSlideUp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1); position: relative; overflow: hidden; backdrop-filter: blur(10px); flex-shrink: 0; }
+        @keyframes msgSlideUp { from { opacity:0; transform:translateY(30px) scale(0.95); } to { opacity:1; transform:translateY(0) scale(1); } }
+        .msg.me { border-left: 4px solid var(--accent-primary); background: linear-gradient(to right, rgba(16, 185, 129, 0.05), rgba(0,0,0,0.3)); }
+        .msg.other { border-left: 4px solid #38bdf8; background: linear-gradient(to right, rgba(56, 189, 248, 0.05), rgba(0,0,0,0.3)); }
+        .msg-header { display: flex; justify-content: space-between; margin-bottom: 14px; font-size: 13px; color: var(--text-secondary); font-weight: 500; }
+        .msg.me .msg-header strong { color: var(--accent-primary); font-weight: 700; font-size: 14px;}
+        .msg.other .msg-header strong { color: #38bdf8; font-weight: 700; font-size: 14px;}
+
+        .raw-data { background: #030504; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 14px; font-size: 13px; color: #64748b; word-break: break-all; margin-bottom: 18px; max-height: 80px; overflow: hidden; font-family: 'JetBrains Mono', monospace; box-shadow: inset 0 0 15px rgba(0,0,0,0.5); user-select: all; }
+        .action-row { display: flex; gap: 10px; }
+        .action-btn { background: rgba(255,255,255,0.05); color: var(--text-secondary); padding: 10px 14px; font-size: 13px; font-weight: 600; border-radius: 8px; border: 1px solid var(--border-light); cursor: pointer; flex: 1; transition: var(--transition-smooth); display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .action-btn:hover { background: rgba(255,255,255,0.1); color: var(--text-primary); border-color: var(--border-light); transform: translateY(-2px);}
         .action-btn.solve { background: rgba(16, 185, 129, 0.15); color: var(--accent-primary); border-color: var(--accent-glow); }
-        .decrypted-view { margin-top: 15px; padding: 15px; border-top: 1px dashed var(--border-light); color: var(--text-primary); font-size: 14px; line-height: 1.6; background: rgba(16, 185, 129, 0.05); border-radius: 0 0 var(--radius-md) var(--radius-md); }
+        .action-btn.solve:hover { background: var(--accent-primary); color: #000; box-shadow: 0 0 20px var(--accent-glow); }
+        .decrypted-view { margin-top: 20px; padding: 20px; border-top: 2px dashed var(--border-light); color: var(--text-primary); font-size: 15px; line-height: 1.7; background: rgba(16, 185, 129, 0.03); border-radius: 0 0 var(--radius-md) var(--radius-md); animation: fadeIn 0.5s ease; max-height: 400px; overflow-y: auto; }
+        .decrypted-view::-webkit-scrollbar { width: 6px; } .decrypted-view::-webkit-scrollbar-thumb { background: rgba(16, 185, 129, 0.4); border-radius: 6px; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        #result { margin-top: auto; padding: 20px; background: rgba(0,0,0,0.5); border: 2px solid var(--border-light); border-left: 4px solid var(--accent-primary); border-radius: var(--radius-md); font-size: 14px; word-break: break-word; min-height: 100px; font-family: 'JetBrains Mono', monospace; flex-shrink: 0;}
+        #result { margin-top: auto; padding: 24px; background: rgba(0,0,0,0.4); border: 2px solid var(--border-light); border-left: 6px solid var(--accent-primary); border-radius: var(--radius-md); color: var(--text-primary); font-size: 15px; word-break: break-word; min-height: 120px; font-family: 'JetBrains Mono', monospace; line-height: 1.6; box-shadow: inset 0 0 30px rgba(0,0,0,0.5); transition: var(--transition-smooth); flex-shrink: 0;}
+        #result:not(:empty) { border-color: var(--accent-primary); box-shadow: inset 0 0 30px rgba(16, 185, 129, 0.1), 0 0 20px var(--accent-glow); }
+        #typing-indicator { font-size: 13px; color: var(--text-secondary); opacity: 0; transition: var(--transition-smooth); padding-top: 12px; font-weight: 600; display: flex; align-items: center; gap: 8px;}
+        #typing-indicator::before { content: ''; display: inline-block; width: 8px; height: 8px; background: var(--text-secondary); border-radius: 50%; animation: pulse 1s infinite; }
+
+        .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.75); backdrop-filter: blur(8px); z-index: 2000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: var(--transition-smooth); }
+        .modal-bg.active { opacity: 1; pointer-events: auto; }
+        .modal-card { background: var(--bg-panel); border: 1px solid var(--border-light); border-radius: var(--radius-lg); width: 550px; max-width: 90%; padding: 36px; box-shadow: var(--shadow-soft), 0 0 40px rgba(16, 185, 129, 0.1) inset; transform: scale(0.95) translateY(20px); transition: var(--transition-smooth); }
+        .modal-bg.active .modal-card { transform: scale(1) translateY(0); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; padding-bottom: 15px; border-bottom: 1px solid var(--border-light); }
+        .modal-header h3 { font-size: 22px; font-weight: 800; color: var(--text-primary); text-shadow: 0 0 15px var(--accent-glow); }
+        .close-modal { background: none; border: none; color: var(--text-secondary); font-size: 24px; cursor: pointer; padding: 0; transition: var(--transition-smooth); }
+        .close-modal:hover { color: var(--danger); transform: rotate(90deg); }
+
 
         /* =========================================
-           MOBİL UYGULAMA (DONMA KARŞITI DÜZENLEME)
+           9. KESİN ÇÖZÜM: ÜST ÜSTE BİNEN KATMAN MİMARİSİ (Sıfır Donma)
            ========================================= */
+        @media (min-width: 1025px) {
+            .workspace-panel { display: flex !important; }
+        }
+
         @media (max-width: 1024px) {
-            body { 
-                align-items: flex-start; /* İçeriğin yukarıdan başlamasını sağlar */
-                height: 100dvh; /* Ekranı tam kaplar, klavyede esnemez */
-                overflow: hidden; 
-            }
-            
-            #login { width: 90%; margin-top: 5vh; padding: 30px 20px; }
+            body, html { position: fixed; width: 100%; height: 100%; overflow: hidden; margin: 0; padding: 0; }
             
             .app-container { 
-                height: 100%; 
-                width: 100%;
-                padding: 10px; 
-                padding-bottom: 75px; /* Alt menü için boşluk */
-                gap: 10px;
-                margin: 0;
+                position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+                width: 100vw; height: 100dvh; 
+                margin: 0; padding: 10px; padding-bottom: 75px; 
+                display: flex; flex-direction: column; gap: 10px;
+                border-radius: 0;
             }
             
-            .top-navbar { flex-direction: column; padding: 12px; border-radius: 12px; gap:10px;}
-            .nav-links { width: 100%; justify-content: center; gap: 6px;}
-            .nav-item, .btn-danger { flex: 1; padding: 6px; font-size: 11px; text-align: center; }
+            .top-navbar { flex-direction: column; gap: 10px; padding: 12px; width: 100%; border-radius: var(--radius-md); flex-shrink: 0; }
+            .nav-links { width: 100%; justify-content: center; gap: 8px;}
+            .nav-item, .btn-danger { flex: 1; padding: 8px 12px; font-size: 12px; text-align: center; }
 
-            .main-grid { display: flex; flex: 1; flex-direction: column; gap: 0; min-height: 0; }
-            
-            .workspace-panel { 
-                display: none; 
-                width: 100%; height: 100%; 
-                background: #0a0f0d; /* GPU'yu yoran blur efekti iptal */
-                border-radius: 12px; box-shadow: none;
-            }
-            .workspace-panel.active-tab { display: flex; } /* Animasyon iptal, anında geçer */
-
-            .panel-header { padding: 12px 15px; }
-            
-            /* İç kaydırma sistemi */
-            .panel-body { 
-                padding: 15px; 
-                overflow-y: auto; 
+            /* Grid konteynerini relative yapıyoruz, paneller bunun içine absolute oturacak */
+            .main-grid { 
+                display: block; 
+                position: relative; 
                 flex: 1; 
+                width: 100%; 
+                margin-top: 0; 
+                gap: 0; 
                 min-height: 0;
-                -webkit-overflow-scrolling: touch; 
             }
+            
+            /* DİKKAT: Display: none KALDIRILDI. Paneller daima var ama görünmez. GPU işler, cihaz donmaz. */
+            .workspace-panel { 
+                position: absolute; 
+                top: 0; left: 0; 
+                width: 100%; height: 100%; 
+                display: flex !important; /* Asla none olmaz */
+                flex-direction: column; 
+                border-radius: 12px; 
+                opacity: 0; 
+                visibility: hidden; 
+                pointer-events: none; 
+                transition: opacity 0.25s ease, visibility 0.25s, transform 0.25s ease;
+                transform: scale(0.98); /* Şık geçiş efekti */
+                z-index: 1;
+                /* Senin cam efektin korunuyor */
+                background: var(--bg-panel); 
+                backdrop-filter: blur(25px); 
+            }
+            
+            .workspace-panel.active-tab { 
+                opacity: 1; 
+                visibility: visible; 
+                pointer-events: auto; 
+                transform: scale(1);
+                z-index: 5;
+            }
+
+            .panel-header { padding: 15px; }
+            .panel-title { font-size: 14px; }
+            .panel-body { padding: 15px; padding-bottom: 20px !important; flex: 1; overflow-y: auto; min-height: 0; -webkit-overflow-scrolling: touch;} 
 
             .mobile-nav {
-                display: flex; position: fixed; 
+                display: flex; position: absolute; 
                 bottom: 15px; left: 50%; transform: translateX(-50%);
-                background: #050806; border: 1px solid rgba(255,255,255,0.1); 
-                padding: 5px; border-radius: 40px; gap: 5px; width: 90%; 
-                z-index: 9999; /* En üst katman */
+                background: rgba(10, 15, 12, 0.95); border: 1px solid var(--border-light);
+                padding: 6px; border-radius: 50px; gap: 5px; width: 92%; max-width: 400px;
+                box-shadow: 0 10px 40px rgba(0,0,0,0.8); z-index: 1000; backdrop-filter: blur(20px);
             }
-            .m-nav-btn { flex: 1; background: transparent; border: none; color: #a0b0c0; padding: 12px 0; font-size: 13px; font-weight: 700; border-radius: 30px; }
-            .m-nav-btn.active { background: rgba(16, 185, 129, 0.2); color: #10b981; }
-
-            .layers-grid { gap: 6px; margin-bottom: 15px; }
-            .layer { font-size: 12px; height: 35px; aspect-ratio: auto;}
-            #message, #cipher { min-height: 80px; padding: 10px;}
-            .msg-box { padding: 12px; }
+            .m-nav-btn { flex: 1; background: transparent; border: none; color: var(--text-secondary); padding: 12px 0; font-size: 13px; font-family: 'Plus Jakarta Sans'; font-weight: 700; border-radius: 40px; transition: 0.3s; cursor: pointer; }
+            .m-nav-btn.active { background: rgba(16, 185, 129, 0.15); color: var(--accent-primary); box-shadow: inset 0 0 10px rgba(16, 185, 129, 0.2); }
+            
+            .layers-grid { gap: 6px; margin-bottom: 15px;}
+            .layer { font-size: 12px; height: 40px; }
+            #message, #cipher { min-height: 80px; flex-shrink: 0; padding: 12px; font-size: 13px;}
+            #login { margin-top: 5vh; width: 95%; max-height: 85vh; overflow-y: auto; padding: 25px 15px;}
         }
     </style>
 </head>
 <body>
+
+    <div class="ambient-glow"></div>
 
     <div id="login">
         <div class="brand-header">
             <div class="brand-logo">Volktronic<span>.</span></div>
             <div class="brand-sub">Premium Secure Workspace</div>
         </div>
+
         <div class="input-group">
             <label class="input-label">Kullanıcı Kimliği</label>
             <input id="username" type="text" placeholder="Örn: Ajan Volkan" autocomplete="off">
         </div>
-        <div style="display: flex; gap:10px; margin-bottom: 20px;">
+        
+        <div style="display: flex; gap:16px; margin-bottom: 24px;">
             <div style="flex:2;">
-                <label class="input-label">Oda / Proje</label>
+                <label class="input-label">Bağlantı Noktası</label>
                 <input id="room" type="text" placeholder="Proje Kodu" autocomplete="off">
             </div>
             <div style="flex:1;">
                 <label class="input-label">Oda PIN</label>
-                <input id="roomPin" type="password" placeholder="****" maxlength="6" autocomplete="off" style="text-align: center;">
+                <input id="roomPin" type="password" placeholder="****" maxlength="6" autocomplete="off" style="text-align: center; letter-spacing: 2px;">
             </div>
         </div>
-        <div class="input-group" style="margin-bottom: 25px;">
-            <label class="input-label">Master Anahtarı</label>
-            <input id="secretKey" type="password" placeholder="Şifreleme Parolası" autocomplete="off">
+
+        <div class="input-group" style="margin-bottom: 35px;">
+            <label class="input-label">Master Şifreleme Anahtarı</label>
+            <input id="secretKey" type="password" placeholder="Anahtar Parolası" autocomplete="off">
         </div>
-        <button class="btn-primary" style="width: 100%;" onclick="window.enterRoom()">Güvenli Ağa Bağlan</button>
+
+        <button class="btn-primary" style="width: 100%;" onclick="window.enterRoom()"><span>Güvenli Ağa Bağlan</span></button>
     </div>
 
     <div id="chat" class="app-container hidden">
+        
         <header class="top-navbar">
-            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-                <div class="nav-brand" style="font-size:16px;">Volktronic</div>
-                <div class="status-indicator" style="background:rgba(56,189,248,0.1); border-color:rgba(56,189,248,0.3);">
-                    <div class="status-dot" style="background:#38bdf8;"></div>
-                    <span id="platformCountDisplay">0</span> Platformda
+            <div class="nav-brand">
+                Volktronic <span class="nav-badge">Premium Encrypted</span>
+            </div>
+            <div style="display: flex; gap: 24px; align-items: center; flex-wrap: wrap; justify-content: center;">
+                <div style="font-size: 14px; color: var(--text-secondary); display: flex; gap: 15px; align-items: center;">
+                    <div>Oda: <span id="roomNameDisplay" style="color:var(--accent-primary); font-weight:700;">-</span></div>
+                    <div>Ajan: <span id="userNameDisplay" style="color:var(--accent-primary); font-weight:700;">-</span></div>
+                    
+                    <div class="status-indicator" style="background: rgba(56, 189, 248, 0.1); border-color: rgba(56, 189, 248, 0.4); padding: 4px 10px; font-size: 12px; margin-left: 5px;">
+                        <div class="status-dot" style="background: #38bdf8; box-shadow: 0 0 10px #38bdf8; animation: pulseDotBlue 2s infinite;"></div>
+                        <span id="platformCountDisplay">0</span> Platformda
+                    </div>
                 </div>
-            </div>
-            <div style="display:flex; gap:10px; font-size:12px; color:#a0b0c0; width:100%; justify-content:center;">
-                <div>Oda: <span id="roomNameDisplay" style="color:#10b981; font-weight:bold;">-</span></div>
-                <div>Ajan: <span id="userNameDisplay" style="color:#10b981; font-weight:bold;">-</span></div>
-            </div>
-            <div class="nav-links">
-                <button class="btn-danger" style="padding:6px 12px;" onclick="window.triggerPanic()">İmha Et</button>
+                <div class="nav-links">
+                    <button class="nav-item" onclick="openModal('guideModal')">📘 Kılavuz</button>
+                    <button class="nav-item" onclick="openModal('supportModal')">📨 Destek</button>
+                    <button class="btn-danger" onclick="window.triggerPanic()">🚨 İmha Et</button>
+                </div>
             </div>
         </header>
 
         <div class="main-grid">
+            
             <div class="workspace-panel active-tab" id="encoder-panel">
-                <div class="panel-header"><span class="panel-title">Şifreleme</span></div>
+                <div class="panel-header">
+                    <span class="panel-title">Veri Şifreleme Terminali</span>
+                </div>
                 <div class="panel-body">
-                    <label class="input-label">Güvenlik Katmanları</label>
+                    <label class="input-label">Güvenlik Katmanları (Seçiniz)</label>
                     <div class="layers-grid" id="encLayers"></div>
-                    <textarea id="message" placeholder="Mesajı yazın..."></textarea>
-                    <div style="margin-top: 15px; flex-shrink:0;">
+                    
+                    <textarea id="message" placeholder="Güvenli ağa iletilecek mesajı buraya girin..."></textarea>
+                    
+                    <div style="margin-top: 20px; flex-shrink: 0;">
                         <select id="burnTimer">
-                            <option value="0">Kalıcı Mesaj</option>
-                            <option value="10">10 Saniye Sonra Sil</option>
-                            <option value="30">30 Saniye Sonra Sil</option>
+                            <option value="0">🛡️ Kalıcı Mesaj (İmha Yok)</option>
+                            <option value="10">🔥 10 Saniye Sonra İmha Et</option>
+                            <option value="30">⏱️ 30 Saniye Sonra İmha Et</option>
+                            <option value="60">⏲️ 60 Saniye Sonra İmha Et</option>
                         </select>
                     </div>
+
                     <div class="tools-row">
-                        <label for="imageInput" class="tool-btn" id="imgLabel">Resim</label>
+                        <label for="imageInput" class="tool-btn" id="imgLabel">🖼️ Dosya</label>
                         <input type="file" id="imageInput" accept="image/*" class="hidden">
-                        <div class="tool-btn" id="micBtn" onclick="window.toggleAudioRecord()">Ses</div>
+                        <div class="tool-btn" id="micBtn" onclick="window.toggleAudioRecord()">🎤 Ses</div>
                     </div>
-                    <button class="btn-primary" style="margin-top: 20px; width: 100%; flex-shrink:0;" onclick="window.encryptAndSend()">Şifrele ve İlet</button>
+
+                    <button class="btn-primary" style="margin-top: 28px; width: 100%; flex-shrink:0;" onclick="window.encryptAndSend()"><span>Şifrele ve İlet 🚀</span></button>
                 </div>
             </div>
 
             <div class="workspace-panel messages-panel" id="chat-panel">
                 <div class="panel-header">
-                    <span class="panel-title">Ağ Akışı</span>
-                    <div class="status-indicator"><div class="status-dot"></div><span id="onlineCountDisplay">0</span> Odada</div>
+                    <span class="panel-title">Ağ Akışı (Canlı)</span>
+                    <div class="status-indicator">
+                        <div class="status-dot"></div>
+                        <span id="onlineCountDisplay">0</span> Odada Aktif
+                    </div>
                 </div>
                 <div class="panel-body" id="chat-scroll-container">
                     <div id="log"></div>
+                    <div id="typing-indicator" style="padding: 0 0 16px 0;">Veri işleniyor...</div>
                 </div>
             </div>
 
             <div class="workspace-panel" id="decoder-panel">
-                <div class="panel-header"><span class="panel-title">Çözücü</span></div>
+                <div class="panel-header">
+                    <span class="panel-title">Manuel Çözücü Terminali</span>
+                </div>
                 <div class="panel-body">
-                    <label class="input-label">Katmanlar</label>
+                    <label class="input-label">Göndericinin Katmanları</label>
                     <div class="layers-grid" id="decLayers"></div>
-                    <textarea id="cipher" placeholder="RAW veriyi yapıştırın..."></textarea>
-                    <button class="btn-secondary" style="width: 100%; margin-top: 15px; flex-shrink:0; color:#10b981; border-color:#10b981;" onclick="window.decryptExternal()">Çöz</button>
-                    <div id="result" style="color:#a0b0c0;">Sonuç...</div>
+                    
+                    <textarea id="cipher" placeholder="Çözülecek ham (RAW) şifreli veriyi buraya yapıştırın..."></textarea>
+                    
+                    <button class="btn-secondary" style="width: 100%; margin-top: 20px; border-color: var(--accent-primary); color: var(--accent-primary); flex-shrink:0;" onclick="window.decryptExternal()"><span>🔓 Veriyi Çöz</span></button>
+
+                    <div id="result">
+                        <span style="color: var(--text-secondary); font-style: italic;">Çözüm sonucu burada görüntülenecek...</span>
+                    </div>
                 </div>
             </div>
+
         </div>
 
         <div class="mobile-nav">
-            <button class="m-nav-btn active" id="m-btn-enc" onclick="switchMobileTab('encoder-panel', 'm-btn-enc')">Şifrele</button>
-            <button class="m-nav-btn" id="m-btn-chat" onclick="switchMobileTab('chat-panel', 'm-btn-chat')">Akış</button>
-            <button class="m-nav-btn" id="m-btn-dec" onclick="switchMobileTab('decoder-panel', 'm-btn-dec')">Çöz</button>
+            <button class="m-nav-btn active" id="m-btn-enc" onclick="switchMobileTab('encoder-panel', 'm-btn-enc')">🔒 Şifrele</button>
+            <button class="m-nav-btn" id="m-btn-chat" onclick="switchMobileTab('chat-panel', 'm-btn-chat')">💬 Ağ Akışı</button>
+            <button class="m-nav-btn" id="m-btn-dec" onclick="switchMobileTab('decoder-panel', 'm-btn-dec')">🔓 Çözücü</button>
+        </div>
+
+    </div>
+
+    <div class="modal-bg" id="guideModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 class="brand-font">Sistem Protokolleri</h3>
+                <button class="close-modal" onclick="closeModal('guideModal')">✖</button>
+            </div>
+            <div style="font-size: 14px; color: var(--text-secondary); line-height: 1.6;">
+                <p><strong style="color:var(--text-primary)">Uçtan Uca Şifreleme:</strong> Mesaj göndermeden önce katmanlar seçin. Karşı taraf mesajı okuyabilmek için sizinle aynı Katmanları ve Master Anahtarı kullanmalıdır.</p><br>
+                <p><strong style="color:var(--text-primary)">Gelişmiş PIN Koruması:</strong> Girişteki PIN kodu veritabanı yolunuzu izole eder. Yanlış PIN girenler odanızın loglarına erişemez.</p><br>
+                <p><strong style="color:var(--text-primary)">Kripto Medya:</strong> Fotoğraf ve ses kayıtlarınız cihazınızdan çıkmadan önce AES-256 ile anlamsız metin bloklarına dönüştürülür.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-bg" id="supportModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 class="brand-font">Destek Birimi</h3>
+                <button class="close-modal" onclick="closeModal('supportModal')">✖</button>
+            </div>
+            <form action="https://formspree.io/f/xdaldnap" method="POST">
+                <div class="input-group"><input type="text" name="Konu" placeholder="İleti Konusu" required></div>
+                <div class="input-group"><input type="email" name="Email" placeholder="İletişim E-posta Adresi" required></div>
+                <div class="input-group"><textarea name="Mesaj" placeholder="Talebinizi detaylıca belirtin..." required style="min-height: 100px;"></textarea></div>
+                <button type="submit" class="btn-primary" style="width: 100%;"><span>Talebi Gönder</span></button>
+            </form>
         </div>
     </div>
 
     <script>
+        function openModal(id) { document.getElementById(id).classList.add('active'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
         window.switchMobileTab = function(panelId, btnId) {
             if(window.innerWidth > 1024) return; 
 
-            // Eğer klavyede yazı yazıyorsa, sekmeye basar basmaz klavyeyi yumuşakça kapatır (Donmayı önler)
-            if (document.activeElement && (document.activeElement.tagName === "INPUT" || document.activeElement.tagName === "TEXTAREA")) {
+            // 1. DOKUNMATİK EKRAN DONMASINI ENGELLEYEN KLAVYE KAPATICI
+            if (document.activeElement && typeof document.activeElement.blur === 'function') {
                 document.activeElement.blur(); 
             }
-
-            // Gecikme (Timeout) kaldırıldı. Sekmeler anında değişecek.
+            
+            // 2. SEKME GEÇİŞİ (Artık "display: none" olmadığı için anında geçer)
             document.querySelectorAll('.workspace-panel').forEach(p => p.classList.remove('active-tab'));
             document.getElementById(panelId).classList.add('active-tab');
             
@@ -342,15 +491,18 @@
             document.getElementById(btnId).classList.add('active');
 
             if(panelId === 'chat-panel') {
-                const scrollContainer = document.getElementById("chat-scroll-container");
-                if(scrollContainer) {
-                    setTimeout(() => { scrollContainer.scrollTop = scrollContainer.scrollHeight; }, 10);
-                }
+                // Katmanın tamamen görünür olması için ufak bir gecikmeyle (GPU'ya zaman tanır) scroll yap
+                setTimeout(() => {
+                    const scrollContainer = document.getElementById("chat-scroll-container");
+                    if(scrollContainer) {
+                        scrollContainer.scrollTop = scrollContainer.scrollHeight;
+                    }
+                }, 150); 
             }
         };
     </script>
 
-    <script src="crypto.js?v=21"></script>
+    <script src="crypto.js?v=25"></script>
 
 </body>
 </html>
