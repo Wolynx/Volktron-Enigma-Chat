@@ -1,5 +1,5 @@
 /* =======================================================
-   VOLKTRONIC CRYPTO ENGINE v7.0 - SAAS EDITION
+   VOLKTRONIC CRYPTO ENGINE v7.0 - SAAS EDITION & MOBILE TABS
    ======================================================= */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -34,7 +34,7 @@ function makeLayers(element, setObj) {
     for (let i = 1; i <= 10; i++) {
         const btn = document.createElement("div");
         btn.className = "layer";
-        btn.innerHTML = i < 10 ? `0${i}` : i;
+        btn.innerHTML = `<span>${i < 10 ? '0'+i : i}</span>`;
         
         btn.onclick = () => {
             if (setObj.has(i)) setObj.delete(i);
@@ -325,17 +325,23 @@ function encryptAndSend() {
 
     push(roomMessagesRef, { user: USER, text: encryptedPayload, time: Date.now(), burn: burnTime });
 
+    // TEMİZLİK
     msgInput.value = "";
     selectedImageBase64 = null;
     selectedAudioBase64 = null;
     
     const imgLbl = document.getElementById("imgLabel");
-    imgLbl.innerHTML = "Dosya / Görsel"; 
+    imgLbl.innerHTML = "🖼️ Dosya"; 
     imgLbl.classList.remove("active-state");
     
     const micBtn = document.getElementById("micBtn");
-    micBtn.innerHTML = "Ses Kaydet"; 
+    micBtn.innerHTML = "🎤 Ses"; 
     micBtn.classList.remove("active-state");
+
+    // YENİ: MOBİLDE GÖNDERİLİNCE OTOMATİK SOHBET SEKMESİNE GEÇ
+    if(window.innerWidth <= 1024 && typeof window.switchMobileTab === 'function') {
+        window.switchMobileTab('chat-panel', 'm-btn-chat');
+    }
 }
 
 function decryptExternal() {
