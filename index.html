@@ -4,79 +4,86 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     
-    <title>Volktronic | Premium Secure</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+
+    <title>Volktronic | Premium Secure Workspace</title>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
     <style>
         /* =========================================
-           1. TEMEL DEĞİŞKENLER VE PERFORMANS AYARLARI
+           1. DEĞİŞKENLER VE TEMEL SIFIRLAMA
            ========================================= */
         :root {
             --bg-base: #050806;       
-            --bg-panel: rgba(16, 24, 20, 0.85); /* Blur yerine opaklığı artırdık (Kasma yapmaz) */
+            --bg-panel: rgba(16, 24, 20, 0.9); 
             --border-light: rgba(255, 255, 255, 0.1);
             --accent-primary: #10b981; 
             --accent-hover: #059669;
-            --accent-glow: rgba(16, 185, 129, 0.3); 
             --danger: #ef4444;
             --text-primary: #ffffff;
             --text-secondary: #94a3b8;
             --radius-md: 12px;
-            --radius-lg: 20px;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent;}
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; outline: none; }
 
-        body {
-            background: radial-gradient(circle at top, #0a1f16 0%, var(--bg-base) 100%);
-            color: var(--text-primary);
-            height: 100vh; overflow: hidden;
-            display: flex; align-items: center; justify-content: center;
+        html, body {
+            width: 100%; height: 100%;
+            background: var(--bg-base); color: var(--text-primary);
+            overflow: hidden; /* Dışarı taşmayı engeller */
+            display: flex; justify-content: center; align-items: center;
         }
 
-        h1, h2, h3, h4, h5, .brand-font { font-family: 'Plus Jakarta Sans', sans-serif; }
-        .mono-font { font-family: 'JetBrains Mono', monospace; }
         .hidden { display: none !important; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
 
-        /* Butonlar (Performanslı) */
-        button {
-            padding: 14px 24px; border: none; border-radius: var(--radius-md);
-            font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; font-weight: 700;
-            cursor: pointer; transition: 0.2s ease;
-        }
-        .btn-primary { background: var(--accent-primary); color: #000; }
-        .btn-primary:active { transform: scale(0.97); }
-        .btn-secondary { background: rgba(255,255,255,0.05); border: 1px solid var(--border-light); color: var(--text-primary); }
-        .btn-danger { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: var(--danger); }
-
-        /* Girdi Alanları */
-        .input-group { margin-bottom: 20px; text-align: left;}
-        .input-label { display: block; font-size: 13px; color: var(--text-secondary); margin-bottom: 8px; font-weight: 600; }
+        /* =========================================
+           2. INPUT VE BUTONLAR
+           ========================================= */
         input, textarea, select {
             width: 100%; padding: 14px; background: rgba(0,0,0,0.6); 
             border: 1px solid var(--border-light); border-radius: var(--radius-md); 
-            color: var(--text-primary); font-size: 14px; outline: none; transition: 0.2s;
+            color: var(--text-primary); font-size: 14px; transition: 0.2s;
         }
-        input:focus, textarea:focus { border-color: var(--accent-primary); box-shadow: 0 0 10px var(--accent-glow); }
+        input:focus, textarea:focus, select:focus { border-color: var(--accent-primary); box-shadow: 0 0 10px rgba(16, 185, 129, 0.2); }
+
+        button {
+            padding: 14px 20px; border: none; border-radius: var(--radius-md);
+            font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; font-weight: 700;
+            cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        button:active { transform: scale(0.96); }
+        .btn-primary { background: var(--accent-primary); color: #000; }
+        .btn-secondary { background: rgba(255,255,255,0.05); border: 1px solid var(--border-light); color: var(--text-primary); }
+        .btn-danger { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: var(--danger); }
 
         /* =========================================
-           2. PC ARAYÜZÜ (GELİŞMİŞ VE HIZLI)
+           3. GİRİŞ EKRANI (LOGIN)
            ========================================= */
-        #login {
-            width: 100%; max-width: 420px; background: var(--bg-panel); 
-            border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 40px; 
-            text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+        #login-screen {
+            width: 90%; max-width: 400px; background: var(--bg-panel); 
+            border: 1px solid var(--border-light); border-radius: 20px; padding: 35px; 
+            text-align: left; box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+            z-index: 100;
         }
-        .brand-logo { font-size: 32px; font-weight: 800; margin-bottom: 5px; }
+        .brand-logo { font-size: 32px; font-weight: 800; font-family: 'Plus Jakarta Sans', sans-serif; text-align: center; margin-bottom: 5px; }
         .brand-logo span { color: var(--accent-primary); }
+        .brand-sub { font-size: 13px; color: var(--text-secondary); text-align: center; margin-bottom: 30px; }
+        .input-label { display: block; font-size: 12px; color: var(--text-secondary); margin-bottom: 8px; font-weight: 600; }
+        .input-group { margin-bottom: 18px; }
 
-        .app-container {
-            width: 100%; max-width: 1500px; height: 95vh;
+        /* =========================================
+           4. ANA ÇALIŞMA ALANI (BİLGİSAYAR İÇİN)
+           ========================================= */
+        #app-screen {
+            width: 100%; max-width: 1400px; height: 95vh;
             display: flex; flex-direction: column; padding: 20px; gap: 20px;
         }
 
@@ -86,130 +93,127 @@
             padding: 15px 25px; border-radius: var(--radius-md); flex-shrink: 0;
         }
         
-        .nav-links { display: flex; gap: 10px; }
-        
-        .main-grid { display: grid; grid-template-columns: 350px 1fr 350px; gap: 20px; flex: 1; min-height: 0; }
-
-        .workspace-panel {
-            background: var(--bg-panel); border: 1px solid var(--border-light);
-            border-radius: var(--radius-lg); display: flex; flex-direction: column; overflow: hidden;
-        }
-        .panel-header { padding: 18px 24px; border-bottom: 1px solid var(--border-light); background: rgba(0,0,0,0.2); display: flex; justify-content: space-between; align-items: center;}
-        .panel-title { font-weight: 700; font-size: 15px; }
-        .panel-body { padding: 24px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; }
-        .panel-body::-webkit-scrollbar { width: 5px; } .panel-body::-webkit-scrollbar-thumb { background: var(--accent-primary); border-radius: 5px; }
-
-        .status-indicator { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: 20px; border: 1px solid rgba(16, 185, 129, 0.3); background: rgba(16,185,129,0.05); }
+        .nav-info { display: flex; align-items: center; gap: 15px; font-size: 14px; font-weight: 600;}
+        .status-badge { display: flex; align-items: center; gap: 8px; padding: 5px 12px; border-radius: 20px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); font-size: 12px;}
         .status-dot { width: 8px; height: 8px; background: var(--accent-primary); border-radius: 50%; box-shadow: 0 0 10px var(--accent-primary); }
 
-        /* Katmanlar */
-        .layers-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 20px; }
-        .layer {
-            aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
-            background: rgba(255,255,255,0.05); border: 1px solid var(--border-light);
-            border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; user-select: none; transition: 0.1s;
+        .main-grid { display: grid; grid-template-columns: 350px 1fr 350px; gap: 20px; flex: 1; min-height: 0; }
+
+        .panel {
+            background: var(--bg-panel); border: 1px solid var(--border-light);
+            border-radius: 16px; display: flex; flex-direction: column; overflow: hidden;
         }
-        .layer.active { background: var(--accent-primary); color: #000; border-color: var(--accent-primary); transform: scale(1.05); }
-
-        #message, #cipher { min-height: 120px; resize: none; margin-top: 10px; flex-shrink: 0;}
-        .tools-row { display: flex; gap: 10px; margin-top: 15px; flex-shrink: 0;}
-        .tool-btn { flex: 1; background: rgba(255,255,255,0.05); border: 1px solid var(--border-light); padding: 12px; font-size: 13px; font-weight: 600; border-radius: var(--radius-md); cursor: pointer; text-align: center; }
-        .tool-btn.active-state { background: rgba(16, 185, 129, 0.2); border-color: var(--accent-primary); color: var(--accent-primary); }
-        
-        #log { display: flex; flex-direction: column; gap: 15px; padding-bottom: 10px;}
-        .msg-box { background: rgba(0,0,0,0.4); border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 16px; flex-shrink: 0; }
-        .msg.me { border-left: 3px solid var(--accent-primary); }
-        .msg.other { border-left: 3px solid #38bdf8; }
-        .msg-header { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 12px; color: var(--text-secondary); }
-        .msg.me .msg-header strong { color: var(--accent-primary); }
-        .msg.other .msg-header strong { color: #38bdf8; }
-        .raw-data { background: #000; padding: 10px; border-radius: 8px; font-size: 12px; word-break: break-all; margin-bottom: 12px; max-height: 60px; overflow: hidden; border: 1px solid var(--border-light);}
-        .action-row { display: flex; gap: 8px; }
-        .action-btn { background: rgba(255,255,255,0.1); color: #fff; padding: 8px; font-size: 12px; border-radius: 6px; border: none; cursor: pointer; flex: 1; }
-        .action-btn.solve { background: var(--accent-primary); color: #000; font-weight: bold;}
-        .decrypted-view { margin-top: 15px; padding: 15px; background: rgba(16, 185, 129, 0.05); border-radius: 8px; font-size: 14px; display: none; word-break: break-word;}
-        
-        #result { margin-top: 20px; padding: 20px; background: rgba(0,0,0,0.5); border: 1px solid var(--accent-primary); border-radius: var(--radius-md); min-height: 100px; word-break: break-word; }
-
-        .mobile-nav { display: none; }
+        .panel-header { padding: 16px 20px; border-bottom: 1px solid var(--border-light); background: rgba(0,0,0,0.3); font-weight: 700; font-size: 15px; color: var(--accent-primary); }
+        .panel-body { padding: 20px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; }
+        .panel-body::-webkit-scrollbar { width: 5px; } .panel-body::-webkit-scrollbar-thumb { background: rgba(16, 185, 129, 0.5); border-radius: 5px; }
 
         /* =========================================
-           3. MOBİL ARAYÜZ (YEPYENİ KUSURSUZ YAPI)
+           5. ORTAK ARAÇLAR VE SOHBET (MESAİ)
+           ========================================= */
+        .layers-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 15px; flex-shrink: 0;}
+        .layer-btn {
+            aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+            background: rgba(255,255,255,0.05); border: 1px solid var(--border-light);
+            border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; user-select: none;
+        }
+        .layer-btn.active { background: var(--accent-primary); color: #000; border-color: var(--accent-primary); }
+
+        #message, #cipher { min-height: 100px; resize: none; margin-bottom: 15px; flex-shrink:0;}
+        
+        .tools-row { display: flex; gap: 10px; margin-bottom: 15px; flex-shrink: 0;}
+        .tool-btn { flex: 1; background: rgba(255,255,255,0.05); border: 1px solid var(--border-light); padding: 12px; font-size: 13px; font-weight: 600; border-radius: 8px; cursor: pointer; text-align: center; }
+        .tool-btn.active-state { background: rgba(16, 185, 129, 0.2); border-color: var(--accent-primary); color: var(--accent-primary); }
+        .tool-btn.recording { background: rgba(239, 68, 68, 0.2); border-color: var(--danger); color: var(--danger); }
+
+        #chat-log { display: flex; flex-direction: column; gap: 15px; padding-bottom: 20px; }
+        .msg-box { background: rgba(0,0,0,0.4); border: 1px solid var(--border-light); border-radius: 12px; padding: 15px; flex-shrink:0;}
+        .msg-me { border-left: 3px solid var(--accent-primary); }
+        .msg-other { border-left: 3px solid #38bdf8; }
+        .msg-header { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 12px; color: var(--text-secondary); }
+        .raw-data { background: #000; padding: 10px; border-radius: 6px; font-size: 12px; word-break: break-all; margin-bottom: 10px; border: 1px solid var(--border-light); max-height: 80px; overflow-y: auto;}
+        .action-row { display: flex; gap: 8px; }
+        .action-btn { background: rgba(255,255,255,0.1); color: #fff; padding: 8px; font-size: 12px; border-radius: 6px; border: none; cursor: pointer; flex: 1; }
+        .action-btn.solve { background: rgba(16,185,129,0.2); color: var(--accent-primary); border: 1px solid var(--accent-primary);}
+        .decrypted-view { margin-top: 10px; padding: 10px; background: rgba(16, 185, 129, 0.05); border-radius: 6px; font-size: 14px; display: none; word-break: break-word;}
+
+        #result-box { margin-top: auto; padding: 15px; background: rgba(0,0,0,0.5); border: 1px solid var(--border-light); border-left: 4px solid var(--accent-primary); border-radius: var(--radius-md); min-height: 80px; word-break: break-word; font-size: 14px; }
+
+        .mobile-navbar { display: none; }
+
+        /* =========================================
+           6. BİREBİR GERÇEK MOBİL UYGULAMA (KUSURSUZ)
            ========================================= */
         @media (max-width: 1024px) {
-            body { height: 100dvh; display: block; background: var(--bg-base); }
+            body { 
+                /* Mobil tarayıcı barı sorunu için güvenli yükseklik */
+                height: 100dvh; 
+                display: block; 
+                background: #000; 
+            }
             
-            #login { width: 100%; height: 100dvh; max-width: none; border-radius: 0; border: none; display: flex; flex-direction: column; justify-content: center; padding: 25px; }
-            
-            /* Mobil App Konteyneri */
-            .app-container { 
-                height: 100dvh; padding: 0; gap: 0; background: var(--bg-base);
+            #login-screen {
+                position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+                width: 90%; padding: 25px; border-radius: 16px; border: none;
+            }
+
+            #app-screen {
+                height: 100dvh; padding: 0; gap: 0; border-radius: 0; background: #000;
                 display: flex; flex-direction: column;
             }
-            
-            /* Üst Bilgi Çubuğu */
-            .top-navbar { border-radius: 0; border-left: none; border-right: none; border-top: none; padding: 12px 15px; background: #000;}
-            .nav-brand { font-size: 16px; }
-            .top-nav-info { display: flex; justify-content: space-between; width: 100%; align-items: center;}
-            .nav-links { display: none; /* Mobilde kalabalık yapmasın */ }
 
-            /* Ana İçerik Alanı (Paneller buraya oturur) */
+            .top-navbar {
+                border-radius: 0; border-left: none; border-right: none; border-top: none; 
+                padding: 12px 15px; background: #0a0f0d;
+            }
+            .nav-actions { display: none; /* Mobilde üstte kalabalık olmasın */ }
+
             .main-grid { 
                 display: block; flex: 1; position: relative; 
-                width: 100%; overflow: hidden; background: var(--bg-base);
+                width: 100%; min-height: 0; background: #000;
             }
-            
-            /* PANELLER (display:none ile kilitlenme imkansız hale getirildi) */
-            .workspace-panel { 
-                display: none; /* Sadece aktif olan görünecek */
+
+            /* SİHİRLİ KISIM: Paneller arası geçişler display:none ile katı yapıldı. Tıklanmama ihtimali bitti. */
+            .panel { 
+                display: none !important; /* Standart olarak hepsi gizli */
                 width: 100%; height: 100%; border: none; border-radius: 0;
                 background: transparent;
             }
-            .workspace-panel.active-tab { display: flex; flex-direction: column; }
-            
-            .panel-header { display: none; /* Mobilde başlığa gerek yok, alt menü belli ediyor */ }
-            .panel-body { padding: 15px; padding-bottom: 20px; }
+            .panel.mobile-active { 
+                display: flex !important; /* Sadece tetiklenen aktif olur */
+            }
 
-            /* YEPYENİ MOBİL ALT MENÜ (Native App Tarzı) */
-            .mobile-nav {
+            .panel-header { display: none; /* Alt menü varken başlığa gerek yok */ }
+            .panel-body { padding: 15px; padding-bottom: 20px;}
+
+            /* SABİT ALT MENÜ (WhatsApp Tarzı) */
+            .mobile-navbar {
                 display: flex; flex-shrink: 0; background: #0a0f0d;
                 border-top: 1px solid var(--border-light);
-                padding: 10px 15px 25px 15px; /* iOS alt çizgi boşluğu */
-                justify-content: space-between;
+                padding: 8px 10px 20px 10px; /* iOS alt çizgi için boşluk */
+                justify-content: space-around;
             }
-            .m-nav-btn {
-                flex: 1; background: transparent; border: none; color: var(--text-secondary);
-                font-size: 12px; font-weight: 700; padding: 12px 0; display: flex; flex-direction: column; align-items: center; gap: 5px;
+            .m-tab-btn {
+                background: transparent; border: none; color: var(--text-secondary);
+                font-size: 11px; font-weight: 700; display: flex; flex-direction: column; align-items: center; gap: 4px;
+                padding: 8px 15px; border-radius: 12px; cursor: pointer; transition: 0.2s;
             }
-            .m-nav-icon { font-size: 20px; margin-bottom: 2px;}
-            .m-nav-btn.active { color: var(--accent-primary); }
-            
-            /* Mobilde Girdi Optimizasyonları */
-            #message, #cipher { min-height: 80px; font-size: 14px; }
-            .layers-grid { gap: 8px; }
-            .layer { height: 45px; font-size: 14px; }
+            .m-tab-icon { font-size: 20px; }
+            .m-tab-btn.active { color: var(--accent-primary); background: rgba(16, 185, 129, 0.1); }
         }
-
-        /* Modal */
-        .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 2000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: 0.2s; }
-        .modal-bg.active { opacity: 1; pointer-events: auto; }
-        .modal-card { background: var(--bg-panel); width: 90%; max-width: 400px; padding: 25px; border-radius: var(--radius-lg); border: 1px solid var(--border-light);}
     </style>
 </head>
 <body>
 
-    <div id="login">
-        <div class="brand-header">
-            <div class="brand-logo">Volktronic<span>.</span></div>
-            <div class="brand-sub" style="margin-bottom: 30px;">Mobil & PC Optimize Sürüm</div>
-        </div>
+    <div id="login-screen">
+        <div class="brand-logo">Volktronic<span>.</span></div>
+        <div class="brand-sub">Kusursuz Mobil ve PC Sürümü V10</div>
 
         <div class="input-group">
-            <label class="input-label">Kullanıcı Kimliği</label>
-            <input id="username" type="text" placeholder="Örn: Ajan Volkan" autocomplete="off">
+            <label class="input-label">Ajan Kimliği</label>
+            <input id="username" type="text" placeholder="Örn: Volkan" autocomplete="off">
         </div>
         
-        <div style="display: flex; gap:10px; margin-bottom: 20px;">
+        <div style="display: flex; gap:10px; margin-bottom: 18px;">
             <div style="flex:2;">
                 <label class="input-label">Oda Kodu</label>
                 <input id="room" type="text" placeholder="Proje123" autocomplete="off">
@@ -220,39 +224,36 @@
             </div>
         </div>
 
-        <div class="input-group" style="margin-bottom: 30px;">
-            <label class="input-label">Master Şifreleme Anahtarı</label>
-            <input id="secretKey" type="password" placeholder="Gizli Parola" autocomplete="off">
+        <div class="input-group" style="margin-bottom: 25px;">
+            <label class="input-label">Master Anahtarı (Gizli Parola)</label>
+            <input id="secretKey" type="password" placeholder="Şifrenizi girin" autocomplete="off">
         </div>
 
-        <button class="btn-primary" style="width: 100%; padding: 18px;" id="loginBtn">Güvenli Ağa Bağlan</button>
+        <button class="btn-primary" style="width: 100%;" onclick="window.enterRoom()">Güvenli Ağa Bağlan</button>
     </div>
 
-    <div id="chat" class="app-container hidden">
+    <div id="app-screen" class="hidden">
         
         <header class="top-navbar">
-            <div class="top-nav-info">
-                <div style="font-size: 14px; font-weight: 600; display:flex; gap:10px; align-items:center;">
-                    <span style="color:var(--accent-primary);">Oda: <span id="roomNameDisplay">-</span></span>
-                    <span style="color:#94a3b8;">|</span>
-                    <span><span id="userNameDisplay">-</span></span>
-                </div>
-                <div class="status-indicator">
-                    <div class="status-dot"></div>
-                    <span id="onlineCountDisplay">0</span> Aktif
+            <div class="nav-info">
+                <span style="color:var(--accent-primary);" id="roomNameDisplay">-</span>
+                <span style="color:#475569;">|</span>
+                <span id="userNameDisplay">-</span>
+                <div class="status-badge">
+                    <div class="status-dot"></div><span id="onlineCountDisplay">0</span> Aktif
                 </div>
             </div>
-            <div class="nav-links">
-                <button class="btn-danger" id="panicBtn" style="padding: 8px 15px;">🚨 Sistemi İmha Et</button>
+            <div class="nav-actions">
+                <button class="btn-danger" style="padding: 8px 12px;" onclick="window.triggerPanic()">Sistemi İmha Et</button>
             </div>
         </header>
 
         <div class="main-grid">
             
-            <div class="workspace-panel active-tab" id="encoder-panel">
-                <div class="panel-header"><span class="panel-title">1. Veri Şifreleme</span></div>
+            <div class="panel mobile-active" id="panel-encoder">
+                <div class="panel-header">1. Veri Şifreleme Terminali</div>
                 <div class="panel-body">
-                    <label class="input-label">Güvenlik Katmanları</label>
+                    <label class="input-label">Güvenlik Katmanları (Seçiniz)</label>
                     <div class="layers-grid" id="encLayers"></div>
                     
                     <textarea id="message" placeholder="Güvenli ağa iletilecek mesajı yazın..."></textarea>
@@ -260,59 +261,431 @@
                     <div class="tools-row">
                         <label for="imageInput" class="tool-btn" id="imgLabel">🖼️ Görsel</label>
                         <input type="file" id="imageInput" accept="image/*" class="hidden">
-                        <div class="tool-btn" id="micBtn">🎤 Ses Kaydı</div>
+                        <div class="tool-btn" id="micBtn" onclick="window.toggleAudioRecord()">🎤 Ses</div>
                     </div>
 
-                    <div style="margin-top: 15px;">
-                        <select id="burnTimer">
-                            <option value="0">Kalıcı Mesaj (İmha Yok)</option>
-                            <option value="15">15 Saniye Sonra İmha Et</option>
-                            <option value="60">60 Saniye Sonra İmha Et</option>
-                        </select>
-                    </div>
+                    <select id="burnTimer" style="margin-bottom: 15px;">
+                        <option value="0">Kalıcı Mesaj (İmha Yok)</option>
+                        <option value="15">🔥 15 Saniyede İmha Et</option>
+                        <option value="60">🔥 60 Saniyede İmha Et</option>
+                    </select>
 
-                    <button class="btn-primary" style="margin-top: 20px; width: 100%; padding: 16px;" id="sendBtn">Şifrele ve İlet 🚀</button>
+                    <button class="btn-primary" style="width: 100%; padding: 15px;" onclick="window.encryptAndSend()">Şifrele ve İlet 🚀</button>
                 </div>
             </div>
 
-            <div class="workspace-panel" id="chat-panel">
-                <div class="panel-header"><span class="panel-title">2. Ağ Akışı</span></div>
+            <div class="panel" id="panel-chat">
+                <div class="panel-header">2. Ağ Akışı (Canlı)</div>
                 <div class="panel-body" id="chat-scroll-container">
-                    <div id="log"></div>
-                    <div id="typing-indicator" style="font-size: 12px; color: var(--accent-primary); height: 20px; margin-top:10px;"></div>
+                    <div id="chat-log"></div>
+                    <div id="typing-indicator" style="font-size: 11px; color: var(--accent-primary); min-height: 15px; margin-top:5px;"></div>
                 </div>
             </div>
 
-            <div class="workspace-panel" id="decoder-panel">
-                <div class="panel-header"><span class="panel-title">3. Veri Çözücü</span></div>
+            <div class="panel" id="panel-decoder">
+                <div class="panel-header">3. Manuel Çözücü</div>
                 <div class="panel-body">
                     <label class="input-label">Gelen Verinin Katmanları</label>
                     <div class="layers-grid" id="decLayers"></div>
                     
                     <textarea id="cipher" placeholder="Çözülecek RAW veriyi buraya yapıştırın..."></textarea>
                     
-                    <button class="btn-secondary" style="width: 100%; margin-top: 15px; border-color: var(--accent-primary); color: var(--accent-primary);" id="decryptBtn">🔓 Veriyi Çöz</button>
+                    <button class="btn-secondary" style="width: 100%; border-color: var(--accent-primary); color: var(--accent-primary);" onclick="window.decryptExternal()">🔓 Veriyi Çöz</button>
 
-                    <div id="result">Bekleniyor...</div>
+                    <div id="result-box">
+                        <span style="color: var(--text-secondary); font-style: italic;">Çözüm sonucu bekleniyor...</span>
+                    </div>
                 </div>
             </div>
 
         </div>
 
-        <div class="mobile-nav">
-            <button class="m-nav-btn active" data-target="encoder-panel">
-                <span class="m-nav-icon">🔒</span> Şifrele
+        <div class="mobile-navbar">
+            <button class="m-tab-btn active" onclick="window.switchTab('panel-encoder', this)">
+                <span class="m-tab-icon">🔒</span> Şifrele
             </button>
-            <button class="m-nav-btn" data-target="chat-panel">
-                <span class="m-nav-icon">💬</span> Ağ Akışı
+            <button class="m-tab-btn" onclick="window.switchTab('panel-chat', this)">
+                <span class="m-tab-icon">💬</span> Ağ Akışı
             </button>
-            <button class="m-nav-btn" data-target="decoder-panel">
-                <span class="m-nav-icon">🔓</span> Çözücü
+            <button class="m-tab-btn" onclick="window.switchTab('panel-decoder', this)">
+                <span class="m-tab-icon">🔓</span> Çözücü
             </button>
         </div>
 
     </div>
 
-    <script src="app.js"></script>
+    <script>
+        // --- 1. SİSTEM BAŞLATMA VE DEĞİŞKENLER ---
+        let db;
+        let USER = "", ROOM = "", SECRET = "", SECURE_ROOM_PATH = "";
+        let roomMessagesRef;
+        let selectedImageBase64 = null, selectedAudioBase64 = null;
+        let isRecording = false, mediaRecorder, audioChunks = [];
+        const encSel = new Set(), decSel = new Set();
+
+        // Firebase'i Güvenli Başlat (Hata Verirse Sistemi Çökertmez)
+        try {
+            const firebaseConfig = { databaseURL: "https://volktron-chat-default-rtdb.firebaseio.com/" };
+            if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+                db = firebase.database();
+            }
+        } catch (error) {
+            console.error("Firebase yüklenemedi:", error);
+            alert("Sistem uyarı: Veritabanı bağlantısı engellendi. Ağınızdaki engelleyicileri kapatın.");
+        }
+
+        // --- 2. MOBİL SEKME DEĞİŞTİRME FONKSİYONU (KUSURSUZ) ---
+        window.switchTab = function(targetPanelId, btnElement) {
+            // 1. Mobilde klavyeyi kapat ki ekran donmasın
+            if (document.activeElement) document.activeElement.blur();
+
+            // 2. Sadece mobil cihazlardaysa işlem yap
+            if (window.innerWidth <= 1024) {
+                // Tüm panellerden 'mobile-active' sınıfını sil (Gizler)
+                document.getElementById('panel-encoder').classList.remove('mobile-active');
+                document.getElementById('panel-chat').classList.remove('mobile-active');
+                document.getElementById('panel-decoder').classList.remove('mobile-active');
+
+                // Sadece hedeflenen paneli göster
+                document.getElementById(targetPanelId).classList.add('mobile-active');
+
+                // Alt menü butonlarının rengini ayarla
+                if(btnElement) {
+                    document.querySelectorAll('.m-tab-btn').forEach(b => b.classList.remove('active'));
+                    btnElement.classList.add('active');
+                } else {
+                    // Kod üzerinden yönlendirme yapıldıysa manuel bul
+                    document.querySelectorAll('.m-tab-btn').forEach(b => {
+                        b.classList.remove('active');
+                        if(b.getAttribute('onclick').includes(targetPanelId)) b.classList.add('active');
+                    });
+                }
+
+                // Sohbete geçildiyse en alta kaydır
+                if(targetPanelId === 'panel-chat') {
+                    setTimeout(() => {
+                        const scrollBox = document.getElementById("chat-scroll-container");
+                        if(scrollBox) scrollBox.scrollTop = scrollBox.scrollHeight;
+                    }, 50);
+                }
+            }
+        };
+
+        // --- 3. KATMAN BUTONLARINI ÜRETME ---
+        function buildLayers(containerId, setObj) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            for (let i = 1; i <= 10; i++) {
+                const btn = document.createElement("div");
+                btn.className = "layer-btn"; 
+                btn.innerHTML = i < 10 ? '0'+i : i;
+                
+                // Butona tıklanınca olacaklar
+                btn.onclick = function() {
+                    if (setObj.has(i)) setObj.delete(i);
+                    else setObj.add(i);
+                    this.classList.toggle("active");
+                };
+                container.appendChild(btn);
+            }
+        }
+        buildLayers("encLayers", encSel);
+        buildLayers("decLayers", decSel);
+
+
+        // --- 4. GİRİŞ İŞLEMİ (ENTER ROOM) ---
+        window.enterRoom = function() {
+            USER = document.getElementById("username").value.trim();
+            ROOM = document.getElementById("room").value.trim();
+            const PIN = document.getElementById("roomPin").value.trim();
+            SECRET = document.getElementById("secretKey").value.trim();
+
+            if (!USER || !ROOM || !SECRET || !PIN) {
+                alert("Bağlantı Hatası: Lütfen tüm kutuları doldurun."); return;
+            }
+
+            if (!db) {
+                alert("Veritabanı bağlantısı yok. Lütfen sayfayı yenileyin."); return;
+            }
+
+            // Odayı hashleyerek gizle
+            const roomHash = CryptoJS.MD5(ROOM + "_" + PIN).toString();
+            SECURE_ROOM_PATH = ROOM + "_" + roomHash.substring(0, 10);
+
+            // Arayüzü güncelle
+            document.getElementById("userNameDisplay").textContent = USER;
+            document.getElementById("roomNameDisplay").textContent = ROOM;
+
+            // Ekranları Değiştir
+            document.getElementById("login-screen").classList.add("hidden");
+            document.getElementById("app-screen").classList.remove("hidden");
+
+            // Dinleyicileri başlat
+            startFirebaseListeners();
+        };
+
+        // Enter tuşu ile giriş yapma
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !document.getElementById('login-screen').classList.contains('hidden')) {
+                window.enterRoom();
+            }
+        });
+
+
+        // --- 5. FIREBASE DİNLEYİCİLERİ ---
+        function startFirebaseListeners() {
+            // Çevrimiçi Durumu
+            const myPresenceRef = db.ref("rooms/" + SECURE_ROOM_PATH + "/presence").push();
+            myPresenceRef.set(USER); 
+            myPresenceRef.onDisconnect().remove();
+
+            db.ref("rooms/" + SECURE_ROOM_PATH + "/presence").on('value', snap => {
+                const data = snap.val() || {};
+                document.getElementById('onlineCountDisplay').innerText = Object.keys(data).length;
+            });
+
+            // Yazıyor... Bildirimi (Okuma)
+            db.ref("rooms/" + SECURE_ROOM_PATH + "/typing").on('value', snap => {
+                const data = snap.val() || {};
+                const activeWriters = Object.keys(data).filter(user => user !== USER);
+                const indicator = document.getElementById("typing-indicator");
+                indicator.textContent = activeWriters.length > 0 ? `${activeWriters.join(", ")} mesaj işliyor...` : "";
+            });
+
+            // Mesajları Dinleme
+            roomMessagesRef = db.ref("rooms/" + SECURE_ROOM_PATH + "/messages");
+            roomMessagesRef.on('child_added', snap => {
+                const data = snap.val() || {};
+                const msgKey = snap.key;
+                const safeUser = data.user || "Bilinmeyen";
+                const safeText = data.text || "";
+                
+                // Saati oluştur
+                const dateObj = data.time ? new Date(data.time) : new Date();
+                const timeStr = dateObj.getHours().toString().padStart(2, '0') + ":" + dateObj.getMinutes().toString().padStart(2, '0');
+
+                const div = document.createElement("div");
+                div.id = "msg-" + msgKey; 
+                div.className = "msg-box " + (safeUser === USER ? "msg-me" : "msg-other");
+                
+                div.innerHTML = `
+                    <div class="msg-header"><strong>${safeUser}</strong><span>${timeStr}</span></div>
+                    <div class="raw-data mono">${safeText}</div>
+                    <div class="action-row">
+                        <button class="action-btn" onclick="navigator.clipboard.writeText('${safeText}')">Kopyala</button>
+                        <button class="action-btn pass-btn">Aktar</button>
+                        <button class="action-btn solve inline-decrypt-btn">Çöz</button>
+                    </div>
+                    <div class="decrypted-view"></div>
+                `;
+
+                // Aktar Butonu
+                div.querySelector('.pass-btn').onclick = () => {
+                    document.getElementById('cipher').value = safeText;
+                    window.switchTab('panel-decoder', null); // Çözücüye git
+                };
+
+                // Inline Çözme Butonu
+                div.querySelector('.inline-decrypt-btn').onclick = () => {
+                    const decrypted = removeStrongLayers(safeText, SECRET, decSel);
+                    const view = div.querySelector(".decrypted-view"); 
+                    const raw = div.querySelector(".raw-data"); 
+                    const actions = div.querySelector(".action-row");
+
+                    if (decrypted.includes("HATA:")) { 
+                        alert("HATA: Katman seçimi veya Master Anahtar yanlış!"); 
+                    } else {
+                        let htmlContent = decrypted;
+                        if (decrypted.startsWith("IMG||")) {
+                            const parts = decrypted.split("||"); 
+                            htmlContent = `<img src="${parts[1]}" style="max-width:100%; max-height:200px; border-radius:8px; display:block; margin-bottom:10px;"><p>${parts[2]||""}</p>`;
+                        } else if (decrypted.startsWith("AUDIO||")) {
+                            const parts = decrypted.split("||");
+                            htmlContent = `<audio controls src="${parts[1]}" style="width:100%; height:35px; margin-bottom:10px;"></audio><p>${parts[2]||""}</p>`;
+                        } else if (decrypted.startsWith("TXT||")) { 
+                            htmlContent = decrypted.replace("TXT||", ""); 
+                        }
+
+                        view.innerHTML = htmlContent; 
+                        view.style.display = "block"; 
+                        raw.style.display = "none"; 
+                        actions.style.display = "none";
+                        
+                        // Burn timer varsa başlat
+                        if (data.burn && data.burn > 0) startBurnTimer(data.burn, msgKey, div);
+                    }
+                };
+
+                document.getElementById("chat-log").appendChild(div);
+                
+                // Mesaj gelince en alta kaydır
+                const scrollBox = document.getElementById("chat-scroll-container");
+                if(scrollBox) setTimeout(() => scrollBox.scrollTop = scrollBox.scrollHeight, 50);
+            });
+
+            // Mesaj Silinince Olacaklar
+            roomMessagesRef.on('child_removed', snap => {
+                const el = document.getElementById("msg-" + snap.key);
+                if (el) {
+                    el.innerHTML = `<div style="text-align:center; font-size:12px; color:var(--danger);">Mesaj zaman aşımıyla imha edildi.</div>`;
+                    setTimeout(() => el.remove(), 2500);
+                }
+            });
+        }
+
+
+        // --- 6. GÖNDERME İŞLEMLERİ (ŞİFRELE VE İLET) ---
+        
+        // Yazıyor... (Typing) Gönderme (Performanslı)
+        let lastTypingTime = 0;
+        let typingClearTimer;
+        document.getElementById("message").addEventListener("input", () => {
+            if(!SECURE_ROOM_PATH || !USER || !db) return;
+            const now = Date.now();
+            if (now - lastTypingTime > 1500) { // Saniyede 1 kereden fazla sunucuyu yormaz
+                db.ref("rooms/" + SECURE_ROOM_PATH + "/typing/" + USER).set(now);
+                lastTypingTime = now;
+            }
+            clearTimeout(typingClearTimer);
+            typingClearTimer = setTimeout(() => db.ref("rooms/" + SECURE_ROOM_PATH + "/typing/" + USER).remove(), 2500);
+        });
+
+        // Görsel Ekleme
+        document.getElementById("imageInput").addEventListener("change", function(e) {
+            const file = e.target.files[0]; const label = document.getElementById("imgLabel");
+            if (!file) return;
+            if (file.size > 1.5 * 1024 * 1024) { alert("1.5MB'dan büyük dosya yüklenemez."); this.value = ""; return; }
+            const reader = new FileReader();
+            reader.onload = e => { 
+                selectedImageBase64 = e.target.result; selectedAudioBase64 = null; 
+                label.innerHTML = "Görsel ✓"; label.classList.add("active-state"); 
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // Ses Kaydetme
+        window.toggleAudioRecord = async function() {
+            const micBtn = document.getElementById("micBtn");
+            if (!isRecording) {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorder = new MediaRecorder(stream); audioChunks = [];
+                    mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
+                    mediaRecorder.onstop = () => {
+                        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                        const reader = new FileReader(); reader.readAsDataURL(audioBlob);
+                        reader.onloadend = () => {
+                            selectedAudioBase64 = reader.result; selectedImageBase64 = null; 
+                            micBtn.innerHTML = "Ses ✓"; micBtn.classList.remove("recording"); micBtn.classList.add("active-state");
+                        };
+                    };
+                    mediaRecorder.start(); isRecording = true;
+                    micBtn.innerHTML = "Kaydediliyor... 🛑"; micBtn.classList.add("recording");
+                } catch (err) { alert("Mikrofon izni verilmedi."); }
+            } else { mediaRecorder.stop(); isRecording = false; }
+        };
+
+        // Asıl Gönderme Fonksiyonu
+        window.encryptAndSend = function() {
+            if (!db) { alert("Sistem çevrimdışı."); return; }
+            
+            const msgInput = document.getElementById("message");
+            const burnTime = parseInt(document.getElementById("burnTimer").value);
+            const textVal = msgInput.value.trim();
+
+            if (!textVal && !selectedImageBase64 && !selectedAudioBase64) { alert("Lütfen şifrelenecek bir mesaj girin."); return; }
+
+            // Veriyi paketle
+            let payload = "";
+            if (selectedAudioBase64) payload = "AUDIO||" + selectedAudioBase64 + "||" + textVal;
+            else if (selectedImageBase64) payload = "IMG||" + selectedImageBase64 + "||" + textVal;
+            else payload = "TXT||" + textVal;
+
+            // Şifrele ve Veritabanına Yolla
+            const encryptedPayload = applyStrongLayers(payload, SECRET, encSel);
+            roomMessagesRef.push({ user: USER, text: encryptedPayload, time: Date.now(), burn: burnTime });
+
+            // Arayüzü temizle
+            msgInput.value = ""; selectedImageBase64 = null; selectedAudioBase64 = null;
+            document.getElementById("imgLabel").innerHTML = "🖼️ Görsel"; document.getElementById("imgLabel").classList.remove("active-state");
+            document.getElementById("micBtn").innerHTML = "🎤 Ses"; document.getElementById("micBtn").classList.remove("active-state");
+
+            // Gönderdikten sonra direkt Sohbete git (Mobilde)
+            window.switchTab('panel-chat', null);
+        };
+
+
+        // --- 7. ÇÖZÜCÜ EKRANI (DECRYPTOR) ---
+        window.decryptExternal = function() {
+            const cipherText = document.getElementById("cipher").value.trim();
+            const resultDiv = document.getElementById("result-box");
+            if (!cipherText) { resultDiv.textContent = "Çözülecek RAW veriyi girmediniz."; return; }
+
+            const plainText = removeStrongLayers(cipherText, SECRET, decSel);
+            
+            if (plainText.includes("HATA:")) {
+                resultDiv.innerHTML = "<strong>SİSTEM REDDİ:</strong> Veri çözülemedi.<br>Seçilen katmanları veya Parolayı kontrol edin."; 
+                resultDiv.style.color = "var(--danger)";
+            } else {
+                let cleanText = plainText;
+                if (cleanText.startsWith("IMG||") || cleanText.startsWith("AUDIO||")) {
+                    cleanText = "[Bu bir Medya dosyasıdır. Lütfen ortadaki Ağ Akışı panelinden çözünüz.]";
+                } else {
+                    cleanText = cleanText.replace("TXT||", "");
+                }
+                resultDiv.textContent = cleanText; 
+                resultDiv.style.color = "var(--accent-primary)";
+            }
+        };
+
+        // --- 8. SİSTEM İMHA ---
+        window.triggerPanic = async function() {
+            if (confirm("DİKKAT! Odanın veritabanı sonsuza dek silinecek. Onaylıyor musunuz?")) {
+                try {
+                    if(db) await db.ref("rooms/" + SECURE_ROOM_PATH).remove();
+                    document.body.innerHTML = `<div style="color:var(--danger); font-size:24px; font-weight:bold;">SİSTEM İMHA EDİLDİ.</div>`;
+                    setTimeout(() => location.reload(), 2000);
+                } catch (e) { alert("İmha başarısız: İnternet bağlantısı yok."); }
+            }
+        };
+
+        // --- 9. ŞİFRELEME ALGORİTMALARI ---
+        function applyStrongLayers(text, secret, selectedLayers) {
+            let encrypted = text; let layers = [...selectedLayers].sort((a, b) => a - b);
+            if (layers.length === 0) return CryptoJS.AES.encrypt(encrypted, secret).toString();
+            layers.forEach(layer => { encrypted = CryptoJS.AES.encrypt(encrypted, secret + "_Salt_L" + layer).toString(); });
+            return encrypted;
+        }
+
+        function removeStrongLayers(ciphertext, secret, selectedLayers) {
+            let decrypted = ciphertext; let layers = [...selectedLayers].sort((a, b) => b - a);
+            try {
+                if (layers.length === 0) {
+                    let bytes = CryptoJS.AES.decrypt(decrypted, secret);
+                    let result = bytes.toString(CryptoJS.enc.Utf8);
+                    if (!result) throw new Error(); return result;
+                }
+                layers.forEach(layer => {
+                    let bytes = CryptoJS.AES.decrypt(decrypted, secret + "_Salt_L" + layer);
+                    decrypted = bytes.toString(CryptoJS.enc.Utf8);
+                    if (!decrypted) throw new Error();
+                });
+                return decrypted;
+            } catch (error) { return "HATA:"; }
+        }
+
+        function startBurnTimer(seconds, msgKey, element) {
+            let timeLeft = seconds;
+            const timerDisplay = document.createElement("div");
+            timerDisplay.style.color = "var(--danger)"; timerDisplay.style.fontSize = "11px"; timerDisplay.style.marginTop = "8px";
+            element.appendChild(timerDisplay);
+            const interval = setInterval(() => {
+                timerDisplay.innerHTML = `🔥 ${timeLeft}s içinde yok olacak...`; timeLeft--;
+                if (timeLeft < 0) { clearInterval(interval); db.ref("rooms/" + SECURE_ROOM_PATH + "/messages/" + msgKey).remove(); }
+            }, 1000);
+        }
+
+    </script>
 </body>
 </html>
