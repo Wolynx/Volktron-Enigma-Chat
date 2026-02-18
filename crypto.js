@@ -1,5 +1,5 @@
 /* =======================================================
-   VOLKTRONIC CRYPTO ENGINE v8.0 - MOBILE NATIVE FIX
+   VOLKTRONIC CRYPTO ENGINE v9.0 - DONMA ENGELLEYİCİ SÜRÜM
    ======================================================= */
 
 const firebaseConfig = {
@@ -205,7 +205,7 @@ function startFirebaseListeners() {
             
             <div class="action-row">
                 <button class="action-btn" onclick="navigator.clipboard.writeText('${safeText}')">Kopyala</button>
-                <button class="action-btn" onclick="document.getElementById('cipher').value='${safeText}'; if(window.innerWidth<=1024) { window.switchMobileTab('decoder-panel', 'm-btn-dec'); }">Aktar</button>
+                <button class="action-btn" onclick="document.getElementById('cipher').value='${safeText}'; if(window.innerWidth<=1024) window.switchMobileTab('decoder-panel', 'm-btn-dec');">Aktar</button>
                 <button class="action-btn solve inline-decrypt-btn">Şifreyi Çöz</button>
             </div>
             <div class="decrypted-view" style="display:none;"></div>
@@ -363,8 +363,6 @@ function encryptAndSend() {
     micBtn.classList.remove("active-state");
 
     if(window.innerWidth <= 1024 && typeof window.switchMobileTab === 'function') {
-        // Klavyeyi güvenlice kapatıp sohbet sekmesine geçirir
-        msgInput.blur();
         window.switchMobileTab('chat-panel', 'm-btn-chat');
     }
 }
