@@ -1,10 +1,10 @@
 /* =======================================================
-   VOLKTRONIC CRYPTO ENGINE v4.0 - ENTERPRISE EDITION
+   VOLKTRONIC CRYPTO ENGINE v6.0 - PREMIUM SWEEP & RADAR
    ======================================================= */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { 
-    getDatabase, ref, push, set, remove, onChildAdded, onChildRemoved, onValue 
+    getDatabase, ref, push, set, remove, onChildAdded, onChildRemoved, onValue, onDisconnect 
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
 const firebaseConfig = {
@@ -18,7 +18,7 @@ const db = getDatabase(app);
 let USER = "";
 let ROOM = "";
 let SECRET = "";
-let SECURE_ROOM_PATH = ""; // PIN ile şifrelenmiş özel oda yolu
+let SECURE_ROOM_PATH = ""; 
 let roomMessagesRef;
 
 let selectedImageBase64 = null; 
@@ -30,7 +30,6 @@ let audioChunks = [];
 const encSel = new Set();
 const decSel = new Set();
 
-// --- 1. KATMAN OLUŞTURUCU ---
 function makeLayers(element, setObj) {
     if (!element) return;
     for (let i = 1; i <= 10; i++) {
@@ -49,8 +48,6 @@ function makeLayers(element, setObj) {
 makeLayers(document.getElementById("encLayers"), encSel);
 makeLayers(document.getElementById("decLayers"), decSel);
 
-
-// --- 2. GÖRSEL DOSYASI OKUMA ---
 document.getElementById("imageInput").addEventListener("change", function(e) {
     const file = e.target.files[0];
     const label = document.getElementById("imgLabel");
@@ -64,21 +61,18 @@ document.getElementById("imageInput").addEventListener("change", function(e) {
     const reader = new FileReader();
     reader.onload = function(event) {
         selectedImageBase64 = event.target.result;
-        selectedAudioBase64 = null; // Sesi sıfırla çakışmasın
-        label.textContent = "✅ Fotoğraf Hazır";
-        label.style.borderColor = "var(--accent-green)";
-        label.style.color = "var(--accent-green)";
+        selectedAudioBase64 = null; 
+        label.innerHTML = "✅ Görsel Yüklendi";
+        label.style.borderColor = "var(--neon-cyan)";
+        label.style.color = "var(--neon-cyan)";
     };
     reader.readAsDataURL(file);
 });
 
-
-// --- 3. SES KAYIT (AUDIO CRYPTO) MOTORU ---
 async function toggleAudioRecord() {
     const micBtn = document.getElementById("micBtn");
     
     if (!isRecording) {
-        // Kayda Başla
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
             mediaRecorder = new MediaRecorder(stream);
@@ -94,32 +88,29 @@ async function toggleAudioRecord() {
                 reader.readAsDataURL(audioBlob);
                 reader.onloadend = () => {
                     selectedAudioBase64 = reader.result;
-                    selectedImageBase64 = null; // Resmi sıfırla
-                    micBtn.textContent = "✅ Ses Hazır";
+                    selectedImageBase64 = null; 
+                    micBtn.innerHTML = "✅ Ses Kaydedildi";
                     micBtn.classList.remove("active-recording");
-                    micBtn.style.borderColor = "var(--accent-blue)";
-                    micBtn.style.color = "var(--accent-blue)";
+                    micBtn.style.borderColor = "var(--neon-cyan)";
+                    micBtn.style.color = "var(--neon-cyan)";
                 };
             };
             
             mediaRecorder.start();
             isRecording = true;
-            micBtn.textContent = "⏹️ Kaydı Bitir";
+            micBtn.innerHTML = "⏹️ Kaydı Bitir (Dinleniyor...)";
             micBtn.classList.add("active-recording");
             
         } catch (err) {
-            alert("Mikrofon izni reddedildi veya donanım bulunamadı.");
+            alert("Sistem Mikrofonunuza erişemedi.");
         }
     } else {
-        // Kaydı Durdur
         mediaRecorder.stop();
         isRecording = false;
     }
 }
-window.toggleAudioRecord = toggleAudioRecord; // HTML'den erişim
+window.toggleAudioRecord = toggleAudioRecord;
 
-
-// --- 4. YAZIYOR SENSÖRÜ ---
 let typingTimer;
 document.getElementById("message").addEventListener("input", () => {
     if(!SECURE_ROOM_PATH || !USER) return;
@@ -129,8 +120,6 @@ document.getElementById("message").addEventListener("input", () => {
     typingTimer = setTimeout(() => remove(typingRef), 2000);
 });
 
-
-// --- 5. ODAYA GİRİŞ (PIN KODU GÜVENLİĞİ İLE) ---
 function enterRoom() {
     USER = document.getElementById("username").value.trim();
     ROOM = document.getElementById("room").value.trim();
@@ -138,12 +127,10 @@ function enterRoom() {
     SECRET = document.getElementById("secretKey").value.trim();
 
     if (!USER || !ROOM || !SECRET || !PIN) {
-        alert("ERİŞİM REDDEDİLDİ: Lütfen PIN kodu dahil tüm bilgileri doldurun.");
+        alert("Tüm güvenlik protokollerini (Kullanıcı, Oda, PIN, Şifre) doldurmalısınız.");
         return;
     }
 
-    // YENİ GÜVENLİK: Oda Adı + PIN birleşip MD5 ile şifreleniyor.
-    // Böylece PIN bilmeyen biri asla aynı Firebase klasörüne bağlanamıyor.
     const roomHash = CryptoJS.MD5(ROOM + "_" + PIN).toString();
     SECURE_ROOM_PATH = ROOM + "_" + roomHash.substring(0, 10);
 
@@ -156,9 +143,25 @@ function enterRoom() {
     startFirebaseListeners();
 }
 
-
-// --- 6. FIREBASE DİNLEYİCİLERİ ---
 function startFirebaseListeners() {
+    
+    // ----------------------------------------------------
+    // YENİ: CANLI AJAN RADARI (ONLINE USER COUNT)
+    // ----------------------------------------------------
+    // Bu kısım sen sekmeyi kapattığında seni odadan düşürür
+    const myPresenceRef = push(ref(db, "rooms/" + SECURE_ROOM_PATH + "/presence"));
+    set(myPresenceRef, USER);
+    onDisconnect(myPresenceRef).remove();
+
+    // Odadaki herkesi sayma işlemi
+    const roomPresenceRef = ref(db, "rooms/" + SECURE_ROOM_PATH + "/presence");
+    onValue(roomPresenceRef, (snap) => {
+        const data = snap.val() || {};
+        const count = Object.keys(data).length;
+        document.getElementById('onlineCountDisplay').innerText = count;
+    });
+    // ----------------------------------------------------
+
     const typingListRef = ref(db, "rooms/" + SECURE_ROOM_PATH + "/typing");
     onValue(typingListRef, (snap) => {
         const data = snap.val() || {};
@@ -195,9 +198,9 @@ function startFirebaseListeners() {
             <div class="raw-data">${safeText}</div>
             
             <div class="action-row">
-                <button class="action-btn" onclick="navigator.clipboard.writeText('${safeText}')">Kopyala</button>
-                <button class="action-btn" onclick="document.getElementById('cipher').value='${safeText}'">Aktar</button>
-                <button class="action-btn solve inline-decrypt-btn">Şifreyi Çöz</button>
+                <button class="action-btn" onclick="navigator.clipboard.writeText('${safeText}')">📋 Kopyala</button>
+                <button class="action-btn" onclick="document.getElementById('cipher').value='${safeText}'">➡️ Aktar</button>
+                <button class="action-btn solve inline-decrypt-btn">🔓 Direkt Çöz</button>
             </div>
             <div class="decrypted-view" style="display:none;"></div>
         `;
@@ -210,23 +213,22 @@ function startFirebaseListeners() {
             const actions = div.querySelector(".action-row");
 
             if (typeof decrypted === "string" && decrypted.includes("HATA:")) {
-                alert("ÇÖZÜM BAŞARISIZ! Doğru katmanları seçtiğinizden emin olun.");
+                alert("ÇÖZÜM BAŞARISIZ! Sağ paneldeki katmanları göndericiyle eşitleyin.");
             } else {
                 let htmlContent = "";
                 
-                // MEDYA PROTOKOLLERİ
                 if (decrypted.startsWith("IMG||")) {
                     const parts = decrypted.split("||"); 
-                    htmlContent = `<img src="${parts[1]}" style="max-width:100%; border-radius:8px; margin-bottom:8px;"><br>${parts[2] || ""}`;
+                    htmlContent = `<img src="${parts[1]}" style="max-width:100%; border-radius:8px; margin-bottom:8px; box-shadow:0 0 10px rgba(0,243,255,0.3);"><br>${parts[2] || ""}`;
                 } 
                 else if (decrypted.startsWith("AUDIO||")) {
                     const parts = decrypted.split("||");
                     htmlContent = `
-                        <div style="background:rgba(255,255,255,0.1); padding:10px; border-radius:8px; display:flex; align-items:center; gap:10px;">
-                            <span>🎵 Kripto Ses:</span>
-                            <audio controls src="${parts[1]}" style="height:30px; outline:none;"></audio>
+                        <div style="background:rgba(0,0,0,0.4); padding:12px; border:1px solid rgba(0,243,255,0.2); border-radius:8px; display:flex; align-items:center; gap:10px;">
+                            <span style="color:var(--neon-cyan)">🎵 Kripto Ses:</span>
+                            <audio controls src="${parts[1]}" style="height:35px; outline:none; border-radius:20px;"></audio>
                         </div>
-                        <div style="margin-top:8px">${parts[2] || ""}</div>
+                        <div style="margin-top:10px">${parts[2] || ""}</div>
                     `;
                 }
                 else if (decrypted.startsWith("TXT||")) {
@@ -252,27 +254,26 @@ function startFirebaseListeners() {
     onChildRemoved(roomMessagesRef, (snap) => {
         const el = document.getElementById("msg-" + snap.key);
         if (el) {
-            el.innerHTML = `<div style="color:var(--accent-red); text-align:center; font-size:12px; font-weight:600;">[ VERİ KALICI OLARAK İMHA EDİLDİ ]</div>`;
-            setTimeout(() => el.remove(), 1500);
+            el.innerHTML = `<div style="color:var(--neon-red); text-align:center; font-size:12px; font-weight:700; font-family:'Space Grotesk'; border:1px dashed var(--neon-red); padding:15px; border-radius:8px; background:rgba(255,42,42,0.05);">[ VERİ SİSTEMDEN İMHA EDİLDİ ]</div>`;
+            setTimeout(() => el.remove(), 2500);
         }
     });
 }
 
-
-// --- 7. İMHA SAYACI ---
 function startBurnTimer(seconds, msgKey, element) {
     let timeLeft = seconds;
     const timerDisplay = document.createElement("div");
-    timerDisplay.style.color = "var(--accent-red)";
-    timerDisplay.style.fontSize = "11px";
-    timerDisplay.style.fontWeight = "600";
-    timerDisplay.style.marginTop = "12px";
+    timerDisplay.style.color = "var(--neon-red)";
+    timerDisplay.style.fontSize = "12px";
+    timerDisplay.style.fontFamily = "'Space Grotesk'";
+    timerDisplay.style.fontWeight = "700";
+    timerDisplay.style.marginTop = "15px";
     timerDisplay.style.textAlign = "right";
     
     element.appendChild(timerDisplay);
 
     const interval = setInterval(() => {
-        timerDisplay.innerHTML = `⚠️ Sistemden siliniyor: 00:${timeLeft < 10 ? '0'+timeLeft : timeLeft}`;
+        timerDisplay.innerHTML = `⚠️ SİSTEMDEN SİLİNİYOR: 00:${timeLeft < 10 ? '0'+timeLeft : timeLeft}`;
         timeLeft--;
 
         if (timeLeft < 0) {
@@ -282,8 +283,6 @@ function startBurnTimer(seconds, msgKey, element) {
     }, 1000);
 }
 
-
-// --- 8. ŞİFRELEME MATEMATİĞİ ---
 function applyStrongLayers(text, secret, selectedLayers) {
     let encrypted = text;
     let layers = [...selectedLayers].sort((a, b) => a - b);
@@ -296,8 +295,6 @@ function applyStrongLayers(text, secret, selectedLayers) {
     return encrypted;
 }
 
-
-// --- 9. ŞİFRE ÇÖZME ---
 function removeStrongLayers(ciphertext, secret, selectedLayers) {
     let decrypted = ciphertext;
     let layers = [...selectedLayers].sort((a, b) => b - a);
@@ -321,15 +318,13 @@ function removeStrongLayers(ciphertext, secret, selectedLayers) {
     }
 }
 
-
-// --- 10. GÖNDERME ---
 function encryptAndSend() {
     const msgInput = document.getElementById("message");
     const burnTime = parseInt(document.getElementById("burnTimer").value);
     const textVal = msgInput.value.trim();
 
     if (!textVal && !selectedImageBase64 && !selectedAudioBase64) {
-        alert("Lütfen metin, fotoğraf veya ses ekleyin."); return;
+        alert("Lütfen metin, fotoğraf veya ses kaydı ekleyin."); return;
     }
 
     let payload = "";
@@ -341,19 +336,16 @@ function encryptAndSend() {
 
     push(roomMessagesRef, { user: USER, text: encryptedPayload, time: Date.now(), burn: burnTime });
 
-    // Temizlik
     msgInput.value = "";
     selectedImageBase64 = null;
     selectedAudioBase64 = null;
     
     const imgLbl = document.getElementById("imgLabel");
-    imgLbl.textContent = "🖼️ Fotoğraf"; imgLbl.style = "";
+    imgLbl.innerHTML = "🖼️ Fotoğraf Seç"; imgLbl.style = "";
     const micBtn = document.getElementById("micBtn");
-    micBtn.textContent = "🎤 Ses Kaydet"; micBtn.style = "";
+    micBtn.innerHTML = "🎤 Ses Kaydet"; micBtn.style = "";
 }
 
-
-// --- 11. HARİCİ ÇÖZÜCÜ ---
 function decryptExternal() {
     const cipherText = document.getElementById("cipher").value.trim();
     const resultDiv = document.getElementById("result");
@@ -363,28 +355,28 @@ function decryptExternal() {
     const plainText = removeStrongLayers(cipherText, SECRET, decSel);
 
     if (plainText.includes("HATA:")) {
-        resultDiv.textContent = "BAŞARISIZ: Katman veya Şifre hatası.";
-        resultDiv.style.color = "var(--accent-red)";
-        resultDiv.style.borderColor = "var(--accent-red)";
+        resultDiv.innerHTML = "❌ ŞİFRE ÇÖZÜLEMEDİ<br><br>Seçtiğiniz Katmanlar, RAW Kodu veya Master Anahtarınız göndericiyle uyuşmuyor.";
+        resultDiv.style.color = "var(--neon-red)";
+        resultDiv.style.borderColor = "var(--neon-red)";
+        resultDiv.style.boxShadow = "inset 0 0 30px rgba(255,42,42,0.1)";
     } else {
         let cleanText = plainText;
-        if (cleanText.startsWith("IMG||")) cleanText = "[GÖRSEL BULUNUYOR - Ana ekrandan çözün]";
-        else if (cleanText.startsWith("AUDIO||")) cleanText = "[SES KAYDI BULUNUYOR - Ana ekrandan çözün]";
+        if (cleanText.startsWith("IMG||")) cleanText = "[GÖRSEL BULUNUYOR - Lütfen ortadaki Direkt Çöz butonunu kullanın]";
+        else if (cleanText.startsWith("AUDIO||")) cleanText = "[SES KAYDI BULUNUYOR - Lütfen ortadaki Direkt Çöz butonunu kullanın]";
         else if (cleanText.startsWith("TXT||")) cleanText = cleanText.replace("TXT||", "");
         
         resultDiv.textContent = cleanText;
-        resultDiv.style.color = "var(--accent-green)";
-        resultDiv.style.borderColor = "var(--accent-green)";
+        resultDiv.style.color = "var(--neon-green)";
+        resultDiv.style.borderColor = "var(--neon-green)";
+        resultDiv.style.boxShadow = "inset 0 0 30px rgba(0,255,157,0.1)";
     }
 }
 
-
-// --- 12. PANİK PROTOKOLÜ ---
 async function triggerPanic() {
     if (confirm("DİKKAT! Odayı kalıcı olarak silmek istediğinize emin misiniz?")) {
         try {
             await remove(ref(db, "rooms/" + SECURE_ROOM_PATH));
-            document.body.innerHTML = `<div style="display:flex; justify-content:center; align-items:center; height:100vh; background:#000; color:red; flex-direction:column; font-family:Space Grotesk;"><h1>SİSTEM İMHA EDİLDİ</h1></div>`;
+            document.body.innerHTML = `<div style="display:flex; justify-content:center; align-items:center; height:100vh; background:#000; color:red; flex-direction:column; font-family:Orbitron;"><h1>SİSTEM İMHA EDİLDİ</h1></div>`;
             setTimeout(() => location.reload(), 3000);
         } catch (e) {
             alert("Bağlantı hatası.");
