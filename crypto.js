@@ -1,18 +1,14 @@
 /* =======================================================
-   VOLKTRONIC CRYPTO ENGINE v8.0 - MOBILE OPTIMIZED
+   VOLKTRONIC CRYPTO ENGINE v8.0 - FILE:// SAFE SÜRÜM
    ======================================================= */
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { 
-    getDatabase, ref, push, set, remove, onChildAdded, onChildRemoved, onValue, onDisconnect 
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-
+// Firebase Compat nesneleri HTML'den (window üzerinden) geliyor
 const firebaseConfig = {
   databaseURL: "https://volktron-chat-default-rtdb.firebaseio.com/"
 };
 
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
+const app = firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
 
 let USER = "";
 let ROOM = "";
@@ -111,10 +107,17 @@ window.toggleAudioRecord = toggleAudioRecord;
 let typingTimer;
 document.getElementById("message").addEventListener("input", () => {
     if(!SECURE_ROOM_PATH || !USER) return;
-    const typingRef = ref(db, "rooms/" + SECURE_ROOM_PATH + "/typing/" + USER);
-    set(typingRef, Date.now()); 
+    const typingRef = db.ref("rooms/" + SECURE_ROOM_PATH + "/typing/" + USER);
+    typingRef.set(Date.now()); 
     clearTimeout(typingTimer);
-    typingTimer = setTimeout(() => remove(typingRef), 2000);
+    typingTimer = setTimeout(() => typingRef.remove(), 2000);
+});
+
+// YENİ EKLENDİ: Enter tuşu ile giriş yapabilme
+document.addEventListener('keypress', function (e) {
+    if (e.key === 'Enter' && !document.getElementById('login').classList.contains('hidden')) {
+        enterRoom();
+    }
 });
 
 function enterRoom() {
@@ -141,33 +144,31 @@ function enterRoom() {
 }
 
 function startFirebaseListeners() {
-    // --- ODA İÇİ AKTİFLİK DURUMU ---
-    const myPresenceRef = push(ref(db, "rooms/" + SECURE_ROOM_PATH + "/presence"));
-    set(myPresenceRef, USER);
-    onDisconnect(myPresenceRef).remove();
+    const myPresenceRef = db.ref("rooms/" + SECURE_ROOM_PATH + "/presence").push();
+    myPresenceRef.set(USER);
+    myPresenceRef.onDisconnect().remove();
 
-    const roomPresenceRef = ref(db, "rooms/" + SECURE_ROOM_PATH + "/presence");
-    onValue(roomPresenceRef, (snap) => {
+    const roomPresenceRef = db.ref("rooms/" + SECURE_ROOM_PATH + "/presence");
+    roomPresenceRef.on('value', (snap) => {
         const data = snap.val() || {};
         const count = Object.keys(data).length;
         document.getElementById('onlineCountDisplay').innerText = count;
     });
 
-    // --- YENİ: PLATFORM GENELİ AKTİFLİK DURUMU ---
-    const globalPresenceRef = push(ref(db, "global_presence"));
-    set(globalPresenceRef, USER);
-    onDisconnect(globalPresenceRef).remove();
+    const globalPresenceRef = db.ref("global_presence").push();
+    globalPresenceRef.set(USER);
+    globalPresenceRef.onDisconnect().remove();
 
-    const globalPresenceListRef = ref(db, "global_presence");
-    onValue(globalPresenceListRef, (snap) => {
+    const globalPresenceListRef = db.ref("global_presence");
+    globalPresenceListRef.on('value', (snap) => {
         const data = snap.val() || {};
         const count = Object.keys(data).length;
         const platformDisplay = document.getElementById('platformCountDisplay');
         if (platformDisplay) platformDisplay.innerText = count;
     });
 
-    const typingListRef = ref(db, "rooms/" + SECURE_ROOM_PATH + "/typing");
-    onValue(typingListRef, (snap) => {
+    const typingListRef = db.ref("rooms/" + SECURE_ROOM_PATH + "/typing");
+    typingListRef.on('value', (snap) => {
         const data = snap.val() || {};
         const activeWriters = Object.keys(data).filter(user => user !== USER);
         const indicator = document.getElementById("typing-indicator");
@@ -179,9 +180,9 @@ function startFirebaseListeners() {
         }
     });
 
-    roomMessagesRef = ref(db, "rooms/" + SECURE_ROOM_PATH + "/messages");
+    roomMessagesRef = db.ref("rooms/" + SECURE_ROOM_PATH + "/messages");
     
-    onChildAdded(roomMessagesRef, (snap) => {
+    roomMessagesRef.on('child_added', (snap) => {
         const data = snap.val() || {};
         const msgKey = snap.key;
         
@@ -254,7 +255,6 @@ function startFirebaseListeners() {
         const logDiv = document.getElementById("log");
         logDiv.appendChild(div);
         
-        // DÜZELTME: Kilitlenme sorununu çözen doğru kapsayıcıyı kaydırma işlemi
         const scrollContainer = document.getElementById("chat-scroll-container");
         if(scrollContainer) {
             setTimeout(() => {
@@ -263,7 +263,7 @@ function startFirebaseListeners() {
         }
     });
 
-    onChildRemoved(roomMessagesRef, (snap) => {
+    roomMessagesRef.on('child_removed', (snap) => {
         const el = document.getElementById("msg-" + snap.key);
         if (el) {
             el.innerHTML = `<div style="color:var(--text-secondary); text-align:center; font-size:13px; font-weight:500; border:1px dashed var(--border-light); padding:16px; border-radius:8px; background:rgba(0,0,0,0.2);">Mesaj imha edildi.</div>`;
@@ -289,7 +289,7 @@ function startBurnTimer(seconds, msgKey, element) {
 
         if (timeLeft < 0) {
             clearInterval(interval);
-            remove(ref(db, "rooms/" + SECURE_ROOM_PATH + "/messages/" + msgKey));
+            db.ref("rooms/" + SECURE_ROOM_PATH + "/messages/" + msgKey).remove();
         }
     }, 1000);
 }
@@ -320,4 +320,85 @@ function removeStrongLayers(ciphertext, secret, selectedLayers) {
         layers.forEach(layer => {
             let layerSpecificKey = secret + "_Salt_L" + layer;
             let bytes = CryptoJS.AES.decrypt(decrypted, layerSpecificKey);
-            decrypted = bytes.toString(
+            decrypted = bytes.toString(CryptoJS.enc.Utf8);
+            if (!decrypted) throw new Error();
+        });
+        return decrypted;
+    } catch (error) {
+        return "HATA: Çözülemedi";
+    }
+}
+
+function encryptAndSend() {
+    const msgInput = document.getElementById("message");
+    const burnTime = parseInt(document.getElementById("burnTimer").value);
+    const textVal = msgInput.value.trim();
+
+    if (!textVal && !selectedImageBase64 && !selectedAudioBase64) {
+        alert("Lütfen iletilecek veriyi girin."); return;
+    }
+
+    let payload = "";
+    if (selectedAudioBase64) payload = "AUDIO||" + selectedAudioBase64 + "||" + textVal;
+    else if (selectedImageBase64) payload = "IMG||" + selectedImageBase64 + "||" + textVal;
+    else payload = "TXT||" + textVal;
+
+    const encryptedPayload = applyStrongLayers(payload, SECRET, encSel);
+
+    roomMessagesRef.push({ user: USER, text: encryptedPayload, time: Date.now(), burn: burnTime });
+
+    msgInput.value = "";
+    selectedImageBase64 = null;
+    selectedAudioBase64 = null;
+    
+    const imgLbl = document.getElementById("imgLabel");
+    imgLbl.innerHTML = "🖼️ Dosya"; 
+    imgLbl.classList.remove("active-state");
+    
+    const micBtn = document.getElementById("micBtn");
+    micBtn.innerHTML = "🎤 Ses"; 
+    micBtn.classList.remove("active-state");
+
+    if(window.innerWidth <= 1024 && typeof window.switchMobileTab === 'function') {
+        window.switchMobileTab('chat-panel', 'm-btn-chat');
+    }
+}
+
+function decryptExternal() {
+    const cipherText = document.getElementById("cipher").value.trim();
+    const resultDiv = document.getElementById("result");
+
+    if (!cipherText) { resultDiv.textContent = "RAW verisi bekleniyor..."; return; }
+
+    const plainText = removeStrongLayers(cipherText, SECRET, decSel);
+
+    if (plainText.includes("HATA:")) {
+        resultDiv.innerHTML = "Veri Bütünlüğü Sağlanamadı.<br><br>Katman dizilimi veya Master Key hatalı.";
+        resultDiv.style.color = "var(--danger)";
+    } else {
+        let cleanText = plainText;
+        if (cleanText.startsWith("IMG||")) cleanText = "[Görsel formatı algılandı - Ortadaki panelden çözünüz]";
+        else if (cleanText.startsWith("AUDIO||")) cleanText = "[Ses formatı algılandı - Ortadaki panelden çözünüz]";
+        else if (cleanText.startsWith("TXT||")) cleanText = cleanText.replace("TXT||", "");
+        
+        resultDiv.textContent = cleanText;
+        resultDiv.style.color = "var(--accent-primary)";
+    }
+}
+
+async function triggerPanic() {
+    if (confirm("DİKKAT: Veri tabanı kalıcı olarak temizlenecek. Onaylıyor musunuz?")) {
+        try {
+            await db.ref("rooms/" + SECURE_ROOM_PATH).remove();
+            document.body.innerHTML = `<div style="display:flex; justify-content:center; align-items:center; height:100vh; background:var(--bg-base); color:var(--text-secondary); flex-direction:column; font-family:'Plus Jakarta Sans'; font-size:24px;">Çalışma Alanı İmha Edildi.</div>`;
+            setTimeout(() => location.reload(), 3000);
+        } catch (e) {
+            alert("Bağlantı kesintisi yaşandı.");
+        }
+    }
+}
+
+window.enterRoom = enterRoom;
+window.encryptAndSend = encryptAndSend;
+window.decryptExternal = decryptExternal;
+window.triggerPanic = triggerPanic;
