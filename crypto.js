@@ -6,7 +6,10 @@ const firebaseConfig = {
   databaseURL: "https://volktron-chat-default-rtdb.firebaseio.com/"
 };
 
-const app = firebase.initializeApp(firebaseConfig);
+// Çoklu sekmelerde firebase çökmesini engelle
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
 const db = firebase.database();
 
 let USER = "";
@@ -23,6 +26,35 @@ let audioChunks = [];
 
 const encSel = new Set();
 const decSel = new Set();
+
+// Modal İşlemleri
+window.openModal = function(id) { document.getElementById(id).classList.add('active'); };
+window.closeModal = function(id) { document.getElementById(id).classList.remove('active'); };
+
+// MOBİL SEKME GEÇİŞİ (OPACITY YERİNE DISPLAY İLE HAYALET KATMAN SİLİNDİ)
+window.switchMobileTab = function(panelId, btnId) {
+    if(window.innerWidth > 1024) return; 
+
+    // Klavyeyi kapat
+    if (document.activeElement && typeof document.activeElement.blur === 'function') {
+        document.activeElement.blur(); 
+    }
+
+    // CSS'teki display yapısını tetikleyen class değişimleri
+    document.querySelectorAll('.workspace-panel').forEach(p => p.classList.remove('active-tab'));
+    document.getElementById(panelId).classList.add('active-tab');
+    
+    document.querySelectorAll('.m-nav-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(btnId).classList.add('active');
+
+    // Sohbet akışına geçilince en alta in
+    if(panelId === 'chat-panel') {
+        setTimeout(() => {
+            const scrollContainer = document.getElementById("chat-scroll-container");
+            if(scrollContainer) { scrollContainer.scrollTop = scrollContainer.scrollHeight; }
+        }, 50); 
+    }
+};
 
 function makeLayers(element, setObj) {
     if (!element) return;
@@ -103,18 +135,26 @@ async function toggleAudioRecord() {
 }
 window.toggleAudioRecord = toggleAudioRecord;
 
+// BİLGİSAYAR KASMASINI ENGELLEYEN YAZIYOR (THROTTLE) ÖZELLİĞİ
 let typingTimer;
+let lastTypingTime = 0;
 document.getElementById("message").addEventListener("input", () => {
     if(!SECURE_ROOM_PATH || !USER) return;
-    const typingRef = db.ref("rooms/" + SECURE_ROOM_PATH + "/typing/" + USER);
-    typingRef.set(Date.now()); 
+    
+    const now = Date.now();
+    // 1 saniyede sadece 1 kere istek yollar, PC felç olmaz.
+    if (now - lastTypingTime > 1000) {
+        db.ref("rooms/" + SECURE_ROOM_PATH + "/typing/" + USER).set(now);
+        lastTypingTime = now;
+    }
+    
     clearTimeout(typingTimer);
-    typingTimer = setTimeout(() => typingRef.remove(), 2000);
+    typingTimer = setTimeout(() => db.ref("rooms/" + SECURE_ROOM_PATH + "/typing/" + USER).remove(), 2000);
 });
 
 document.addEventListener('keypress', function (e) {
     if (e.key === 'Enter' && !document.getElementById('login').classList.contains('hidden')) {
-        enterRoom();
+        window.enterRoom();
     }
 });
 
