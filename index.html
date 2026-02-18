@@ -2,12 +2,7 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-    <meta http-equiv="Pragma" content="no-cache" />
-    <meta http-equiv="Expires" content="0" />
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Volktronic | Premium Secure Workspace</title>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
@@ -20,7 +15,7 @@
 
     <style>
         /* =========================================
-           1. PREMIUM RENK PALETİ VE EFEKTLER (SENİN ORİJİNAL TASARIMIN)
+           1. PREMIUM RENK PALETİ VE EFEKTLER
            ========================================= */
         :root {
             --bg-base: #0a0f0d;       
@@ -68,6 +63,9 @@
 
         .hidden { display: none !important; }
 
+        /* =========================================
+           2. PREMIUM BUTONLAR VE ANİMASYONLAR
+           ========================================= */
         button {
             padding: 16px 28px; border: none; border-radius: var(--radius-md);
             font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; font-weight: 700;
@@ -87,14 +85,32 @@
             background: linear-gradient(135deg, var(--accent-primary), var(--accent-hover));
             color: #fff; box-shadow: 0 8px 25px -5px var(--accent-glow);
         }
-        .btn-primary:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 12px 35px -5px var(--accent-glow), 0 0 15px var(--accent-glow) inset; }
+        .btn-primary:hover { 
+            transform: translateY(-2px) scale(1.02); 
+            box-shadow: 0 12px 35px -5px var(--accent-glow), 0 0 15px var(--accent-glow) inset;
+        }
 
-        .btn-secondary { background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border-light); color: var(--text-primary); backdrop-filter: blur(10px); }
-        .btn-secondary:hover { background: rgba(255, 255, 255, 0.08); border-color: var(--border-focus); transform: translateY(-2px); }
+        .btn-secondary { 
+            background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border-light); 
+            color: var(--text-primary); backdrop-filter: blur(10px);
+        }
+        .btn-secondary:hover { 
+            background: rgba(255, 255, 255, 0.08); border-color: var(--border-focus);
+            transform: translateY(-2px);
+        }
 
-        .btn-danger { background: var(--danger-bg); border: 1px solid rgba(239, 68, 68, 0.3); color: var(--danger); padding: 12px 20px; font-size: 13px; font-weight: 600; }
-        .btn-danger:hover { background: var(--danger); color: #fff; border-color: var(--danger); box-shadow: 0 5px 20px -5px rgba(239, 68, 68, 0.5); }
+        .btn-danger { 
+            background: var(--danger-bg); border: 1px solid rgba(239, 68, 68, 0.3); 
+            color: var(--danger); padding: 12px 20px; font-size: 13px; font-weight: 600;
+        }
+        .btn-danger:hover { 
+            background: var(--danger); color: #fff; border-color: var(--danger);
+            box-shadow: 0 5px 20px -5px rgba(239, 68, 68, 0.5);
+        }
 
+        /* =========================================
+           3. GİRİŞ (LOGIN) EKRANI
+           ========================================= */
         #login {
             width: 100%; max-width: 440px; z-index: 10;
             background: var(--bg-panel); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
@@ -124,6 +140,9 @@
             box-shadow: 0 0 0 4px var(--accent-glow), 0 0 20px var(--accent-glow) inset;
         }
 
+        /* =========================================
+           4. ANA ÇALIŞMA ALANI & ÜST MENÜ
+           ========================================= */
         .app-container {
             width: 100%; max-width: 1450px; height: 92vh;
             display: flex; flex-direction: column; padding: 20px; gap: 24px; z-index: 5;
@@ -171,8 +190,14 @@
         @keyframes pulseDot { 0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); } 70% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); } 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); } }
         @keyframes pulseDotBlue { 0% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.7); } 70% { box-shadow: 0 0 0 8px rgba(56, 189, 248, 0); } 100% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0); } }
 
+        /* =========================================
+           5. MOBİL İÇİN ALT MENÜ
+           ========================================= */
         .mobile-nav { display: none; }
 
+        /* =========================================
+           6. ETKİLEŞİMLİ KATMAN SEÇİCİLER
+           ========================================= */
         .layers-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 24px; flex-shrink:0;}
         .layer {
             aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
@@ -180,46 +205,96 @@
             border-radius: var(--radius-md); font-size: 14px; font-weight: 700; color: var(--text-secondary);
             cursor: pointer; transition: var(--transition-smooth); position: relative; overflow: hidden;
         }
-        .layer::before { content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 0%; background: linear-gradient(to top, var(--accent-primary), transparent); opacity: 0.3; transition: height 0.3s ease; z-index: 0; }
+        .layer::before {
+            content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 0%;
+            background: linear-gradient(to top, var(--accent-primary), transparent);
+            opacity: 0.3; transition: height 0.3s ease; z-index: 0;
+        }
         .layer:hover::before { height: 100%; }
         .layer span { position: relative; z-index: 1; } 
+
         .layer:hover { border-color: var(--accent-primary); color: var(--text-primary); transform: translateY(-3px); box-shadow: 0 5px 15px -5px var(--accent-glow); }
-        .layer.active { background: var(--accent-primary); color: #000; border-color: var(--accent-primary); box-shadow: 0 8px 25px -5px var(--accent-glow), 0 0 20px var(--accent-glow) inset; transform: translateY(-3px) scale(1.05); }
+        .layer.active { 
+            background: var(--accent-primary); color: #000; border-color: var(--accent-primary); 
+            box-shadow: 0 8px 25px -5px var(--accent-glow), 0 0 20px var(--accent-glow) inset;
+            transform: translateY(-3px) scale(1.05);
+        }
         .layer.active::before { height: 100%; opacity: 0.8; }
 
-        #message, #cipher { min-height: 150px; resize: none; font-family: 'JetBrains Mono', monospace; font-size: 14px; line-height: 1.6; padding: 18px; margin-top: 10px; background: rgba(0,0,0,0.5); flex-shrink: 0; }
+        #message, #cipher {
+            min-height: 150px; resize: none; 
+            font-family: 'JetBrains Mono', monospace; font-size: 14px; line-height: 1.6;
+            padding: 18px; margin-top: 10px; background: rgba(0,0,0,0.5);
+            flex-shrink: 0;
+        }
 
         .tools-row { display: flex; gap: 12px; margin-top: 20px; flex-shrink: 0;}
-        .tool-btn { flex: 1; background: rgba(255,255,255,0.03); border: 2px solid var(--border-light); color: var(--text-secondary); padding: 14px; font-size: 14px; font-weight: 600; border-radius: var(--radius-md); cursor: pointer; text-align: center; transition: var(--transition-smooth); display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .tool-btn { 
+            flex: 1; background: rgba(255,255,255,0.03); border: 2px solid var(--border-light); 
+            color: var(--text-secondary); padding: 14px; font-size: 14px; font-weight: 600;
+            border-radius: var(--radius-md); cursor: pointer; text-align: center; transition: var(--transition-smooth);
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
         .tool-btn:hover { background: rgba(255,255,255,0.08); border-color: var(--accent-primary); color: var(--text-primary); transform: translateY(-2px); box-shadow: 0 5px 15px -5px var(--accent-glow); }
         .tool-btn.active-state { background: rgba(16, 185, 129, 0.15); border-color: var(--accent-primary); color: var(--accent-primary); box-shadow: 0 0 15px var(--accent-glow) inset; }
         .tool-btn.recording { background: var(--danger-bg); border-color: var(--danger); color: var(--danger); animation: pulseRecord 1.5s infinite; box-shadow: 0 0 20px rgba(239,68,68,0.4) inset; }
         @keyframes pulseRecord { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.7; transform: scale(0.98); } }
 
+        /* =========================================
+           7. SOHBET ALANI
+           ========================================= */
         #log { display: flex; flex-direction: column; gap: 18px; padding-bottom: 20px; }
-        .msg-box { background: rgba(0,0,0,0.3); border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 20px; animation: msgSlideUp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1); position: relative; overflow: hidden; backdrop-filter: blur(10px); flex-shrink: 0; }
+        
+        .msg-box {
+            background: rgba(0,0,0,0.3); border: 1px solid var(--border-light);
+            border-radius: var(--radius-md); padding: 20px; 
+            animation: msgSlideUp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+            position: relative; overflow: hidden; backdrop-filter: blur(10px);
+            flex-shrink: 0; 
+        }
         @keyframes msgSlideUp { from { opacity:0; transform:translateY(30px) scale(0.95); } to { opacity:1; transform:translateY(0) scale(1); } }
+        
         .msg.me { border-left: 4px solid var(--accent-primary); background: linear-gradient(to right, rgba(16, 185, 129, 0.05), rgba(0,0,0,0.3)); }
         .msg.other { border-left: 4px solid #38bdf8; background: linear-gradient(to right, rgba(56, 189, 248, 0.05), rgba(0,0,0,0.3)); }
+
         .msg-header { display: flex; justify-content: space-between; margin-bottom: 14px; font-size: 13px; color: var(--text-secondary); font-weight: 500; }
         .msg.me .msg-header strong { color: var(--accent-primary); font-weight: 700; font-size: 14px;}
         .msg.other .msg-header strong { color: #38bdf8; font-weight: 700; font-size: 14px;}
 
-        .raw-data { background: #030504; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 14px; font-size: 13px; color: #64748b; word-break: break-all; margin-bottom: 18px; max-height: 80px; overflow: hidden; font-family: 'JetBrains Mono', monospace; box-shadow: inset 0 0 15px rgba(0,0,0,0.5); user-select: all; }
+        .raw-data {
+            background: #030504; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 14px;
+            font-size: 13px; color: #64748b; word-break: break-all; margin-bottom: 18px; max-height: 80px; overflow: hidden;
+            font-family: 'JetBrains Mono', monospace; box-shadow: inset 0 0 15px rgba(0,0,0,0.5); user-select: all;
+        }
+
         .action-row { display: flex; gap: 10px; }
         .action-btn { background: rgba(255,255,255,0.05); color: var(--text-secondary); padding: 10px 14px; font-size: 13px; font-weight: 600; border-radius: 8px; border: 1px solid var(--border-light); cursor: pointer; flex: 1; transition: var(--transition-smooth); display: flex; align-items: center; justify-content: center; gap: 6px; }
         .action-btn:hover { background: rgba(255,255,255,0.1); color: var(--text-primary); border-color: var(--border-light); transform: translateY(-2px);}
         .action-btn.solve { background: rgba(16, 185, 129, 0.15); color: var(--accent-primary); border-color: var(--accent-glow); }
         .action-btn.solve:hover { background: var(--accent-primary); color: #000; box-shadow: 0 0 20px var(--accent-glow); }
-        .decrypted-view { margin-top: 20px; padding: 20px; border-top: 2px dashed var(--border-light); color: var(--text-primary); font-size: 15px; line-height: 1.7; background: rgba(16, 185, 129, 0.03); border-radius: 0 0 var(--radius-md) var(--radius-md); animation: fadeIn 0.5s ease; max-height: 400px; overflow-y: auto; }
-        .decrypted-view::-webkit-scrollbar { width: 6px; } .decrypted-view::-webkit-scrollbar-thumb { background: rgba(16, 185, 129, 0.4); border-radius: 6px; }
+
+        .decrypted-view { 
+            margin-top: 20px; padding: 20px; border-top: 2px dashed var(--border-light); 
+            color: var(--text-primary); font-size: 15px; line-height: 1.7; 
+            background: rgba(16, 185, 129, 0.03); border-radius: 0 0 var(--radius-md) var(--radius-md);
+            animation: fadeIn 0.5s ease;
+            max-height: 400px;
+            overflow-y: auto; 
+        }
+        .decrypted-view::-webkit-scrollbar { width: 6px; }
+        .decrypted-view::-webkit-scrollbar-thumb { background: rgba(16, 185, 129, 0.4); border-radius: 6px; }
+
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         #result { margin-top: auto; padding: 24px; background: rgba(0,0,0,0.4); border: 2px solid var(--border-light); border-left: 6px solid var(--accent-primary); border-radius: var(--radius-md); color: var(--text-primary); font-size: 15px; word-break: break-word; min-height: 120px; font-family: 'JetBrains Mono', monospace; line-height: 1.6; box-shadow: inset 0 0 30px rgba(0,0,0,0.5); transition: var(--transition-smooth); flex-shrink: 0;}
         #result:not(:empty) { border-color: var(--accent-primary); box-shadow: inset 0 0 30px rgba(16, 185, 129, 0.1), 0 0 20px var(--accent-glow); }
+
         #typing-indicator { font-size: 13px; color: var(--text-secondary); opacity: 0; transition: var(--transition-smooth); padding-top: 12px; font-weight: 600; display: flex; align-items: center; gap: 8px;}
         #typing-indicator::before { content: ''; display: inline-block; width: 8px; height: 8px; background: var(--text-secondary); border-radius: 50%; animation: pulse 1s infinite; }
 
+        /* =========================================
+           8. MODAL (AÇILIR PENCERELER)
+           ========================================= */
         .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.75); backdrop-filter: blur(8px); z-index: 2000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: var(--transition-smooth); }
         .modal-bg.active { opacity: 1; pointer-events: auto; }
         .modal-card { background: var(--bg-panel); border: 1px solid var(--border-light); border-radius: var(--radius-lg); width: 550px; max-width: 90%; padding: 36px; box-shadow: var(--shadow-soft), 0 0 40px rgba(16, 185, 129, 0.1) inset; transform: scale(0.95) translateY(20px); transition: var(--transition-smooth); }
@@ -229,70 +304,59 @@
         .close-modal { background: none; border: none; color: var(--text-secondary); font-size: 24px; cursor: pointer; padding: 0; transition: var(--transition-smooth); }
         .close-modal:hover { color: var(--danger); transform: rotate(90deg); }
 
-
         /* =========================================
-           9. KESİN ÇÖZÜM: ÜST ÜSTE BİNEN KATMAN MİMARİSİ (Sıfır Donma)
+           9. KESİN ÇÖZÜM: MOBİL NATIVE UYGULAMA MİMARİSİ
            ========================================= */
         @media (min-width: 1025px) {
             .workspace-panel { display: flex !important; }
         }
 
         @media (max-width: 1024px) {
-            body, html { position: fixed; width: 100%; height: 100%; overflow: hidden; margin: 0; padding: 0; }
+            body, html { 
+                position: fixed; 
+                width: 100%; height: 100%; 
+                overflow: hidden; 
+                margin: 0; padding: 0; 
+            }
             
             .app-container { 
                 position: absolute; top: 0; left: 0; right: 0; bottom: 0;
                 width: 100vw; height: 100dvh; 
                 margin: 0; padding: 10px; padding-bottom: 75px; 
                 display: flex; flex-direction: column; gap: 10px;
+                overflow: hidden;
                 border-radius: 0;
             }
             
-            .top-navbar { flex-direction: column; gap: 10px; padding: 12px; width: 100%; border-radius: var(--radius-md); flex-shrink: 0; }
+            .top-navbar { 
+                flex-direction: column; gap: 10px; padding: 12px; width: 100%; 
+                border-radius: var(--radius-md); flex-shrink: 0; 
+            }
             .nav-links { width: 100%; justify-content: center; gap: 8px;}
             .nav-item, .btn-danger { flex: 1; padding: 8px 12px; font-size: 12px; text-align: center; }
 
-            /* Grid konteynerini relative yapıyoruz, paneller bunun içine absolute oturacak */
-            .main-grid { 
-                display: block; 
-                position: relative; 
-                flex: 1; 
-                width: 100%; 
-                margin-top: 0; 
-                gap: 0; 
-                min-height: 0;
-            }
+            .main-grid { display: flex; flex: 1; height: auto; min-height: 0; margin-top: 0; gap: 0;}
             
-            /* DİKKAT: Display: none KALDIRILDI. Paneller daima var ama görünmez. GPU işler, cihaz donmaz. */
+            /* DİKKAT: MOBİL GPU DONMASINI ÖNLEYEN KODLAR BURASI */
             .workspace-panel { 
-                position: absolute; 
-                top: 0; left: 0; 
-                width: 100%; height: 100%; 
-                display: flex !important; /* Asla none olmaz */
-                flex-direction: column; 
-                border-radius: 12px; 
-                opacity: 0; 
-                visibility: hidden; 
-                pointer-events: none; 
-                transition: opacity 0.25s ease, visibility 0.25s, transform 0.25s ease;
-                transform: scale(0.98); /* Şık geçiş efekti */
-                z-index: 1;
-                /* Senin cam efektin korunuyor */
-                background: var(--bg-panel); 
-                backdrop-filter: blur(25px); 
+                display: none; width: 100%; height: 100%; flex-direction: column; border-radius: 12px; 
+                /* Telefonlarda blur efekti kapatıldı (Performans kurtarıcısı) */
+                backdrop-filter: none !important; 
+                -webkit-backdrop-filter: none !important;
+                background: #0a0f0d; /* Düz siyah renk atandı */
+                box-shadow: none !important;
             }
             
             .workspace-panel.active-tab { 
-                opacity: 1; 
-                visibility: visible; 
-                pointer-events: auto; 
-                transform: scale(1);
-                z-index: 5;
+                display: flex !important; 
+                /* Animasyon da tamamen kapatıldı, anında geçecek! */
+                animation: none !important; 
             }
 
             .panel-header { padding: 15px; }
             .panel-title { font-size: 14px; }
-            .panel-body { padding: 15px; padding-bottom: 20px !important; flex: 1; overflow-y: auto; min-height: 0; -webkit-overflow-scrolling: touch;} 
+            
+            .panel-body { padding: 15px; padding-bottom: 20px !important; flex: 1; overflow-y: auto; min-height: 0; } 
 
             .mobile-nav {
                 display: flex; position: absolute; 
@@ -301,12 +365,21 @@
                 padding: 6px; border-radius: 50px; gap: 5px; width: 92%; max-width: 400px;
                 box-shadow: 0 10px 40px rgba(0,0,0,0.8); z-index: 1000; backdrop-filter: blur(20px);
             }
-            .m-nav-btn { flex: 1; background: transparent; border: none; color: var(--text-secondary); padding: 12px 0; font-size: 13px; font-family: 'Plus Jakarta Sans'; font-weight: 700; border-radius: 40px; transition: 0.3s; cursor: pointer; }
-            .m-nav-btn.active { background: rgba(16, 185, 129, 0.15); color: var(--accent-primary); box-shadow: inset 0 0 10px rgba(16, 185, 129, 0.2); }
+            .m-nav-btn {
+                flex: 1; background: transparent; border: none; color: var(--text-secondary);
+                padding: 12px 0; font-size: 13px; font-family: 'Plus Jakarta Sans'; font-weight: 700;
+                border-radius: 40px; transition: 0.3s; cursor: pointer;
+            }
+            .m-nav-btn.active {
+                background: rgba(16, 185, 129, 0.15); color: var(--accent-primary);
+                box-shadow: inset 0 0 10px rgba(16, 185, 129, 0.2);
+            }
             
             .layers-grid { gap: 6px; margin-bottom: 15px;}
             .layer { font-size: 12px; height: 40px; }
+            
             #message, #cipher { min-height: 80px; flex-shrink: 0; padding: 12px; font-size: 13px;}
+            
             #login { margin-top: 5vh; width: 95%; max-height: 85vh; overflow-y: auto; padding: 25px 15px;}
         }
     </style>
@@ -476,33 +549,38 @@
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
         window.switchMobileTab = function(panelId, btnId) {
-            if(window.innerWidth > 1024) return; 
-
+            if (window.innerWidth > 1024) return; 
+            
             // 1. DOKUNMATİK EKRAN DONMASINI ENGELLEYEN KLAVYE KAPATICI
-            if (document.activeElement && typeof document.activeElement.blur === 'function') {
+            let delay = 0;
+            if (document.activeElement && (document.activeElement.tagName === "INPUT" || document.activeElement.tagName === "TEXTAREA")) {
                 document.activeElement.blur(); 
+                delay = 200; // Klavye aşağı inene kadar çok kısa süre bekle (Cihazı rahatlatır)
             }
-            
-            // 2. SEKME GEÇİŞİ (Artık "display: none" olmadığı için anında geçer)
-            document.querySelectorAll('.workspace-panel').forEach(p => p.classList.remove('active-tab'));
-            document.getElementById(panelId).classList.add('active-tab');
-            
-            document.querySelectorAll('.m-nav-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(btnId).classList.add('active');
 
-            if(panelId === 'chat-panel') {
-                // Katmanın tamamen görünür olması için ufak bir gecikmeyle (GPU'ya zaman tanır) scroll yap
-                setTimeout(() => {
+            // 2. SEKME GEÇİŞİNİ KLAVYE İNDİKTEN SONRA YAP
+            setTimeout(() => {
+                document.querySelectorAll('.workspace-panel').forEach(p => {
+                    p.classList.remove('active-tab');
+                    p.style.display = 'none'; // Garantili gizleme
+                });
+                
+                let targetPanel = document.getElementById(panelId);
+                targetPanel.style.display = 'flex';
+                targetPanel.classList.add('active-tab');
+                
+                document.querySelectorAll('.m-nav-btn').forEach(b => b.classList.remove('active'));
+                document.getElementById(btnId).classList.add('active');
+
+                if (panelId === 'chat-panel') {
                     const scrollContainer = document.getElementById("chat-scroll-container");
-                    if(scrollContainer) {
+                    if (scrollContainer) {
                         scrollContainer.scrollTop = scrollContainer.scrollHeight;
                     }
-                }, 150); 
-            }
+                }
+            }, delay);
         };
     </script>
-
-    <script src="crypto.js?v=25"></script>
 
 </body>
 </html>
