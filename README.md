@@ -29,8 +29,11 @@ Volktronic Crypto Chat, tarayıcı tabanlı **uçtan uca şifreleme (E2EE)** man
 
 > *Görseller Volktronic ağının PC ve Mobil görünümlerini temsil etmektedir.*
 
-<img width="1919" alt="Volktronic PC Interface" src="https://github.com/user-attachments/assets/d130f4c2-44c6-4df6-9749-def0f2255cb8" />
-<img width="1919" alt="Volktronic Decryption View" src="https://github.com/user-attachments/assets/5309bb33-cf42-4777-9ba8-b57fb2a85b7e" />
+<img width="1919" height="866" alt="image" src="https://github.com/user-attachments/assets/ae51892e-120f-41d1-b540-0d6dbfe8707d" />
+<img width="1919" height="861" alt="image" src="https://github.com/user-attachments/assets/dd0bcd98-e6f1-49ac-985c-20ffb100d979" />
+<img width="945" height="2048" alt="image" src="https://github.com/user-attachments/assets/b91ca50e-26eb-4572-a2eb-bcfd58c951c6" />
+<img width="945" height="2048" alt="image" src="https://github.com/user-attachments/assets/0abac16a-6ea4-4853-ac25-87dc13d30940" />
+
 
 ---
 
@@ -40,7 +43,7 @@ Sistem, basit bir şifrelemeden ziyade gelişmiş bir kilit mekanizmasıyla çal
 
 1. **Master Anahtar:** Kullanıcı sisteme girerken odaya özel bir Gizli Parola belirler.
 2. **Güvenlik Katmanları:** Mesaj gönderilmeden önce şifreleyici panelden çeşitli katmanlar (L-01, L-05 vb.) seçilir.
-3. **Kriptolama:** Seçilen her bir katman, Master Şifre ile birleşerek benzersiz bir "Salt" (Tuz) oluşturur ve veriyi döngüsel olarak tekrar tekrar AES-256 algoritmasıyla kilitler.
+3. **Kriptolama:** Seçilen her bir katman, Master Şifre ile birleşerek benzersiz bir "Salt" oluşturur ve veriyi döngüsel olarak tekrar tekrar AES-256 algoritmasıyla kilitler.
 4. **Çözümleme:** Karşı tarafın mesajı, görseli veya sesi çözebilmesi için göndericiyle **birebir aynı katman dizilimini** ve **aynı Master Şifreyi** girmesi zorunludur. En ufak bir uyumsuzlukta sistem veriyi kesinlikle reddeder.
 
 ---
