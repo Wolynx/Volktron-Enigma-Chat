@@ -38,13 +38,26 @@
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; outline: none; }
 
-        html, body { width: 100%; height: 100%; background-color: var(--bg-body); color: var(--text-main); }
+        html, body { 
+            width: 100%; height: 100%; 
+            background-color: var(--bg-body); color: var(--text-main); 
+            position: relative; overflow: hidden;
+        }
+
+        /* Zarif & Sade Arka Plan Animasyonu (Telefonu Kasmaz) */
+        body::before {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.03) 0%, transparent 60%);
+            animation: rotateBg 60s linear infinite; z-index: -1; pointer-events: none;
+        }
+        @keyframes rotateBg { 100% { transform: rotate(360deg); } }
+
         .brand-font { font-family: 'Plus Jakarta Sans', sans-serif; }
         .mono { font-family: 'JetBrains Mono', monospace; }
         .hidden { display: none !important; }
 
         /* =========================================
-           2. FORM ELEMANLARI
+           2. FORM ELEMANLARI VE ANİMASYONLU BUTONLAR
            ========================================= */
         input, textarea, select {
             width: 100%; padding: 14px 16px; background: var(--bg-input); 
@@ -56,15 +69,30 @@
         button {
             padding: 14px 20px; border: none; border-radius: var(--radius-md);
             font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; font-weight: 700;
-            cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; gap: 8px;
+            cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); 
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            will-change: transform;
         }
-        button:active { transform: scale(0.97); }
+        button:active { transform: scale(0.96); }
 
+        /* Ufak ve Şık Buton Animasyonları */
         .btn-primary { background: linear-gradient(135deg, var(--accent-main), var(--accent-hover)); color: #000; box-shadow: 0 4px 15px var(--accent-glow); }
-        .btn-secondary { background: rgba(255,255,255,0.03); border: 1px solid var(--border-light); color: var(--accent-main); }
-        .btn-danger { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: var(--danger); font-size: 12px; padding: 10px 16px; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(16, 185, 129, 0.5); }
         
-        .btn-admin { background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.4); color: var(--admin-color); font-size: 12px; padding: 10px 16px; box-shadow: 0 0 15px rgba(245, 158, 11, 0.2); }
+        .btn-secondary { background: rgba(255,255,255,0.03); border: 1px solid var(--border-light); color: var(--accent-main); }
+        .btn-secondary:hover { transform: translateY(-2px); background: rgba(16, 185, 129, 0.08); }
+        
+        .btn-danger { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: var(--danger); font-size: 12px; padding: 10px 16px; }
+        .btn-danger:hover { background: rgba(239, 68, 68, 0.2); }
+        
+        /* Özel Yönetici Butonu Animasyonu */
+        @keyframes adminPulse {
+            0% { box-shadow: 0 0 10px rgba(245, 158, 11, 0.2); }
+            50% { box-shadow: 0 0 20px rgba(245, 158, 11, 0.5); }
+            100% { box-shadow: 0 0 10px rgba(245, 158, 11, 0.2); }
+        }
+        .btn-admin { background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.4); color: var(--admin-color); font-size: 12px; padding: 10px 16px; animation: adminPulse 3s infinite; }
+        .btn-admin:hover { transform: translateY(-2px); background: rgba(245, 158, 11, 0.2); }
 
         .input-group { margin-bottom: 20px; text-align: left; }
         .input-label { display: block; font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 8px; letter-spacing: 0.5px; text-transform: uppercase;}
@@ -74,13 +102,15 @@
            ========================================= */
         #login-screen {
             position: fixed; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center;
-            padding: 20px; z-index: 100; background-image: radial-gradient(circle at top center, rgba(16, 185, 129, 0.05) 0%, transparent 70%);
+            padding: 20px; z-index: 100;
         }
         .login-card {
             background: var(--bg-panel); width: 100%; max-width: 420px;
             padding: 40px 30px; border-radius: var(--radius-lg); border: 1px solid var(--border-light);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5), inset 0 0 20px rgba(16, 185, 129, 0.02);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.6), inset 0 0 20px rgba(16, 185, 129, 0.02);
+            transition: 0.3s;
         }
+        .login-card:hover { border-color: rgba(16, 185, 129, 0.3); }
         .login-header { text-align: center; margin-bottom: 35px; }
         .login-title { font-size: 32px; font-weight: 800; color: #fff; margin-bottom: 5px; letter-spacing: -0.5px;}
         .login-title span { color: var(--accent-main); }
@@ -90,11 +120,12 @@
            4. PC ARAYÜZÜ
            ========================================= */
         @media (min-width: 1025px) {
-            body { overflow: hidden; background-image: radial-gradient(circle at top center, rgba(16, 185, 129, 0.05) 0%, transparent 70%); }
             #app-screen { width: 100%; max-width: 1500px; height: 100vh; margin: 0 auto; display: flex; flex-direction: column; padding: 25px; gap: 20px; }
             .main-grid { display: grid; grid-template-columns: 350px 1fr 350px; gap: 20px; flex: 1; min-height: 0; }
             
-            .panel { background: var(--bg-panel); border: 1px solid var(--border-light); border-radius: var(--radius-lg); display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+            .panel { background: var(--bg-panel); border: 1px solid var(--border-light); border-radius: var(--radius-lg); display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3); transition: border-color 0.3s;}
+            .panel:hover { border-color: rgba(16, 185, 129, 0.3); }
+            
             .panel-header { padding: 20px 24px; border-bottom: 1px solid var(--border-light); background: rgba(0,0,0,0.2); font-weight: 800; font-size: 14px; color: var(--accent-main); letter-spacing: 0.5px;}
             .panel-body { padding: 24px; overflow-y: auto; flex: 1; }
             .panel-body::-webkit-scrollbar { width: 6px; } .panel-body::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 10px; }
@@ -120,9 +151,9 @@
             #chat-scroll-container { height: 55vh; overflow-y: auto; } 
 
             .mobile-nav-bar { display: flex; position: fixed; bottom: 0; left: 0; width: 100%; background: #080c0a; border-top: 1px solid rgba(255,255,255,0.1); padding: 10px 10px 20px 10px; justify-content: space-around; z-index: 1000; box-shadow: 0 -5px 20px rgba(0,0,0,0.5); }
-            .nav-tab-btn { background: transparent; border: none; color: var(--text-muted); display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; padding: 8px 20px; border-radius: 12px; cursor: pointer; transition: 0.2s; }
+            .nav-tab-btn { background: transparent; border: none; color: var(--text-muted); display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; padding: 8px 20px; border-radius: 12px; cursor: pointer; transition: 0.3s; }
             .nav-tab-icon { font-size: 18px; margin-bottom: 2px;}
-            .nav-tab-btn.active { color: var(--accent-main); background: rgba(16, 185, 129, 0.1); }
+            .nav-tab-btn.active { color: var(--accent-main); background: rgba(16, 185, 129, 0.1); transform: translateY(-3px);}
         }
 
         /* =========================================
@@ -134,19 +165,22 @@
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
 
         .header-actions { display: flex; gap: 8px; align-items: center; justify-content: center; margin-top: 5px; flex-wrap: wrap;}
-        .icon-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--border-light); color: var(--text-main); padding: 8px 12px; font-size: 12px; border-radius: 8px; font-weight: 600; }
-        .icon-btn:hover { background: rgba(255,255,255,0.1); }
+        .icon-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--border-light); color: var(--text-main); padding: 8px 12px; font-size: 12px; border-radius: 8px; font-weight: 600; transition: 0.3s;}
+        .icon-btn:hover { background: rgba(255,255,255,0.1); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255,255,255,0.05);}
 
         .layers-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 20px; }
-        .layer-btn { height: 44px; display: flex; align-items: center; justify-content: center; background: var(--bg-input); border: 1px solid var(--border-light); border-radius: 10px; font-size: 14px; font-weight: 700; color: var(--text-muted); cursor: pointer; user-select: none; }
-        .layer-btn.active { background: var(--accent-main); color: #000; border-color: var(--accent-main); box-shadow: 0 0 12px var(--accent-glow); transform: translateY(-2px); }
+        .layer-btn { height: 44px; display: flex; align-items: center; justify-content: center; background: var(--bg-input); border: 1px solid var(--border-light); border-radius: 10px; font-size: 14px; font-weight: 700; color: var(--text-muted); cursor: pointer; user-select: none; transition: 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); }
+        .layer-btn:hover { background: rgba(255,255,255,0.05); border-color: var(--accent-main); }
+        .layer-btn.active { background: var(--accent-main); color: #000; border-color: var(--accent-main); box-shadow: 0 0 12px var(--accent-glow); transform: translateY(-3px); }
 
         .tools-row { display: flex; gap: 10px; margin: 15px 0; }
-        .tool-btn { flex: 1; background: var(--bg-input); border: 1px dashed var(--border-light); padding: 12px; font-size: 12px; font-weight: 600; text-align: center; border-radius: var(--radius-md); cursor: pointer; color: var(--text-muted); }
+        .tool-btn { flex: 1; background: var(--bg-input); border: 1px dashed var(--border-light); padding: 12px; font-size: 12px; font-weight: 600; text-align: center; border-radius: var(--radius-md); cursor: pointer; color: var(--text-muted); transition: 0.3s;}
+        .tool-btn:hover { border-color: var(--accent-main); color: var(--text-main); }
         .tool-btn.active-state { background: rgba(16, 185, 129, 0.1); border-style: solid; border-color: var(--accent-main); color: var(--accent-main); }
 
         #chat-log { display: flex; flex-direction: column; gap: 16px; padding-bottom: 15px;}
-        .msg-box { background: var(--bg-input); border: 1px solid var(--border-light); border-radius: 18px; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+        .msg-box { background: var(--bg-input); border: 1px solid var(--border-light); border-radius: 18px; padding: 16px; display: flex; flex-direction: column; gap: 10px; transition: transform 0.2s;}
+        .msg-box:hover { border-color: rgba(16, 185, 129, 0.3); }
         .msg-me { border-right: 4px solid var(--accent-main); border-bottom-right-radius: 4px; }
         .msg-other { border-left: 4px solid #3b82f6; border-bottom-left-radius: 4px; }
         .msg-header { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); font-weight: 500; }
@@ -157,26 +191,28 @@
         
         .action-row { display: flex; gap: 8px; }
         .action-btn { flex: 1; padding: 10px; font-size: 11px; background: rgba(255,255,255,0.03); border: none; border-radius: 8px; color: var(--text-muted); font-weight: 600; cursor: pointer; transition: 0.2s;}
-        .action-btn:hover { background: rgba(255,255,255,0.08); color: #fff; }
+        .action-btn:hover { background: rgba(255,255,255,0.08); color: #fff; transform: translateY(-2px);}
         .action-btn.solve { background: rgba(16, 185, 129, 0.15); color: var(--accent-main); }
         .action-btn.solve:hover { background: var(--accent-main); color: #000; }
         .decrypted-view { margin-top: 5px; padding: 12px; background: rgba(16, 185, 129, 0.05); border-radius: 8px; font-size: 14px; display: none; line-height: 1.5; border: 1px solid rgba(16,185,129,0.2); word-break: break-word;}
 
-        #result-box { margin-top: 15px; padding: 16px; background: var(--bg-input); border-left: 4px solid var(--accent-main); border-radius: var(--radius-md); min-height: 80px; font-size: 14px; word-break: break-word; color: var(--accent-main); }
+        #result-box { margin-top: 15px; padding: 16px; background: var(--bg-input); border-left: 4px solid var(--accent-main); border-radius: var(--radius-md); min-height: 80px; font-size: 14px; word-break: break-word; color: var(--accent-main); transition: 0.3s;}
 
         /* =========================================
            7. MODALLAR (KILAVUZ, İLETİŞİM, ADMIN)
            ========================================= */
         .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 2000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: 0.3s; padding: 20px; backdrop-filter: blur(5px);}
         .modal-bg.active { opacity: 1; pointer-events: auto; }
-        .modal-card { background: var(--bg-panel); border: 1px solid var(--border-light); border-radius: var(--radius-lg); width: 100%; max-width: 450px; padding: 30px; box-shadow: 0 20px 50px rgba(0,0,0,0.8); transform: translateY(20px); transition: 0.3s; }
-        .modal-bg.active .modal-card { transform: translateY(0); }
+        .modal-card { background: var(--bg-panel); border: 1px solid var(--border-light); border-radius: var(--radius-lg); width: 100%; max-width: 450px; padding: 30px; box-shadow: 0 20px 50px rgba(0,0,0,0.8); transform: translateY(20px) scale(0.95); transition: 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); }
+        .modal-bg.active .modal-card { transform: translateY(0) scale(1); }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border-light); padding-bottom: 15px;}
         .modal-title { font-size: 18px; font-weight: 800; color: #fff; }
-        .close-modal { background: none; border: none; color: var(--text-muted); font-size: 24px; padding: 0; cursor: pointer; }
-        .close-modal:hover { color: var(--danger); }
+        .close-modal { background: none; border: none; color: var(--text-muted); font-size: 24px; padding: 0; cursor: pointer; transition: 0.2s;}
+        .close-modal:hover { color: var(--danger); transform: rotate(90deg);}
         
-        .admin-stat-box { background: #050706; border: 1px solid rgba(245, 158, 11, 0.3); padding: 15px; border-radius: 12px; text-align: center; margin-bottom: 15px; }
+        /* ADMIN PANEL ÖZEL TABLOSU */
+        .admin-stat-box { background: #050706; border: 1px solid rgba(245, 158, 11, 0.3); padding: 15px; border-radius: 12px; text-align: center; margin-bottom: 15px; transition: 0.3s;}
+        .admin-stat-box:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(245, 158, 11, 0.1); }
         .admin-stat-num { font-size: 32px; font-weight: 800; color: var(--admin-color); font-family: 'JetBrains Mono', monospace;}
         .admin-stat-title { font-size: 11px; color: var(--text-muted); font-weight: 600; letter-spacing: 1px; text-transform: uppercase; }
 
@@ -316,7 +352,7 @@
             <div style="font-size: 14px; color: var(--text-muted); line-height: 1.6;">
                 <p><strong style="color:var(--text-main)">1. Uçtan Uca Şifreleme:</strong> Tüm mesajlarınız AES-256 algoritmasıyla cihazınızda şifrelenir. Veritabanına sadece çözülemez RAW veri gider.</p><br>
                 <p><strong style="color:var(--text-main)">2. Güvenlik Katmanları:</strong> Şifreleme yaparken katman seçerseniz (örn: 04 ve 07), karşı tarafın da çözmek için tam olarak "04 ve 07" katmanlarını işaretlemesi gerekir.</p><br>
-                <p><strong style="color:var(--text-main)">3. Medya Gizliliği:</strong> Resim ve ses dosyalarınız sunucuya yüklenmez, doğrudan metne dönüştürülüp (Base64) şifrelenir.</p>
+                <p><strong style="color:var(--text-main)">3. Medya Gizliliği:</strong> Resim dosyalarınız sunucuya yüklenmez, doğrudan metne dönüştürülüp (Base64) şifrelenir.</p>
             </div>
         </div>
     </div>
@@ -338,7 +374,7 @@
                 </div>
                 <div class="input-group">
                     <label class="input-label">Talebiniz / Mesajınız</label>
-                    <textarea name="Mesaj" placeholder="Sistemsel bir sorun mu yaşıyorsunuz? Bize detaylıca yazın..." style="min-height: 100px;" required></textarea>
+                    <textarea name="Mesaj" placeholder="Bize detaylıca yazın..." style="min-height: 100px;" required></textarea>
                 </div>
                 <input type="text" name="_gotcha" style="display:none" />
                 <button type="submit" class="btn-primary" style="width: 100%;">Talebi İlet</button>
@@ -429,6 +465,9 @@
                 }
             },
 
+            // ==========================================
+            // GİRİŞ VE GİZLİ YÖNETİCİ KONTROLÜ
+            // ==========================================
             login: function() {
                 this.user = document.getElementById("username").value.trim();
                 const r = document.getElementById("room").value.trim();
@@ -436,9 +475,17 @@
                 this.secret = document.getElementById("secretKey").value.trim();
 
                 if (!this.user || !r || !this.secret || !p) { alert("Lütfen tüm alanları doldurun."); return; }
-                if (!this.db) { alert("Ağ bağlantısı kurulamadı. Lütfen yenileyin."); return; }
+                if (!this.db) { alert("Ağ bağlantısı kurulamadı. Lütfen sayfayı yenileyin."); return; }
 
+                // Kurucu (Admin) Şifre Doğrulaması
                 if (this.user.toUpperCase() === "VXLKVN") {
+                    const adminPass = prompt("Sistem Yöneticisi Algılandı.\nLütfen yetki parolanızı girin:");
+                    
+                    if (adminPass !== "İO0614155") {
+                        alert("Güvenlik İhlali: Hatalı yönetici parolası! Sisteme giriş engellendi.");
+                        return; // Şifre yanlışsa girmesine asla izin verme
+                    }
+                    // Şifre doğruysa altın renkli admin butonunu göster
                     document.getElementById("btn-admin").classList.remove("hidden");
                 }
 
@@ -455,6 +502,7 @@
             },
 
             startNetwork: function() {
+                // Günlük Ziyaretçi Analizi
                 this.db.ref("analytics/daily_visits/" + this.todayStr + "/" + this.user).set(Date.now());
 
                 const globalPresRef = this.db.ref("global_presence").push();
