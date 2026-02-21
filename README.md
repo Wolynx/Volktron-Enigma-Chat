@@ -59,8 +59,17 @@ Sistem, basit bir şifrelemeden ziyade gelişmiş bir kilit mekanizmasıyla çal
 
 ---
 
-## 🌐 Kurulum ve Canlı Test
+## ⚙️ Kurulum ve Kendi Ortamınızda Çalıştırma (Local Setup)
 
+Bu proje açık kaynak (Open Source) olarak paylaşılmıştır ancak güvenlik nedeniyle veritabanı bağlantıları ve yönetici şifreleri kod içerisinden **kaldırılmıştır**. 
+
+Projeyi kendi bilgisayarınızda veya sunucunuzda çalıştırmak için `index.html` dosyasında aşağıdaki değişiklikleri yapmanız gerekmektedir:
+
+### 1. Firebase Veritabanı Bağlantısı
+Kodun içindeki `app.init()` fonksiyonunu bulun ve kendi Firebase Realtime Database URL'nizi ekleyin:
+```javascript
+// index.html - Satır 245 civarı
+const cfg = { databaseURL: "https://<SENIN-FIREBASE-PROJEN>[.firebaseio.com/](https://.firebaseio.com/)" };
 Sistem herhangi bir sunucu veya backend kurulumu gerektirmez. Doğrudan statik web sayfası olarak çalışır.
 
 ### Seçenek 1: Canlı Ağ Bağlantısı (Önerilen)
